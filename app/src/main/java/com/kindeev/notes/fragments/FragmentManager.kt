@@ -6,9 +6,10 @@ import com.kindeev.notes.R
 object FragmentManager {
     var currentFrag: BaseFragment? = null
     fun setFragment(newFrag: BaseFragment, activity: AppCompatActivity) {
-        val transaction = activity.supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.placeHolder, newFrag)
-        transaction.commit()
+        activity.supportFragmentManager.beginTransaction().apply {
+            replace(R.id.placeHolder, newFrag)
+            commit()
+        }
         currentFrag = newFrag
     }
 }

@@ -11,7 +11,7 @@ import com.kindeev.notes.db.NoteRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-open class NoteViewModel(application: Application): AndroidViewModel(application) {
+open class NoteViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: NoteRepository
     val allNotes: LiveData<List<Note>>
     val allCategories: LiveData<List<Category>>
@@ -47,15 +47,11 @@ open class NoteViewModel(application: Application): AndroidViewModel(application
         repository.deleteCategory(category)
     }
 
-    fun getNoteById(id: Int): Note {
-        return runBlocking {
-            repository.getNoteById(id)
-        }
+    fun getNoteById(id: Int) = runBlocking {
+        repository.getNoteById(id)
     }
 
-    fun getNotesByCategory(category: Int): List<Note> {
-        return runBlocking {
-            repository.getNotesByCategory(category)
-        }
+    fun getNotesByCategory(category: Int) = runBlocking {
+        repository.getNotesByCategory(category)
     }
 }

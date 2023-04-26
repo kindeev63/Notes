@@ -2,18 +2,15 @@ package com.kindeev.notes
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.SubMenu
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
-import androidx.core.view.get
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.databinding.ActivityMainBinding
-import com.kindeev.notes.db.Category
 import com.kindeev.notes.fragments.CategoriesFragment
 import com.kindeev.notes.fragments.FragmentManager
 import com.kindeev.notes.fragments.NotesFragment
-import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -24,33 +21,41 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Отключение автоматического включения темной темы
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
         noteViewModel = (application as MainApp).noteViewModel
         FragmentManager.setFragment(NotesFragment.newInstance(), this)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_open_drawer)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeAsUpIndicator(R.drawable.ic_open_drawer)
+        }
 
         noteViewModel.allCategories.observe(this) {
             val menu = binding.navView.menu
             menu.clear()
             menu.add(R.id.group_id, 0, Menu.NONE, resources.getString(R.string.all_notes))
-            for (item in it){
-                menu.add(R.id.group_id, item.id, Menu.NONE, item.name)
+            val categories: SubMenu = menu.addSubMenu(resources.getString(R.string.categories))
+            for (item in it) {
+                categories.add(R.id.group_id, item.id, Menu.NONE, item.name)
             }
         }
 
-        binding.fab.setOnClickListener {
+        binding.apply {
+            fab.setOnClickListener {
                 FragmentManager.currentFrag?.onClickNew()
+            }
+            navView.setNavigationItemSelectedListener {
+                if (it.itemId == 0) {
+                    setCategory(null)
+                } else {
+                    setCategory(it.title.toString())
+                }
+                return@setNavigationItemSelectedListener true
+            }
         }
 
-        binding.navView.setNavigationItemSelectedListener {item ->
-            if (item.itemId==0){
-                setCategory(null)
-            } else {
-                setCategory(item.title.toString())
-            }
-            return@setNavigationItemSelectedListener true
-        }
 
     }
 
@@ -60,25 +65,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.category_item -> {
-                if (FragmentManager.currentFrag is NotesFragment){
+                supportActionBar?.title = if (FragmentManager.currentFrag is NotesFragment) {
                     FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
-                    supportActionBar?.title = resources.getString(R.string.categories)
+                    resources.getString(R.string.categories)
                 } else {
                     FragmentManager.setFragment(NotesFragment.newInstance(), this)
-                    supportActionBar?.title = resources.getString(R.string.all_notes)
+                    resources.getString(R.string.all_notes)
                 }
             }
             android.R.id.home -> binding.drawer.openDrawer(GravityCompat.START)
         }
-
         return true
     }
-    fun getViewModel(): NoteViewModel{
-        return noteViewModel
-    }
-    private fun setCategory(categoryName: String?){
+
+    fun getViewModel() = noteViewModel
+
+    private fun setCategory(categoryName: String?) {
         supportActionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
         if (FragmentManager.currentFrag !is NotesFragment) {
             FragmentManager.setFragment(NotesFragment.newInstance(), this)
