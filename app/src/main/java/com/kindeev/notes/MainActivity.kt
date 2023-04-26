@@ -2,21 +2,22 @@ package com.kindeev.notes
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.core.view.GravityCompat
+import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.databinding.ActivityMainBinding
 import com.kindeev.notes.db.Category
 import com.kindeev.notes.fragments.CategoriesFragment
 import com.kindeev.notes.fragments.FragmentManager
 import com.kindeev.notes.fragments.NotesFragment
+import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var categoriesAdapter: CategoriesAdapterDrawer
     private lateinit var noteViewModel: NoteViewModel
-    private var categoriesList = emptyList<Category>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,27 +31,25 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_open_drawer)
 
         noteViewModel.allCategories.observe(this) {
-            categoriesList = it
-            categoriesAdapter.setData(categoriesList)
+            val menu = binding.navView.menu
+            menu.clear()
+            menu.add(R.id.group_id, 0, Menu.NONE, resources.getString(R.string.all_notes))
+            for (item in it){
+                menu.add(R.id.group_id, item.id, Menu.NONE, item.name)
+            }
         }
 
-        binding.apply {
-            val onClickCategory: (Category) -> Unit = {
-                setCategory(it)
-                drawer.closeDrawer(GravityCompat.START)
-            }
-            categoriesAdapter = CategoriesAdapterDrawer(onClickCategory)
-            rcSetCategory.adapter = categoriesAdapter
-            rcSetCategory.layoutManager = LinearLayoutManager(this@MainActivity)
-
-            fab.setOnClickListener {
+        binding.fab.setOnClickListener {
                 FragmentManager.currentFrag?.onClickNew()
-            }
+        }
 
-            tAllCategories.setOnClickListener {
+        binding.navView.setNavigationItemSelectedListener {item ->
+            if (item.itemId==0){
                 setCategory(null)
-                drawer.closeDrawer(GravityCompat.START)
+            } else {
+                setCategory(item.title.toString())
             }
+            return@setNavigationItemSelectedListener true
         }
 
     }
@@ -79,10 +78,16 @@ class MainActivity : AppCompatActivity() {
     fun getViewModel(): NoteViewModel{
         return noteViewModel
     }
-    private fun setCategory(category: Category?){
-        supportActionBar?.title = category?.name ?: resources.getString(R.string.all_notes)
-        if (FragmentManager.currentFrag !is NotesFragment) FragmentManager.setFragment(NotesFragment.newInstance(), this)
-        val notesFrag = supportFragmentManager.findFragmentById(R.id.placeHolder) as NotesFragment
-        notesFrag.setCategory(category)
+    private fun setCategory(categoryName: String?){
+        supportActionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
+        if (FragmentManager.currentFrag !is NotesFragment) {
+            FragmentManager.setFragment(NotesFragment.newInstance(), this)
+            val notesFrag = FragmentManager.currentFrag as NotesFragment
+            notesFrag.currentCategoryName = categoryName
+        } else {
+            val notesFrag = FragmentManager.currentFrag as NotesFragment
+            notesFrag.currentCategoryName = categoryName
+            notesFrag.setCategory()
+        }
     }
 }

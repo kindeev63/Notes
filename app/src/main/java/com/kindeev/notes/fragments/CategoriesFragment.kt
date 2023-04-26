@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.util.joinIntoString
 import com.kindeev.notes.CategoriesAdapter
 import com.kindeev.notes.MainActivity
 import com.kindeev.notes.NoteViewModel
@@ -35,7 +36,18 @@ class CategoriesFragment : BaseFragment() {
         noteViewModel = (activity as MainActivity).getViewModel()
         val onClickCategory: (Category, Boolean) -> Unit = {
                 category: Category, long: Boolean ->
-            if (long) noteViewModel.deleteCategory(category)
+            if (long) {
+                noteViewModel.deleteCategory(category)
+                val categoryName = category.name
+                for (note in noteViewModel.allNotes.value ?: emptyList()){
+                    val categoriesList = ArrayList(note.categories.split(", "))
+                    if (categoryName in categoriesList){
+                        categoriesList.remove(categoryName)
+                        note.categories = categoriesList.joinToString(separator = ", ")
+                        noteViewModel.updateNote(note)
+                    }
+                }
+            }
             else showEditDialog(resources.getString(R.string.edit_category), resources.getString(R.string.save), resources.getString(R.string.cancel), category.name) {
                 category.name = it
                 noteViewModel.updateCategory(category)
@@ -54,7 +66,7 @@ class CategoriesFragment : BaseFragment() {
 
         return binding.root
     }
-    fun showEditDialog(title: String, textOk: String, textCancel: String, categoryName: String = "", result: (String) -> Unit){
+    private fun showEditDialog(title: String, textOk: String, textCancel: String, categoryName: String = "", result: (String) -> Unit){
         val dialog = AlertDialog.Builder(requireContext())
         dialog.setTitle(title)
         val input = EditText(requireContext())

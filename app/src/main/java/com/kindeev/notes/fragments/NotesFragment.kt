@@ -20,21 +20,18 @@ class NotesFragment : BaseFragment() {
     private lateinit var noteViewModel: NoteViewModel
     private lateinit var notesAdapter: NotesAdapter
     private var notesList = emptyList<Note>()
-    private var currentCategory: Category? = null
+    var currentCategoryName: String? = null
 
-    override fun onClickNew() {
-        openNote()
-    }
+    override fun onClickNew() = openNote()
 
-    fun setCategory(category: Category?){
-        currentCategory = category
-        notesList = filterNotes(noteViewModel.allNotes.value, currentCategory)
+    fun setCategory(){
+        notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName)
         notesAdapter.setData(notesList)
     }
 
-    private fun filterNotes(notes: List<Note>?, category: Category?): List<Note>{
-        if (category==null || notes==null) return notes ?: emptyList()
-        return notes.filter { category.name in it.categories.split(", ") }
+    private fun filterNotes(notes: List<Note>?, categoryName: String?): List<Note>{
+        if (categoryName==null || notes==null) return notes ?: emptyList()
+        return notes.filter { categoryName in it.categories.split(", ") }
     }
 
     override fun onCreateView(
@@ -57,7 +54,7 @@ class NotesFragment : BaseFragment() {
         }
 
         noteViewModel.allNotes.observe(requireActivity()){
-            notesList = filterNotes(it, currentCategory)
+            notesList = filterNotes(it, currentCategoryName)
             notesAdapter.setData(notesList)
         }
 

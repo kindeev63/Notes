@@ -38,7 +38,7 @@ class NoteActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         val chosenCategories = arrayListOf<String>()
         chosenCategories.addAll(categoriesList)
-        builder.setTitle("Choose Items")
+        builder.setTitle(resources.getString(R.string.select_categories))
         builder.setMultiChoiceItems(categoriesNames, checkedCategories) { dialog, which, isChecked ->
             checkedCategories[which] = isChecked
             if (checkedCategories[which]) {
@@ -51,7 +51,7 @@ class NoteActivity : AppCompatActivity() {
         }
         builder.setPositiveButton(resources.getString(R.string.save)) { dialog, which ->
             categoriesList = chosenCategories
-            Log.e("test", "Вы выбрали $chosenCategories")
+            saveNote()
         }
         builder.setNegativeButton(resources.getString(R.string.cancel)){ d, _ -> d.cancel() }
 
@@ -78,23 +78,8 @@ class NoteActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.save_item -> {
-                val noteTitle = binding.eNoteTitle.text.toString()
-                val noteText = binding.eNoteText.text.toString()
-                val noteCategories = categoriesList.joinToString(separator = ", ")
-                Log.e("test", "Save $noteCategories")
-                if (currentNote!=null){
-                        currentNote?.title = noteTitle
-                        currentNote?.text = noteText
-                        currentNote?.categories = noteCategories
-                    noteViewModel.updateNote(note = currentNote!!)
-                    }else {
-                    currentNote = Note(id=0, title = noteTitle, text = noteText, categories = noteCategories)
-                    noteViewModel.insertNote(currentNote!!)
-                }
-                Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show()
-            }
+        when(item.itemId)
+        {
             R.id.set_category_item -> {
                 createDialog()
             }
@@ -102,6 +87,25 @@ class NoteActivity : AppCompatActivity() {
         }
         return true
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        saveNote()
+    }
+    private fun saveNote(){
+        val noteTitle = binding.eNoteTitle.text.toString()
+        val noteText = binding.eNoteText.text.toString()
+        val noteCategories = categoriesList.joinToString(separator = ", ")
+        if (currentNote!=null){
+            currentNote?.title = noteTitle
+            currentNote?.text = noteText
+            currentNote?.categories = noteCategories
+            noteViewModel.updateNote(note = currentNote!!)
+        }else {
+            currentNote = Note(id=0, title = noteTitle, text = noteText, categories = noteCategories)
+            noteViewModel.insertNote(currentNote!!)
+        }
     }
 
 }
