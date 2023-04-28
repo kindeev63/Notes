@@ -21,6 +21,7 @@ class CategoriesFragment : BaseFragment() {
     private lateinit var noteViewModel: NoteViewModel
     private lateinit var categoriesAdapter: CategoriesAdapter
     private var categoriesList = emptyList<Category>()
+    private var searchText: String = ""
     override fun onClickNew() = showEditDialog(
         resources.getString(R.string.add_category),
         resources.getString(R.string.add),
@@ -34,6 +35,12 @@ class CategoriesFragment : BaseFragment() {
                 resources.getString(R.string.category_exists),
                 Toast.LENGTH_SHORT
             ).show()
+    }
+
+    override fun search(text: String) {
+        searchText = text
+        categoriesList = filterCategories(noteViewModel.allCategories.value, searchText)
+        categoriesAdapter.setData(categoriesList)
     }
 
 
@@ -88,12 +95,15 @@ class CategoriesFragment : BaseFragment() {
             rcCategories.layoutManager = LinearLayoutManager(requireContext())
         }
         noteViewModel.allCategories.observe(requireActivity()) {
-            categoriesList = it
+            categoriesList = filterCategories(it, searchText)
             categoriesAdapter.setData(categoriesList)
         }
         return binding.root
     }
 
+    private fun filterCategories(categoriesList: List<Category>?, searchText: String): List<Category>{
+        return categoriesList?.filter { it.name.contains(searchText) } ?: emptyList()
+    }
     private fun showEditDialog(
         title: String,
         textOk: String,
