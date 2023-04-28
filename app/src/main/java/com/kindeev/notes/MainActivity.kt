@@ -5,16 +5,20 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
+import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import com.kindeev.notes.databinding.ActivityMainBinding
 import com.kindeev.notes.fragments.CategoriesFragment
 import com.kindeev.notes.fragments.FragmentManager
 import com.kindeev.notes.fragments.NotesFragment
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.forEach
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var noteViewModel: NoteViewModel
+    private var menu: Menu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,10 +65,45 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        this.menu = menu
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                FragmentManager.currentFrag?.search(newText?: "")
+                return true
+            }
+        })
+
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener{
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                searchView.visibility = View.VISIBLE
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                searchView.visibility = View.GONE
+                return true
+            }
+        })
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setQuery("", false)
+        searchView.isIconified = true
+        searchItem.collapseActionView()
+        menu?.forEach {
+            if (it.itemId!=R.id.action_search) it.isVisible = true
+        }
+        supportActionBar?.title = getString(R.string.app_name)
+
         when (item.itemId) {
             R.id.category_item -> {
                 supportActionBar?.title = if (FragmentManager.currentFrag is NotesFragment) {

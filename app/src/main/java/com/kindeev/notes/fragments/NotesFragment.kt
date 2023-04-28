@@ -17,17 +17,27 @@ class NotesFragment : BaseFragment() {
     private lateinit var notesAdapter: NotesAdapter
     private var notesList = emptyList<Note>()
     var currentCategoryName: String? = null
+    private var searchText: String = ""
 
     override fun onClickNew() = openNote()
-
-    fun setCategory() {
-        notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName)
+    override fun search(text: String) {
+        searchText = text
+        notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
         notesAdapter.setData(notesList)
     }
 
-    private fun filterNotes(notes: List<Note>?, categoryName: String?): List<Note> {
-        if (categoryName == null || notes == null) return notes ?: emptyList()
-        return notes.filter { categoryName in it.categories.split(", ") }
+    fun setCategory() {
+        notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
+        notesAdapter.setData(notesList)
+    }
+
+    private fun filterNotes(notes: List<Note>?, categoryName: String?, searchText: String): List<Note> {
+        val newNotes = if (categoryName == null || notes == null) {
+            notes ?: emptyList()
+        } else {
+            notes.filter { categoryName in it.categories.split(", ") }
+        }
+        return newNotes.filter { it.title.contains(searchText) }
     }
 
     override fun onCreateView(
@@ -54,7 +64,7 @@ class NotesFragment : BaseFragment() {
             rcNotes.layoutManager = LinearLayoutManager(requireContext())
         }
         noteViewModel.allNotes.observe(requireActivity()) {
-            notesList = filterNotes(it, currentCategoryName)
+            notesList = filterNotes(it, currentCategoryName, searchText)
             notesAdapter.setData(notesList)
         }
         return binding.root
