@@ -1,11 +1,14 @@
 package com.kindeev.notes
 
+import android.graphics.Color
+import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
 import android.view.View
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import com.kindeev.notes.databinding.ActivityMainBinding
@@ -24,6 +27,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val color = Color.argb(255, 255, 255, 255)
+        binding.fab.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN)
+
 
         supportActionBar?.title = resources.getString(R.string.all_notes)
 
@@ -49,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.apply {
+
             fab.setOnClickListener {
                 FragmentManager.currentFrag?.onClickNew()
             }
@@ -58,6 +65,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     setCategory(it.title.toString())
                 }
+                binding.drawer.closeDrawer(GravityCompat.START)
                 return@setNavigationItemSelectedListener true
             }
         }
@@ -70,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         this.menu = menu
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
+        searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text).setHintTextColor(resources.getColor(R.color.white))
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return true
@@ -104,7 +113,6 @@ class MainActivity : AppCompatActivity() {
         menu?.forEach {
             if (it.itemId!=R.id.action_search) it.isVisible = true
         }
-        supportActionBar?.title = getString(R.string.app_name)
 
         when (item.itemId) {
             R.id.category_item -> {
