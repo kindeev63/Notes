@@ -15,6 +15,7 @@ class CategoriesAdapter(private val onItemClick: (category: Category, long: Bool
         private val binding = RcViewItemBinding.bind(view)
         fun bind(category: Category) = with(binding) {
             tTitle.text = category.name
+            tTime.visibility = View.GONE
         }
     }
 

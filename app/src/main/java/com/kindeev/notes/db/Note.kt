@@ -14,5 +14,7 @@ data class Note(
     @ColumnInfo(name = "text")
     var text: String,
     @ColumnInfo(name = "categories")
-    var categories: String
+    var categories: String,
+    @ColumnInfo(name="time")
+    var time: String
 ): Serializable

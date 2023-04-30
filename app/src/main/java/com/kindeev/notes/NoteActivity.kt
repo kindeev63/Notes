@@ -7,6 +7,9 @@ import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.db.Note
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class NoteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNoteBinding
@@ -87,6 +90,9 @@ class NoteActivity : AppCompatActivity() {
     }
 
     private fun saveNote() {
+        val currentDate = Date()
+        val formatter = SimpleDateFormat("dd.MM.yyyy  HH:mm", Locale.getDefault())
+        val formattedDateTime = formatter.format(currentDate)
         val noteTitle = binding.eNoteTitle.text.toString()
         val noteText = binding.eNoteText.text.toString()
         val noteCategories = categoriesList.joinToString(separator = ", ")
@@ -94,6 +100,7 @@ class NoteActivity : AppCompatActivity() {
             currentNote?.title = noteTitle
             currentNote?.text = noteText
             currentNote?.categories = noteCategories
+            currentNote?.time = formattedDateTime
             noteViewModel.updateNote(note = currentNote!!)
         } else
             noteViewModel.insertNote(
@@ -101,7 +108,8 @@ class NoteActivity : AppCompatActivity() {
                     id = 0,
                     title = noteTitle,
                     text = noteText,
-                    categories = noteCategories
+                    categories = noteCategories,
+                    time = formattedDateTime
                 )
             )
     }

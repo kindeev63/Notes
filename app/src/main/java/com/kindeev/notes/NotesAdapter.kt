@@ -15,6 +15,7 @@ class NotesAdapter(private val onItemClick: (note: Note, long: Boolean) -> Unit)
         private val binding = RcViewItemBinding.bind(view)
         fun bind(note: Note) = with(binding) {
             tTitle.text = note.title
+            tTime.text = note.time
         }
     }
 
