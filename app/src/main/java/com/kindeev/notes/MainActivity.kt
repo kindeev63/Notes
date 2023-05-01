@@ -21,7 +21,7 @@ import androidx.core.view.forEach
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var noteViewModel: NoteViewModel
-    private var menu: Menu? = null
+    var menu: Menu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +76,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         this.menu = menu
+        menu?.findItem(R.id.delete_item)?.isVisible = false
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
         searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text).setHintTextColor(resources.getColor(R.color.white))
@@ -105,14 +106,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        if (item.itemId==R.id.delete_item){
+            menu?.forEach {
+                it.isVisible = it.itemId!=R.id.delete_item
+            }
+            val notesFrag = FragmentManager.currentFrag as NotesFragment
+            noteViewModel.deleteNotes(notesFrag.notesAdapter.selectedNotes.toList())
+            notesFrag.notesAdapter.selectedNotes.clear()
+            notesFrag.notesAdapter.notifyDataSetChanged()
+
+        } else {
+            menu?.forEach {
+                it.isVisible = it.itemId != R.id.delete_item
+            }
+        }
+
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
         searchView.setQuery("", false)
         searchView.isIconified = true
         searchItem.collapseActionView()
-        menu?.forEach {
-            if (it.itemId!=R.id.action_search) it.isVisible = true
-        }
+
 
         when (item.itemId) {
             R.id.category_item -> {

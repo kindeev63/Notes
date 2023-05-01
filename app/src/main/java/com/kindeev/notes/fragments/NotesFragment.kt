@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.forEach
+import androidx.core.view.iterator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.*
 import com.kindeev.notes.databinding.FragmentNotesBinding
@@ -14,7 +16,7 @@ import com.kindeev.notes.db.Note
 class NotesFragment : BaseFragment() {
     private lateinit var binding: FragmentNotesBinding
     private lateinit var noteViewModel: NoteViewModel
-    private lateinit var notesAdapter: NotesAdapter
+    lateinit var notesAdapter: NotesAdapter
     private var notesList = emptyList<Note>()
     var currentCategoryName: String? = null
     private var searchText: String = ""
@@ -47,16 +49,20 @@ class NotesFragment : BaseFragment() {
         binding = FragmentNotesBinding.inflate(inflater, container, false)
         noteViewModel = (activity as MainActivity).getViewModel()
         val onClickNote: (Note, Boolean) -> Unit =
-            { note: Note, long: Boolean ->
-                if (long) {
-                    AlertDialog.Builder(requireContext()).apply {
-                        setTitle(R.string.delete_note)
-                        setPositiveButton(R.string.delete) { _, _ -> noteViewModel.deleteNote(note) }
-                        setNegativeButton(R.string.cancel) { d, _ -> d.cancel() }
-                        show()
+            { note: Note, open: Boolean ->
+                val mainActivity = activity as MainActivity
+                if (notesAdapter.selectedNotes.size == 0){
+                    mainActivity.menu?.forEach {
+                        it.isVisible = it.itemId!=R.id.delete_item
                     }
+                    if (open) openNote(note)
+                    }
+                else {
+                    mainActivity.menu?.forEach {
+                        it.isVisible = it.itemId==R.id.delete_item
+                    }
+                }
 
-                } else openNote(note)
             }
         notesAdapter = NotesAdapter(onClickNote)
         binding.apply {

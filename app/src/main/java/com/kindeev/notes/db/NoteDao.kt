@@ -30,7 +30,7 @@ interface NoteDao {
     suspend fun updateCategory(category: Category)
 
     @Delete(Note::class)
-    suspend fun deleteNote(note: Note)
+    suspend fun deleteNotes(notes: List<Note>)
 
     @Delete(Category::class)
     suspend fun deleteCategory(category: Category)

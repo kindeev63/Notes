@@ -39,8 +39,8 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
         repository.updateCategory(category)
     }
 
-    fun deleteNote(note: Note) = viewModelScope.launch {
-        repository.deleteNote(note)
+    fun deleteNotes(notes: List<Note>) = viewModelScope.launch {
+        repository.deleteNotes(notes)
     }
 
     fun deleteCategory(category: Category) = viewModelScope.launch {

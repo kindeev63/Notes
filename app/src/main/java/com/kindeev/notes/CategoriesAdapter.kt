@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kindeev.notes.databinding.RcViewItemBinding
+import com.kindeev.notes.databinding.CategoryItemBinding
 import com.kindeev.notes.db.Category
 
 class CategoriesAdapter(private val onItemClick: (category: Category, long: Boolean) -> Unit) :
@@ -12,15 +12,14 @@ class CategoriesAdapter(private val onItemClick: (category: Category, long: Bool
     private var categoriesList = emptyList<Category>()
 
     class CategoriesHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val binding = RcViewItemBinding.bind(view)
+        private val binding = CategoryItemBinding.bind(view)
         fun bind(category: Category) = with(binding) {
-            tTitle.text = category.name
-            tTime.visibility = View.GONE
+            tName.text = category.name
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoriesHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.rc_view_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.category_item, parent, false)
         return CategoriesHolder(view)
     }
 
