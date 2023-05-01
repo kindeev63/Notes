@@ -12,4 +12,9 @@
         android:icon="@drawable/ic_category"
         android:title="@string/categories"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/delete_item"
+        android:icon="@drawable/ic_delete"
+        android:title="@string/delete"
+        app:showAsAction="ifRoom"/>
 </menu>
