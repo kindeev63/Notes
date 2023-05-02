@@ -52,18 +52,21 @@ class NotesFragment : BaseFragment() {
         val onClickNote: (Note, Boolean) -> Unit =
             { note: Note, open: Boolean ->
                 val mainActivity = activity as MainActivity
-                if (noteViewModel.selectedNotes.size == 0){
-                    mainActivity.menu?.forEach {
-                        it.isVisible = it.itemId!=R.id.delete_item
-                    }
-                    if (open) openNote(note)
-                    }
-                else {
-                    mainActivity.menu?.forEach {
-                        it.isVisible = it.itemId==R.id.delete_item
+                if (open) {
+                    openNote(note)
+                } else {
+                    if (noteViewModel.selectedNotes.size == 0) {
+                        mainActivity.menu?.forEach {
+                            it.isVisible = it.itemId != R.id.delete_item
+                        }
+
+                    } else {
+                        mainActivity.menu?.forEach {
+                            it.isVisible =
+                                it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                        }
                     }
                 }
-
             }
         notesAdapter = NotesAdapter(noteViewModel, onClickNote)
         binding.apply {

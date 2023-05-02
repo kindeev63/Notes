@@ -131,30 +131,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if (item.itemId == R.id.delete_item) {
-            menu?.forEach {
-                it.isVisible = it.itemId != R.id.delete_item
-            }
-            val notesFrag = FragmentManager.currentFrag as NotesFragment
-            noteViewModel.deleteNotes(noteViewModel.selectedNotes.toList())
-            noteViewModel.selectedNotes.clear()
-            notesFrag.notesAdapter.notifyDataSetChanged()
-
-        } else {
+        if (item.itemId!=R.id.action_search && item.itemId!=android.R.id.home){
+            val searchItem = menu?.findItem(R.id.action_search)
+            val searchView = searchItem?.actionView as SearchView
+            searchView.setQuery("", false)
+            searchView.isIconified = true
+            searchItem.collapseActionView()
             menu?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item
             }
         }
-
-        val searchItem = menu?.findItem(R.id.action_search)
-        val searchView = searchItem?.actionView as SearchView
-        searchView.setQuery("", false)
-        searchView.isIconified = true
-        searchItem.collapseActionView()
-
-
         when (item.itemId) {
             R.id.category_item -> {
+                noteViewModel.selectedNotes.clear()
                 supportActionBar?.title = if (FragmentManager.currentFrag is NotesFragment) {
                     FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
                     resources.getString(R.string.categories)
@@ -163,7 +152,16 @@ class MainActivity : AppCompatActivity() {
                     resources.getString(R.string.all_notes)
                 }
             }
-            android.R.id.home -> binding.drawer.openDrawer(GravityCompat.START)
+            android.R.id.home -> {
+                binding.drawer.openDrawer(GravityCompat.START)
+            }
+            R.id.delete_item -> {
+                val notesFrag = FragmentManager.currentFrag as NotesFragment
+                noteViewModel.deleteNotes(noteViewModel.selectedNotes.toList())
+                noteViewModel.selectedNotes.clear()
+                notesFrag.notesAdapter.notifyDataSetChanged()
+
+            }
         }
         return true
     }

@@ -48,7 +48,7 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
             if (note in noteViewModel.selectedNotes) noteViewModel.selectedNotes.remove(note)
                 else noteViewModel.selectedNotes.add(note)
             notifyDataSetChanged()
-            onItemClick(note, true)
+            onItemClick(note, false)
             return@setOnLongClickListener true
         }
     }
