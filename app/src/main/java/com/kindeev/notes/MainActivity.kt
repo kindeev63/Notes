@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             }
             is NotesFragment -> {
                 FragmentManager.setFragment(FragmentManager.currentFrag as NotesFragment, this)
+                (FragmentManager.currentFrag as NotesFragment).searchText = ""
                 supportActionBar?.title =
                     (FragmentManager.currentFrag as NotesFragment).currentCategoryName
                         ?: resources.getString(R.string.all_notes)
@@ -97,7 +98,7 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             menu?.forEach {
-                it.isVisible = it.itemId == R.id.delete_item
+                it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
             }
         }
         val searchItem = menu?.findItem(R.id.action_search)

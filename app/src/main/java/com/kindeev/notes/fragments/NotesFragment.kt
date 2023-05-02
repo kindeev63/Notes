@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.forEach
 import androidx.core.view.iterator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,7 +21,7 @@ class NotesFragment : BaseFragment() {
     lateinit var notesAdapter: NotesAdapter
     private var notesList = emptyList<Note>()
     var currentCategoryName: String? = null
-    private var searchText: String = ""
+    var searchText: String = ""
 
     override fun onClickNew() = openNote()
     override fun search(text: String) {
@@ -56,6 +57,11 @@ class NotesFragment : BaseFragment() {
                     openNote(note)
                 } else {
                     if (noteViewModel.selectedNotes.size == 0) {
+                        val searchItem = mainActivity.menu?.findItem(R.id.action_search)
+                        val searchView = searchItem?.actionView as SearchView
+                        searchView.setQuery("", false)
+                        searchView.isIconified = true
+                        searchItem.collapseActionView()
                         mainActivity.menu?.forEach {
                             it.isVisible = it.itemId != R.id.delete_item
                         }
