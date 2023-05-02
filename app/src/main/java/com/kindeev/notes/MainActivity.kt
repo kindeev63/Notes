@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
@@ -31,13 +32,26 @@ class MainActivity : AppCompatActivity() {
         binding.fab.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN)
 
 
-        supportActionBar?.title = resources.getString(R.string.all_notes)
-
         // Отключение автоматического включения темной темы
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         noteViewModel = (application as MainApp).noteViewModel
-        FragmentManager.setFragment(NotesFragment.newInstance(), this)
+        when (FragmentManager.currentFrag) {
+            null -> {
+                FragmentManager.setFragment(NotesFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.all_notes)
+            }
+            is NotesFragment -> {
+                FragmentManager.setFragment(FragmentManager.currentFrag as NotesFragment, this)
+                supportActionBar?.title =
+                    (FragmentManager.currentFrag as NotesFragment).currentCategoryName
+                        ?: resources.getString(R.string.all_notes)
+            }
+            is CategoriesFragment -> {
+                FragmentManager.setFragment(FragmentManager.currentFrag as CategoriesFragment, this)
+                supportActionBar?.title = resources.getString(R.string.categories)
+            }
+        }
 
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
@@ -73,25 +87,35 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         this.menu = menu
-        menu?.findItem(R.id.delete_item)?.isVisible = false
+        if (noteViewModel.selectedNotes.size == 0){
+            menu?.forEach {
+                it.isVisible = it.itemId != R.id.delete_item
+            }
+        } else {
+            menu?.forEach {
+                it.isVisible = it.itemId == R.id.delete_item
+            }
+        }
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
-        searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text).setHintTextColor(resources.getColor(R.color.white))
+        searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+            .setHintTextColor(resources.getColor(R.color.white))
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                FragmentManager.currentFrag?.search(newText?: "")
+                FragmentManager.currentFrag?.search(newText ?: "")
                 return true
             }
         })
 
-        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener{
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 searchView.visibility = View.VISIBLE
                 return true
@@ -107,13 +131,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if (item.itemId==R.id.delete_item){
+        if (item.itemId == R.id.delete_item) {
             menu?.forEach {
-                it.isVisible = it.itemId!=R.id.delete_item
+                it.isVisible = it.itemId != R.id.delete_item
             }
             val notesFrag = FragmentManager.currentFrag as NotesFragment
-            noteViewModel.deleteNotes(notesFrag.notesAdapter.selectedNotes.toList())
-            notesFrag.notesAdapter.selectedNotes.clear()
+            noteViewModel.deleteNotes(noteViewModel.selectedNotes.toList())
+            noteViewModel.selectedNotes.clear()
             notesFrag.notesAdapter.notifyDataSetChanged()
 
         } else {

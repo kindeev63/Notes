@@ -15,6 +15,7 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
     private val repository: NoteRepository
     val allNotes: LiveData<List<Note>>
     val allCategories: LiveData<List<Category>>
+    var selectedNotes = arrayListOf<Note>()
 
     init {
         val noteDao = NoteDataBase.getDataBase(application).getDao()

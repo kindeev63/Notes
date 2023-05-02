@@ -2,6 +2,7 @@ package com.kindeev.notes.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,12 +26,12 @@ class NotesFragment : BaseFragment() {
     override fun search(text: String) {
         searchText = text
         notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
-        notesAdapter.setData(notesList)
+        notesAdapter.setData(notes=notesList)
     }
 
     fun setCategory() {
         notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
-        notesAdapter.setData(notesList)
+        notesAdapter.setData(notes=notesList)
     }
 
     private fun filterNotes(notes: List<Note>?, categoryName: String?, searchText: String): List<Note> {
@@ -51,7 +52,7 @@ class NotesFragment : BaseFragment() {
         val onClickNote: (Note, Boolean) -> Unit =
             { note: Note, open: Boolean ->
                 val mainActivity = activity as MainActivity
-                if (notesAdapter.selectedNotes.size == 0){
+                if (noteViewModel.selectedNotes.size == 0){
                     mainActivity.menu?.forEach {
                         it.isVisible = it.itemId!=R.id.delete_item
                     }
@@ -64,14 +65,14 @@ class NotesFragment : BaseFragment() {
                 }
 
             }
-        notesAdapter = NotesAdapter(onClickNote)
+        notesAdapter = NotesAdapter(noteViewModel, onClickNote)
         binding.apply {
             rcNotes.adapter = notesAdapter
             rcNotes.layoutManager = LinearLayoutManager(requireContext())
         }
         noteViewModel.allNotes.observe(requireActivity()) {
             notesList = filterNotes(it, currentCategoryName, searchText)
-            notesAdapter.setData(notesList)
+            notesAdapter.setData(notes=notesList)
         }
         return binding.root
     }
