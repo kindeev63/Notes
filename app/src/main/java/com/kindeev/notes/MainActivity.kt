@@ -1,5 +1,6 @@
 package com.kindeev.notes
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +11,8 @@ import android.view.MenuItem
 import android.view.SubMenu
 import android.view.View
 import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import com.kindeev.notes.databinding.ActivityMainBinding
@@ -29,8 +32,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val color = Color.argb(255, 255, 255, 255)
-        binding.fab.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN)
-
+        binding.fab.drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
 
         // Отключение автоматического включения темной темы
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)

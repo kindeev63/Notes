@@ -1,9 +1,16 @@
 package com.kindeev.notes
 
+import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
 import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.db.Note
@@ -16,14 +23,18 @@ class NoteActivity : AppCompatActivity() {
     private var categoriesList: ArrayList<String> = arrayListOf()
     lateinit var noteViewModel: NoteViewModel
     private var currentNote: Note? = null
+    private var color: Int = -1
+    private lateinit var oldNote: Note
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        NotesState.edited = true
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         noteViewModel = (application as MainApp).noteViewModel
         setData()
+        setSpinnerAdapter()
     }
 
     private fun createDialog() {
@@ -58,14 +69,16 @@ class NoteActivity : AppCompatActivity() {
 
     private fun setData() {
         if (!intent.hasExtra("note")) return
-        val note = intent.getSerializableExtra("note") as Note
-        currentNote = note
+        oldNote = intent.getSerializableExtra("note") as Note
+        currentNote = oldNote.copy()
+        color = oldNote.color
+        Log.e("test", "noteColor ${oldNote.color}, color $color")
         binding.apply {
-            eNoteTitle.setText(note.title)
-            eNoteText.setText(note.text)
+            eNoteTitle.setText(oldNote.title)
+            eNoteText.setText(oldNote.text)
         }
-        if (note.categories.isEmpty()) return
-        categoriesList = ArrayList(note.categories.split(", "))
+        if (oldNote.categories.isEmpty()) return
+        categoriesList = ArrayList(oldNote.categories.split(", "))
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -101,16 +114,67 @@ class NoteActivity : AppCompatActivity() {
             currentNote?.text = noteText
             currentNote?.categories = noteCategories
             currentNote?.time = formattedDateTime
+            currentNote?.color = color
             noteViewModel.updateNote(note = currentNote!!)
-        } else
-            noteViewModel.insertNote(
-                Note(
-                    id = 0,
-                    title = noteTitle,
-                    text = noteText,
-                    categories = noteCategories,
-                    time = formattedDateTime
-                )
+        } else {
+            val newNote = Note(
+                id = 0,
+                title = noteTitle,
+                text = noteText,
+                categories = noteCategories,
+                time = formattedDateTime,
+                color=color
             )
+            noteViewModel.insertNote(newNote)
+        }
+        NotesState.edited = false
+    }
+
+    private fun setSpinnerAdapter(){
+
+        val colors = listOf(
+            Color.parseColor("#FFFFFF"),
+            Color.parseColor("#000000"),
+            Color.parseColor("#B22222"),
+            Color.parseColor("#FF69B4"),
+            Color.parseColor("#FF4500"),
+            Color.parseColor("#FFD700"),
+            Color.parseColor("#8B008B"),
+            Color.parseColor("#8B4513"),
+            Color.parseColor("#00FF00"),
+            Color.parseColor("#40E0D0"),
+            Color.parseColor("#696969"),
+        )
+
+
+        val colorAdapter = object : ArrayAdapter<Int>(this, R.layout.spinner_item, colors) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view: View = layoutInflater.inflate(R.layout.spinner_item, null, true)
+                val colorItem = view.findViewById<View>(R.id.colorItem)
+                val color = getItem(position)
+                colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
+                return view
+            }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
+                val colorItem = view.findViewById<View>(R.id.colorItem)
+                val color = getItem(position)
+                colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
+                return view
+            }
+        }
+        binding.colorPicker.adapter = colorAdapter
+        binding.colorPicker.setSelection(colors.indexOf(color))
+        binding.colorPicker.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val newColor = parent.getItemAtPosition(position) as Int
+                color = newColor
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Ничего не делаем
+            }
+        }
     }
 }
