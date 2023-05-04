@@ -10,12 +10,12 @@ import com.kindeev.notes.db.Note
 class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemClick: (note: Note, open: Boolean) -> Unit) :
     RecyclerView.Adapter<NotesAdapter.NotesHolder>() {
     private var notesList = emptyList<Note>()
-
     class NotesHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = NoteItemBinding.bind(view)
         fun bind(note: Note, choosingNotes: Boolean, noteSelected: Boolean) = with(binding) {
             tTitle.text = note.title
             tTime.text = note.time
+            noteContent.setBackgroundColor(note.color)
             chDelete.visibility =
             if (choosingNotes){
                 View.VISIBLE
@@ -34,21 +34,27 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
     override fun onBindViewHolder(holder: NotesHolder, position: Int) {
         holder.bind(notesList[position], noteViewModel.selectedNotes.size > 0, notesList[position] in noteViewModel.selectedNotes)
         holder.itemView.setOnClickListener {
-            val open = noteViewModel.selectedNotes.size == 0
-            if (noteViewModel.selectedNotes.size > 0){
+            if (!NotesState.edited) {
+                val open = noteViewModel.selectedNotes.size == 0
+                if (noteViewModel.selectedNotes.size > 0){
+                    val note = notesList[position]
+                    if (note in noteViewModel.selectedNotes) noteViewModel.selectedNotes.remove(note)
+                    else noteViewModel.selectedNotes.add(note)
+                    notifyDataSetChanged()
+                }
+                onItemClick(notesList[position], open)
+            }
+
+        }
+        holder.itemView.setOnLongClickListener {
+            if (!NotesState.edited){
                 val note = notesList[position]
                 if (note in noteViewModel.selectedNotes) noteViewModel.selectedNotes.remove(note)
                 else noteViewModel.selectedNotes.add(note)
                 notifyDataSetChanged()
+                onItemClick(note, false)
+
             }
-            onItemClick(notesList[position], open)
-        }
-        holder.itemView.setOnLongClickListener {
-            val note = notesList[position]
-            if (note in noteViewModel.selectedNotes) noteViewModel.selectedNotes.remove(note)
-                else noteViewModel.selectedNotes.add(note)
-            notifyDataSetChanged()
-            onItemClick(note, false)
             return@setOnLongClickListener true
         }
     }

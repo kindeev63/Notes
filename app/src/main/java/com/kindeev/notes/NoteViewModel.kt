@@ -48,11 +48,4 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
         repository.deleteCategory(category)
     }
 
-    fun getNoteById(id: Int) = runBlocking {
-        repository.getNoteById(id)
-    }
-
-    fun getNotesByCategory(category: Int) = runBlocking {
-        repository.getNotesByCategory(category)
-    }
 }

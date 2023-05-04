@@ -30,11 +30,4 @@ class NoteRepository(private val noteDao: NoteDao) {
         noteDao.deleteCategory(category)
     }
 
-    fun getNoteById(id: Int): Note {
-        return noteDao.getNoteById(id)
-    }
-
-    fun getNotesByCategory(category: Int): List<Note> {
-        return noteDao.getNotesByCategory(category)
-    }
 }
