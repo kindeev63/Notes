@@ -5,12 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.forEach
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.*
+import com.kindeev.notes.activities.MainActivity
+import com.kindeev.notes.activities.NoteActivity
+import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.db.Note
 

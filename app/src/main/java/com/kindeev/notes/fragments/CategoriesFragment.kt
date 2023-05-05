@@ -9,8 +9,8 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.kindeev.notes.CategoriesAdapter
-import com.kindeev.notes.MainActivity
+import com.kindeev.notes.adapters.CategoriesAdapter
+import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.NoteViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.FragmentCategoriesBinding

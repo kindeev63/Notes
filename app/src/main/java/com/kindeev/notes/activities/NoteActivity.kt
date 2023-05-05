@@ -1,6 +1,5 @@
-package com.kindeev.notes
+package com.kindeev.notes.activities
 
-import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,6 +12,10 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
+import com.kindeev.notes.MainApp
+import com.kindeev.notes.NoteViewModel
+import com.kindeev.notes.NotesState
+import com.kindeev.notes.R
 import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.db.Note
 import java.text.SimpleDateFormat

@@ -1,18 +1,14 @@
-package com.kindeev.notes
+package com.kindeev.notes.activities
 
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
 import android.view.View
 import android.widget.EditText
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import com.kindeev.notes.databinding.ActivityMainBinding
@@ -21,6 +17,9 @@ import com.kindeev.notes.fragments.FragmentManager
 import com.kindeev.notes.fragments.NotesFragment
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.forEach
+import com.kindeev.notes.MainApp
+import com.kindeev.notes.NoteViewModel
+import com.kindeev.notes.R
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -134,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if (item.itemId!=R.id.action_search && item.itemId!=android.R.id.home){
+        if (item.itemId!= R.id.action_search && item.itemId!=android.R.id.home){
             val searchItem = menu?.findItem(R.id.action_search)
             val searchView = searchItem?.actionView as SearchView
             searchView.setQuery("", false)
