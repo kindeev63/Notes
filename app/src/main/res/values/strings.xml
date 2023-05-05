@@ -16,4 +16,6 @@
     <string name="delete">Delete</string>
     <string name="search">Search</string>
     <string name="note">Note</string>
+    <string name="empty">Empty</string>
+    <string name="category_name_is_empty">Category name is empty</string>
 </resources>

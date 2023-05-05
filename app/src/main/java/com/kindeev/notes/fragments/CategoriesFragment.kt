@@ -28,7 +28,15 @@ class CategoriesFragment : BaseFragment() {
         resources.getString(R.string.cancel)
     ) { name ->
         if (name !in categoriesList.map { it.name })
-            noteViewModel.insertCategory(Category(id = 0, name = name))
+            if (name.isEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.category_name_is_empty,
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                noteViewModel.insertCategory(Category(id = 0, name = name))
+            }
         else
             Toast.makeText(
                 requireContext(),
@@ -76,17 +84,31 @@ class CategoriesFragment : BaseFragment() {
                 category.name
             ) { newName ->
                 val oldName = category.name
-                category.name = newName
-                noteViewModel.updateCategory(category)
-                for (note in noteViewModel.allNotes.value ?: emptyList()) {
-                    val categoriesList = ArrayList(note.categories.split(", "))
-                    if (oldName in categoriesList) {
-                        categoriesList.remove(oldName)
-                        categoriesList.add(newName)
-                        note.categories = categoriesList.joinToString(separator = ", ")
-                        noteViewModel.updateNote(note)
+                if (newName !in categoriesList.map { it.name }) {
+                    if (newName.isEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            R.string.category_name_is_empty,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        category.name = newName
+                        noteViewModel.updateCategory(category)
+                        for (note in noteViewModel.allNotes.value ?: emptyList()) {
+                            val categoriesList = ArrayList(note.categories.split(", "))
+                            if (oldName in categoriesList) {
+                                categoriesList.remove(oldName)
+                                categoriesList.add(newName)
+                                note.categories = categoriesList.joinToString(separator = ", ")
+                                noteViewModel.updateNote(note)
+                            }
+                        }
                     }
-                }
+                } else if (newName != oldName) Toast.makeText(
+                    requireContext(),
+                    R.string.category_exists,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         categoriesAdapter = CategoriesAdapter(onClickCategory)
@@ -97,13 +119,19 @@ class CategoriesFragment : BaseFragment() {
         noteViewModel.allCategories.observe(requireActivity()) {
             categoriesList = filterCategories(it, searchText)
             categoriesAdapter.setData(categoriesList)
+            binding.noCategories.visibility =
+                if (categoriesList.isEmpty()) View.VISIBLE else View.GONE
         }
         return binding.root
     }
 
-    private fun filterCategories(categoriesList: List<Category>?, searchText: String): List<Category>{
+    private fun filterCategories(
+        categoriesList: List<Category>?,
+        searchText: String
+    ): List<Category> {
         return categoriesList?.filter { it.name.contains(searchText) } ?: emptyList()
     }
+
     private fun showEditDialog(
         title: String,
         textOk: String,

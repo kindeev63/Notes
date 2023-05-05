@@ -5,6 +5,15 @@
     android:layout_height="match_parent"
     tools:context=".fragments.NotesFragment">
 
+    <TextView
+        android:id="@+id/noNotes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/empty"
+        android:textSize="34sp"
+        android:visibility="gone" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcNotes"
         android:layout_width="match_parent"
