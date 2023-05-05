@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.db.Note
@@ -134,7 +135,6 @@ class NoteActivity : AppCompatActivity() {
 
         val colors = listOf(
             Color.parseColor("#FFFFFF"),
-            Color.parseColor("#000000"),
             Color.parseColor("#B22222"),
             Color.parseColor("#FF69B4"),
             Color.parseColor("#FF4500"),
@@ -149,16 +149,18 @@ class NoteActivity : AppCompatActivity() {
 
         val colorAdapter = object : ArrayAdapter<Int>(this, R.layout.spinner_item, colors) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view: View = layoutInflater.inflate(R.layout.spinner_item, null, true)
-                val colorItem = view.findViewById<View>(R.id.colorItem)
+                val view: View =
+                    convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
+                val colorItem = view.findViewById<LinearLayout>(R.id.colorItem)
                 val color = getItem(position)
                 colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
                 return view
             }
 
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
-                val colorItem = view.findViewById<View>(R.id.colorItem)
+                val view: View =
+                    convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
+                val colorItem = view.findViewById<LinearLayout>(R.id.colorItem)
                 val color = getItem(position)
                 colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
                 return view
