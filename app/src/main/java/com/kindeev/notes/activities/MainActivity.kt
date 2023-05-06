@@ -20,6 +20,7 @@ import androidx.core.view.forEach
 import com.kindeev.notes.MainApp
 import com.kindeev.notes.NoteViewModel
 import com.kindeev.notes.R
+import com.kindeev.notes.fragments.RemindersFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -93,15 +94,29 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         this.menu = menu
-        if (noteViewModel.selectedNotes.size == 0){
-            menu?.forEach {
-                it.isVisible = it.itemId != R.id.delete_item
+
+
+
+        when (FragmentManager.currentFrag){
+            is NotesFragment -> {
+                if (noteViewModel.selectedNotes.size == 0){
+                    menu?.forEach {
+                        it.isVisible = it.itemId != R.id.delete_item
+                    }
+                } else {
+                    menu?.forEach {
+                        it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                    }
+                }
             }
-        } else {
-            menu?.forEach {
-                it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
-            }
+            is CategoriesFragment -> {}
+            is RemindersFragment -> {}
         }
+        menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
+        menu?.findItem(R.id.category_item)?.isVisible = FragmentManager.currentFrag !is CategoriesFragment
+        menu?.findItem(R.id.reminder_item)?.isVisible = FragmentManager.currentFrag !is RemindersFragment
+
+
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
         searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
@@ -133,27 +148,35 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if (item.itemId!= R.id.action_search && item.itemId!=android.R.id.home){
-            val searchItem = menu?.findItem(R.id.action_search)
-            val searchView = searchItem?.actionView as SearchView
-            searchView.setQuery("", false)
-            searchView.isIconified = true
-            searchItem.collapseActionView()
+        if (item.itemId==R.id.delete_item){
             menu?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item
             }
         }
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setQuery("", false)
+        searchView.isIconified = true
+        searchItem.collapseActionView()
         when (item.itemId) {
             R.id.category_item -> {
                 noteViewModel.selectedNotes.clear()
-                supportActionBar?.title = if (FragmentManager.currentFrag is NotesFragment) {
-                    FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
-                    resources.getString(R.string.categories)
-                } else {
-                    FragmentManager.setFragment(NotesFragment.newInstance(), this)
-                    resources.getString(R.string.all_notes)
-                }
+                FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.categories)
             }
+
+            R.id.reminder_item -> {
+                noteViewModel.selectedNotes.clear()
+                FragmentManager.setFragment(RemindersFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.reminders)
+            }
+
+            R.id.note_item -> {
+                FragmentManager.setFragment(NotesFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.all_notes)
+            }
+
+
             android.R.id.home -> {
                 binding.drawer.openDrawer(GravityCompat.START)
             }
@@ -165,6 +188,9 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
+        menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
+        menu?.findItem(R.id.category_item)?.isVisible = FragmentManager.currentFrag !is CategoriesFragment
+        menu?.findItem(R.id.reminder_item)?.isVisible = FragmentManager.currentFrag !is RemindersFragment
         return true
     }
 
@@ -176,6 +202,9 @@ class MainActivity : AppCompatActivity() {
             FragmentManager.setFragment(NotesFragment.newInstance(), this)
             val notesFrag = FragmentManager.currentFrag as NotesFragment
             notesFrag.currentCategoryName = categoryName
+            menu?.findItem(R.id.note_item)?.isVisible = false
+            menu?.findItem(R.id.category_item)?.isVisible = true
+            menu?.findItem(R.id.reminder_item)?.isVisible = true
         } else {
             val notesFrag = FragmentManager.currentFrag as NotesFragment
             notesFrag.currentCategoryName = categoryName

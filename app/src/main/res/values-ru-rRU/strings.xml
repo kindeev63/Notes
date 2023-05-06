@@ -19,4 +19,5 @@
     <string name="search">Поиск</string>
     <string name="empty">Пусто</string>
     <string name="category_name_is_empty">Название категории пустое</string>
+    <string name="reminders">Напоминания</string>
 </resources>
