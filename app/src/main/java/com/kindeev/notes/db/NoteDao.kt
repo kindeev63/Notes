@@ -20,7 +20,7 @@ interface NoteDao {
     @Insert(Category::class)
     suspend fun insertCategory(category: Category)
 
-    @Insert(Reminder::class)
+    @Insert(Reminder::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReminder(reminder: Reminder)
 
     @Update(Note::class)

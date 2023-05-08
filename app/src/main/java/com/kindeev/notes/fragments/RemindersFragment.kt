@@ -113,10 +113,15 @@ class RemindersFragment : BaseFragment() {
                 showListDialog(noteViewModel.allNotes.value ?: emptyList()) { note ->
                     val idsList = remindersList.map { it.id }
                     var reminderId = 0
-                    while (true) {
-                        if (reminderId !in idsList) break
-                        reminderId++
+                    if (reminder==null){
+                        while (true) {
+                            if (reminderId !in idsList) break
+                            reminderId++
+                        }
+                    } else {
+                        reminderId = reminder.id
                     }
+
                     val reminder = Reminder(
                         reminderId,
                         reminderTitle,
