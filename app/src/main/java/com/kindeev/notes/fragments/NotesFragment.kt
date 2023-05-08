@@ -96,7 +96,7 @@ class NotesFragment : BaseFragment() {
 
     private fun openNote(note: Note? = null) {
         val intent = Intent(requireContext(), NoteActivity::class.java).apply {
-            if (note != null) putExtra("note", note)
+            if (note != null) putExtra("noteId", note.id)
         }
         startActivity(intent)
     }

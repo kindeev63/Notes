@@ -19,4 +19,7 @@
     <string name="empty">Empty</string>
     <string name="category_name_is_empty">Category name is empty</string>
     <string name="reminders">Reminders</string>
+    <string name="notifi_channel_description">Reminders for notes</string>
+    <string name="enter_title">Enter title</string>
+    <string name="pick_note">Pick note</string>
 </resources>
