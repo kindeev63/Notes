@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import com.kindeev.notes.MainApp
 import com.kindeev.notes.NoteViewModel
 import com.kindeev.notes.R
@@ -28,8 +29,8 @@ class NoteActivity : AppCompatActivity() {
     private var categoriesList: ArrayList<String> = arrayListOf()
     lateinit var noteViewModel: NoteViewModel
     private var currentNote: Note? = null
+    private var save = true
     private var color: Int = -1
-    private lateinit var oldNote: Note
     private val colors = listOf(
         Color.parseColor("#FFFFFF"),
         Color.parseColor("#B22222"),
@@ -47,6 +48,10 @@ class NoteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Отключение автоматического включения темной темы
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
         States.noteEdited = true
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         noteViewModel = (application as MainApp).noteViewModel
@@ -87,14 +92,15 @@ class NoteActivity : AppCompatActivity() {
     private fun setData() {
         if (!intent.hasExtra("noteId")) return
         noteViewModel.getNoteById(intent.getIntExtra("noteId", 0)) { oldNote ->
-            currentNote = oldNote.copy()
-            color = oldNote.color
+            if (oldNote==null) notSaveFinish()
+            currentNote = oldNote?.copy()
+            color = oldNote?.color ?: Color.WHITE
             binding.apply {
-                eNoteTitle.setText(oldNote.title)
-                eNoteText.setText(oldNote.text)
+                eNoteTitle.setText(oldNote?.title)
+                eNoteText.setText(oldNote?.text)
             }
             binding.colorPicker.setSelection(colors.indexOf(color))
-            if (oldNote.categories.isNotEmpty()) {
+            if (oldNote?.categories?.isNotEmpty() == true) {
                 categoriesList = ArrayList(oldNote.categories.split(", "))
             }
         }
@@ -116,9 +122,15 @@ class NoteActivity : AppCompatActivity() {
 
     }
 
+    private fun notSaveFinish(){
+        save = false
+        Toast.makeText(this, R.string.note_not_exist, Toast.LENGTH_SHORT).show()
+        finish()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        saveNote()
+        if (save) saveNote()
     }
 
     private fun saveNote() {

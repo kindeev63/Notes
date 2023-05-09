@@ -63,7 +63,7 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
 
-    fun getNoteById(id: Int, function: (Note) -> Unit) {
+    fun getNoteById(id: Int, function: (Note?) -> Unit) {
         viewModelScope.launch {
             val note = withContext(Dispatchers.IO) {
                 repository.getNoteById(id)

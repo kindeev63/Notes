@@ -205,7 +205,7 @@ class RemindersFragment : BaseFragment() {
         val pendingIntent =
             PendingIntent.getBroadcast(requireContext(), reminderId, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-        alarmManager.setAndAllowWhileIdle(
+        alarmManager.setExact(
             AlarmManager.RTC_WAKEUP,
             reminder.time,
             pendingIntent

@@ -41,6 +41,6 @@ interface NoteDao {
     suspend fun deleteReminders(reminders: List<Reminder>)
 
     @Query("SELECT * FROM table_notes WHERE id = :id")
-    fun getNoteById(id: Int): Note
+    fun getNoteById(id: Int): Note?
 
 }

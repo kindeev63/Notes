@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         // Отключение автоматического включения темной темы
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
         createNotificationChannel()
         noteViewModel = (application as MainApp).noteViewModel
 
@@ -90,7 +91,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        Log.e("test", "onResume")
         when (FragmentManager.currentFrag) {
             null -> {
                 FragmentManager.setFragment(NotesFragment.newInstance(), this)
@@ -219,7 +219,7 @@ class MainActivity : AppCompatActivity() {
                 when (FragmentManager.currentFrag){
                     is NotesFragment -> {
                         val notesFrag = FragmentManager.currentFrag as NotesFragment
-                        val allReminders = ArrayList(noteViewModel.allReminders.value)
+                        val allReminders = ArrayList(noteViewModel.allReminders.value?: emptyList())
                         for (note in noteViewModel.selectedNotes){
                             for (reminder in allReminders){
                                 if (reminder.noteId == note.id){

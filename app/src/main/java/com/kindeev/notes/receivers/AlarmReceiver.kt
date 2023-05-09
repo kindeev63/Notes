@@ -37,7 +37,7 @@ class AlarmReceiver: BroadcastReceiver() {
         val notificationIntent = Intent(context, NoteActivity::class.java).apply {
             putExtra("noteId", noteId)
         }
-        notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         val pendingIntent = PendingIntent.getActivity(context, reminderId, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val builder = NotificationCompat.Builder(context, Notifications.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
