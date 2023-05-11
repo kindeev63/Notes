@@ -129,7 +129,7 @@ class RemindersFragment : BaseFragment() {
                         note.id,
                     )
                     noteViewModel.insertReminder(reminder)
-                    setAlarm(reminderTitle, reminder, note, reminderId)
+                    setAlarm(reminder)
                 }
             }
 
@@ -194,23 +194,21 @@ class RemindersFragment : BaseFragment() {
         dialog.show()
     }
 
-    private fun setAlarm(title: String, reminder: Reminder, note: Note, reminderId: Int){
+    private fun setAlarm(reminder: Reminder){
         val alarmManager =
             requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val i = Intent(requireContext(), AlarmReceiver::class.java).apply {
             putExtra("reminder", reminder)
-            putExtra("title", title)
         }
 
         val pendingIntent =
-            PendingIntent.getBroadcast(requireContext(), reminderId, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getBroadcast(requireContext(), reminder.id, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-        alarmManager.setExact(
+        alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             reminder.time,
             pendingIntent
         )
-        Log.e("test", reminderId.toString())
     }
 
     companion object {

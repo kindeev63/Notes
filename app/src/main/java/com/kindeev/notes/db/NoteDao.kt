@@ -14,6 +14,9 @@ interface NoteDao {
     @Query("SELECT * FROM table_reminders")
     fun getAllReminders(): LiveData<List<Reminder>>
 
+    @Query("SELECT * FROM table_reminders")
+    fun getAllRemindersNotLiveData(): List<Reminder>
+
     @Insert(Note::class)
     suspend fun insertNote(note: Note)
 

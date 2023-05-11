@@ -47,4 +47,6 @@ class NoteRepository(private val noteDao: NoteDao) {
         return noteDao.getNoteById(id)
     }
 
+    fun getAllReminders() = noteDao.getAllRemindersNotLiveData()
+
 }

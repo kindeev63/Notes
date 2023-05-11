@@ -1,6 +1,7 @@
 package com.kindeev.notes
 
 import android.app.Application
+import android.provider.CalendarContract.Reminders
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
@@ -72,4 +73,9 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    suspend fun getAllReminders(): List<Reminder>? {
+        return withContext(Dispatchers.IO) {
+            repository.getAllReminders()
+        }
+    }
 }

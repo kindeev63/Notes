@@ -25,7 +25,7 @@ class AlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val noteViewModel = (context.applicationContext as MainApp).noteViewModel
         val reminder = intent.getSerializableExtra("reminder") as Reminder
-        createNotification(context, intent.getStringExtra("title")?: "Empty", reminder.id, reminder.noteId)
+        createNotification(context, reminder.title, reminder.id, reminder.noteId)
         noteViewModel.deleteReminders(listOf(reminder))
 
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
