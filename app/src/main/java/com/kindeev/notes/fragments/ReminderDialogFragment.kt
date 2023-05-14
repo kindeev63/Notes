@@ -5,7 +5,6 @@ import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +28,7 @@ import com.kindeev.notes.receivers.AlarmReceiver
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ReminderDialogFragment(val reminder: Reminder? = null, val reminderId: Int, val noteViewModel: NoteViewModel) : DialogFragment() {
+class ReminderDialogFragment(val reminder: Reminder? = null, private val reminderId: Int, private val noteViewModel: NoteViewModel) : DialogFragment() {
     private lateinit var date: Calendar
     private lateinit var binding: FragmentReminderDialogBinding
     private var note: Note? = null
