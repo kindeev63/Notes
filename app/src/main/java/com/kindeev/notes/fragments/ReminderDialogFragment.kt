@@ -51,10 +51,12 @@ class ReminderDialogFragment(val reminder: Reminder? = null, private val reminde
         datePicker.addOnPositiveButtonClickListener {
             val formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             binding.tDateDialog.text = formatter.format(it)
-            val newDate = Date(it)
-            date[Calendar.YEAR] = newDate.year
-            date[Calendar.MONTH] = newDate.month
-            date[Calendar.DAY_OF_MONTH] = newDate.day
+            val newDate = Calendar.getInstance().apply {
+                timeInMillis = it
+            }
+            date[Calendar.YEAR] = newDate[Calendar.YEAR]
+            date[Calendar.MONTH] = newDate[Calendar.MONTH]
+            date[Calendar.DAY_OF_MONTH] = newDate[Calendar.DAY_OF_MONTH]
         }
         binding.apply {
             val formatterTime = SimpleDateFormat("HH:mm", Locale.getDefault())
