@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.kindeev.notes.NoteViewModel
-import com.kindeev.notes.NotesState
 import com.kindeev.notes.R
+import com.kindeev.notes.States
 import com.kindeev.notes.databinding.NoteItemBinding
 import com.kindeev.notes.db.Note
 
@@ -19,11 +19,11 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
             tTitle.text = note.title
             tTime.text = note.time
             noteContent.setBackgroundColor(note.color)
-            chDelete.visibility =
+            chDeleteNote.visibility =
             if (choosingNotes){
                 View.VISIBLE
             } else View.GONE
-            chDelete.isChecked = noteSelected
+            chDeleteNote.isChecked = noteSelected
 
         }
     }
@@ -37,7 +37,7 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
     override fun onBindViewHolder(holder: NotesHolder, position: Int) {
         holder.bind(notesList[position], noteViewModel.selectedNotes.size > 0, notesList[position] in noteViewModel.selectedNotes)
         holder.itemView.setOnClickListener {
-            if (!NotesState.edited) {
+            if (!States.noteEdited) {
                 val open = noteViewModel.selectedNotes.size == 0
                 if (noteViewModel.selectedNotes.size > 0){
                     val note = notesList[position]
@@ -50,7 +50,7 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
 
         }
         holder.itemView.setOnLongClickListener {
-            if (!NotesState.edited){
+            if (!States.noteEdited){
                 val note = notesList[position]
                 if (note in noteViewModel.selectedNotes) noteViewModel.selectedNotes.remove(note)
                 else noteViewModel.selectedNotes.add(note)

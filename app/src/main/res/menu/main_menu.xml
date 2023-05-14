@@ -6,12 +6,20 @@
         android:icon="@drawable/ic_search"
         android:title="@string/search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView" />
+        app:showAsAction="always|collapseActionView" />
+    <item
+        android:id="@+id/note_item"
+        android:title="@string/app_name"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/category_item"
-        android:icon="@drawable/ic_category"
         android:title="@string/categories"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/reminder_item"
+        android:title="@string/reminders"
+        app:showAsAction="never"/>
+
     <item
         android:id="@+id/delete_item"
         android:icon="@drawable/ic_delete"

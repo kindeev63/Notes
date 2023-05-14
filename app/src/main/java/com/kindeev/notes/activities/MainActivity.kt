@@ -1,14 +1,25 @@
 package com.kindeev.notes.activities
 
+import android.Manifest
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import com.kindeev.notes.databinding.ActivityMainBinding
@@ -16,10 +27,15 @@ import com.kindeev.notes.fragments.CategoriesFragment
 import com.kindeev.notes.fragments.FragmentManager
 import com.kindeev.notes.fragments.NotesFragment
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
 import androidx.core.view.forEach
 import com.kindeev.notes.MainApp
 import com.kindeev.notes.NoteViewModel
+import com.kindeev.notes.Notifications
 import com.kindeev.notes.R
+import com.kindeev.notes.db.Reminder
+import com.kindeev.notes.fragments.RemindersFragment
+import com.kindeev.notes.receivers.AlarmReceiver
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -36,24 +52,8 @@ class MainActivity : AppCompatActivity() {
         // Отключение автоматического включения темной темы
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
+        createNotificationChannel()
         noteViewModel = (application as MainApp).noteViewModel
-        when (FragmentManager.currentFrag) {
-            null -> {
-                FragmentManager.setFragment(NotesFragment.newInstance(), this)
-                supportActionBar?.title = resources.getString(R.string.all_notes)
-            }
-            is NotesFragment -> {
-                FragmentManager.setFragment(FragmentManager.currentFrag as NotesFragment, this)
-                (FragmentManager.currentFrag as NotesFragment).searchText = ""
-                supportActionBar?.title =
-                    (FragmentManager.currentFrag as NotesFragment).currentCategoryName
-                        ?: resources.getString(R.string.all_notes)
-            }
-            is CategoriesFragment -> {
-                FragmentManager.setFragment(FragmentManager.currentFrag as CategoriesFragment, this)
-                supportActionBar?.title = resources.getString(R.string.categories)
-            }
-        }
 
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
@@ -89,19 +89,69 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        when (FragmentManager.currentFrag) {
+            null -> {
+                FragmentManager.setFragment(NotesFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.all_notes)
+            }
+            is NotesFragment -> {
+                FragmentManager.setFragment(FragmentManager.currentFrag as NotesFragment, this)
+                (FragmentManager.currentFrag as NotesFragment).searchText = ""
+                supportActionBar?.title =
+                    (FragmentManager.currentFrag as NotesFragment).currentCategoryName
+                        ?: resources.getString(R.string.all_notes)
+            }
+            is CategoriesFragment -> {
+                FragmentManager.setFragment(FragmentManager.currentFrag as CategoriesFragment, this)
+                supportActionBar?.title = resources.getString(R.string.categories)
+            }
+
+            is RemindersFragment -> {
+                FragmentManager.setFragment(FragmentManager.currentFrag as RemindersFragment, this)
+                supportActionBar?.title = resources.getString(R.string.reminders)
+            }
+        }
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         this.menu = menu
-        if (noteViewModel.selectedNotes.size == 0){
-            menu?.forEach {
-                it.isVisible = it.itemId != R.id.delete_item
+
+
+
+        when (FragmentManager.currentFrag){
+            is NotesFragment -> {
+                if (noteViewModel.selectedNotes.size == 0){
+                    menu?.forEach {
+                        it.isVisible = it.itemId != R.id.delete_item
+                    }
+                } else {
+                    menu?.forEach {
+                        it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                    }
+                }
             }
-        } else {
-            menu?.forEach {
-                it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+            is CategoriesFragment -> {}
+            is RemindersFragment -> {
+                if (noteViewModel.selectedReminders.size == 0){
+                    menu?.forEach {
+                        it.isVisible = it.itemId != R.id.delete_item
+                    }
+                } else {
+                    menu?.forEach {
+                        it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                    }
+                }
             }
         }
+        menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
+        menu?.findItem(R.id.category_item)?.isVisible = FragmentManager.currentFrag !is CategoriesFragment
+        menu?.findItem(R.id.reminder_item)?.isVisible = FragmentManager.currentFrag !is RemindersFragment
+
+
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
         searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
@@ -133,41 +183,84 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if (item.itemId!= R.id.action_search && item.itemId!=android.R.id.home){
-            val searchItem = menu?.findItem(R.id.action_search)
-            val searchView = searchItem?.actionView as SearchView
-            searchView.setQuery("", false)
-            searchView.isIconified = true
-            searchItem.collapseActionView()
+        if (item.itemId==R.id.delete_item){
             menu?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item
             }
         }
+        val searchItem = menu?.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setQuery("", false)
+        searchView.isIconified = true
+        searchItem.collapseActionView()
         when (item.itemId) {
             R.id.category_item -> {
                 noteViewModel.selectedNotes.clear()
-                supportActionBar?.title = if (FragmentManager.currentFrag is NotesFragment) {
-                    FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
-                    resources.getString(R.string.categories)
-                } else {
-                    FragmentManager.setFragment(NotesFragment.newInstance(), this)
-                    resources.getString(R.string.all_notes)
-                }
+                FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.categories)
             }
+
+            R.id.reminder_item -> {
+                noteViewModel.selectedNotes.clear()
+                FragmentManager.setFragment(RemindersFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.reminders)
+            }
+
+            R.id.note_item -> {
+                FragmentManager.setFragment(NotesFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.all_notes)
+            }
+
+
             android.R.id.home -> {
                 binding.drawer.openDrawer(GravityCompat.START)
             }
             R.id.delete_item -> {
-                val notesFrag = FragmentManager.currentFrag as NotesFragment
-                noteViewModel.deleteNotes(noteViewModel.selectedNotes.toList())
-                noteViewModel.selectedNotes.clear()
-                notesFrag.notesAdapter.notifyDataSetChanged()
+                when (FragmentManager.currentFrag){
+                    is NotesFragment -> {
+                        val notesFrag = FragmentManager.currentFrag as NotesFragment
+                        val allReminders = noteViewModel.allReminders.value?: emptyList()
+                        val deleteReminders = arrayListOf<Reminder>()
+                        for (note in noteViewModel.selectedNotes){
+                            for (reminder in allReminders){
+                                if (reminder.noteId == note.id){
+                                    cancelAlarm(reminder.id)
+                                    deleteReminders.add(reminder)
+                                }
+                            }
+                            noteViewModel.deleteReminders(deleteReminders)
+                        }
+
+                        noteViewModel.deleteNotes(noteViewModel.selectedNotes.toList())
+                        noteViewModel.selectedNotes.clear()
+                        notesFrag.notesAdapter.notifyDataSetChanged()
+                    }
+                    is RemindersFragment -> {
+                        val notesFrag = FragmentManager.currentFrag as RemindersFragment
+                        for (reminderId in noteViewModel.selectedReminders.map { it.id }){
+                            cancelAlarm(reminderId)
+                        }
+                        noteViewModel.deleteReminders(noteViewModel.selectedReminders.toList())
+                        noteViewModel.selectedReminders.clear()
+                        notesFrag.remindersAdapter.notifyDataSetChanged()
+                    }
+                }
+
 
             }
         }
+        menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
+        menu?.findItem(R.id.category_item)?.isVisible = FragmentManager.currentFrag !is CategoriesFragment
+        menu?.findItem(R.id.reminder_item)?.isVisible = FragmentManager.currentFrag !is RemindersFragment
         return true
     }
 
+    private fun cancelAlarm(reminderId: Int){
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val i = Intent(this, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, reminderId, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT)
+        alarmManager.cancel(pendingIntent)
+    }
     fun getViewModel() = noteViewModel
 
     private fun setCategory(categoryName: String?) {
@@ -176,10 +269,26 @@ class MainActivity : AppCompatActivity() {
             FragmentManager.setFragment(NotesFragment.newInstance(), this)
             val notesFrag = FragmentManager.currentFrag as NotesFragment
             notesFrag.currentCategoryName = categoryName
+            menu?.findItem(R.id.note_item)?.isVisible = false
+            menu?.findItem(R.id.category_item)?.isVisible = true
+            menu?.findItem(R.id.reminder_item)?.isVisible = true
         } else {
             val notesFrag = FragmentManager.currentFrag as NotesFragment
             notesFrag.currentCategoryName = categoryName
             notesFrag.setCategory()
+        }
+    }
+
+    private fun createNotificationChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val channelName = resources.getString(R.string.reminders)
+            val channelDescription = resources.getString(R.string.notifi_channel_description)
+            val channelImportance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(Notifications.CHANNEL_ID, channelName, channelImportance).apply {
+                description = channelDescription
+            }
+            val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }

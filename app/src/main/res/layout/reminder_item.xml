@@ -22,11 +22,11 @@
             android:layout_height="70dp">
 
             <TextView
-                android:id="@+id/tTitle"
+                android:id="@+id/tReminderTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="Заметка 1"
+                android:text="Название напоминания"
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -34,18 +34,30 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tTime"
+                android:id="@+id/tReminderTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="5dp"
-                android:layout_marginBottom="5dp"
-                android:text="30.04.2023   10:24"
+                android:text="10:24"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/chDeleteReminder"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.19" />
+
+            <TextView
+                android:id="@+id/tReminderDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="08.05.2023"
                 android:textColor="@color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/chDeleteNote" />
+                app:layout_constraintEnd_toEndOf="@+id/tReminderTime"
+                app:layout_constraintTop_toBottomOf="@+id/tReminderTime" />
 
             <CheckBox
-                android:id="@+id/chDeleteNote"
+                android:id="@+id/chDeleteReminder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
