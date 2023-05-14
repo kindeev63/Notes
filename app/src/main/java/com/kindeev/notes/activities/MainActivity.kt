@@ -219,15 +219,16 @@ class MainActivity : AppCompatActivity() {
                 when (FragmentManager.currentFrag){
                     is NotesFragment -> {
                         val notesFrag = FragmentManager.currentFrag as NotesFragment
-                        val allReminders = ArrayList(noteViewModel.allReminders.value?: emptyList())
+                        val allReminders = noteViewModel.allReminders.value?: emptyList()
+                        val deleteReminders = arrayListOf<Reminder>()
                         for (note in noteViewModel.selectedNotes){
                             for (reminder in allReminders){
                                 if (reminder.noteId == note.id){
                                     cancelAlarm(reminder.id)
-                                    allReminders.remove(reminder)
-                                    noteViewModel.deleteReminders(listOf(reminder))
+                                    deleteReminders.add(reminder)
                                 }
                             }
+                            noteViewModel.deleteReminders(deleteReminders)
                         }
 
                         noteViewModel.deleteNotes(noteViewModel.selectedNotes.toList())
