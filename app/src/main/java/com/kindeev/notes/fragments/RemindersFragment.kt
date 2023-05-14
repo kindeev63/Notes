@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kindeev.notes.NoteViewModel
 import com.kindeev.notes.R
+import com.kindeev.notes.ReminderDialogFragment
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.adapters.PickNotesAdapter
 import com.kindeev.notes.adapters.RemindersAdapter
@@ -101,114 +102,21 @@ class RemindersFragment : BaseFragment() {
     }
 
     private fun openReminder(reminder: Reminder? = null) {
-        val c = Calendar.getInstance()
-        if (reminder!=null) c.timeInMillis = reminder.time
-        c[Calendar.SECOND] = 0
-        val listenerTime = TimePickerDialog.OnTimeSetListener() { _, hour, minute ->
-            c[Calendar.HOUR_OF_DAY] = hour
-            c[Calendar.MINUTE] = minute
-
-            // После выбора времени выполняется код здесь
-            showEditDialog(title = resources.getString(R.string.enter_title), textOk = resources.getString(R.string.add), textCancel = resources.getString(R.string.cancel), reminderTitle = reminder?.title ?: "") { reminderTitle ->
-                showListDialog(noteViewModel.allNotes.value ?: emptyList()) { note ->
-                    val idsList = remindersList.map { it.id }
-                    var reminderId = 0
-                    if (reminder==null){
-                        while (true) {
-                            if (reminderId !in idsList) break
-                            reminderId++
-                        }
-                    } else {
-                        reminderId = reminder.id
-                    }
-
-                    val reminder = Reminder(
-                        reminderId,
-                        reminderTitle,
-                        c.timeInMillis,
-                        note.id,
-                    )
-                    noteViewModel.insertReminder(reminder)
-                    setAlarm(reminder)
-                }
+        if ((noteViewModel.allNotes.value?: emptyList()).isEmpty()){
+            Toast.makeText(requireContext(), R.string.no_notes, Toast.LENGTH_SHORT).show()
+        }
+        val idsList = remindersList.map { it.id }
+        var reminderId = 0
+        if (reminder==null){
+            while (true) {
+                if (reminderId !in idsList) break
+                reminderId++
             }
-
+        } else {
+            reminderId = reminder.id
         }
-        val listenerDate = DatePickerDialog.OnDateSetListener() { _, year, month, day ->
-            c[Calendar.YEAR] = year
-            c[Calendar.MONTH] = month
-            c[Calendar.DAY_OF_MONTH] = day
-            TimePickerDialog(
-                requireContext(),
-                listenerTime,
-                c[Calendar.HOUR_OF_DAY],
-                c[Calendar.MINUTE],
-                true
-            ).show()
-        }
-        DatePickerDialog(
-            requireContext(),
-            listenerDate,
-            c[Calendar.YEAR],
-            c[Calendar.MONTH],
-            c[Calendar.DAY_OF_MONTH]
-        ).show()
-    }
-
-    private fun showEditDialog(
-        title: String,
-        textOk: String,
-        textCancel: String,
-        reminderTitle: String,
-        result: (String) -> Unit
-    ) {
-        AlertDialog.Builder(requireContext()).apply {
-            setTitle(title)
-            val input = EditText(requireContext()).apply {
-                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL
-                setText(reminderTitle)
-            }
-            setView(input)
-            setPositiveButton(textOk) { _, _ ->
-                val text = input.text.toString()
-                result(text)
-            }
-            setNegativeButton(textCancel) { d, _ -> d.cancel() }
-            show()
-        }
-    }
-
-    private fun showListDialog(notes: List<Note>, listener: (Note) -> Unit){
-        val recyclerView = RecyclerView(requireContext())
-        val dialog = AlertDialog.Builder(requireContext()).apply {
-            setTitle(resources.getString(R.string.pick_note))
-            setView(recyclerView)
-            setNegativeButton(R.string.cancel, null)
-
-        }.create()
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = PickNotesAdapter(dialog, listener).apply {
-            setData(notes)
-        }
-
-        dialog.show()
-    }
-
-    private fun setAlarm(reminder: Reminder){
-        val alarmManager =
-            requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val i = Intent(requireContext(), AlarmReceiver::class.java).apply {
-            putExtra("reminder", reminder)
-        }
-
-        val pendingIntent =
-            PendingIntent.getBroadcast(requireContext(), reminder.id, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            reminder.time,
-            pendingIntent
-        )
+        val dialogFragment = ReminderDialogFragment.newInstance(reminder, reminderId, noteViewModel)
+        dialogFragment.show(childFragmentManager, "reminder_dialog")
     }
 
     companion object {
