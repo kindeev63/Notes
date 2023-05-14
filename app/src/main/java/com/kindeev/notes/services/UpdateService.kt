@@ -7,8 +7,8 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.IBinder
-import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -17,6 +17,7 @@ import com.kindeev.notes.NoteViewModel
 import com.kindeev.notes.Notifications
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.NoteActivity
+import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.receivers.AlarmReceiver
 import kotlinx.coroutines.*
@@ -43,23 +44,26 @@ class UpdateService : Service() {
             .setContentText("Updating reminders...")
             .setSmallIcon(R.mipmap.ic_launcher)
             .build()
-        startForeground(101, notification)
+        startForeground(111, notification)
+        GlobalScope.launch {
+            val allReminders = withContext(Dispatchers.IO) {
+                noteViewModel.getAllReminders() ?: emptyList()
+            }
             scope.launch {
-                val allReminders = noteViewModel.getAllReminders() ?: emptyList()
                 Log.e("test", "All reminders = $allReminders")
                 val time = Calendar.getInstance().timeInMillis
-                val showReminders = mutableListOf<Reminder>()
-                val updateReminders = mutableListOf<Reminder>()
+                val showed = mutableListOf<Reminder>()
+                val updated = mutableListOf<Reminder>()
                 for (reminder in allReminders) {
                     if (reminder.time <= time) {
-                        showReminders.add(reminder)
+                        showed.add(reminder)
                     } else {
-                        updateReminders.add(reminder)
+                        updated.add(reminder)
                     }
                 }
-                Log.e("test", "Updating = $updateReminders")
-                Log.e("test", "Showing = $showReminders")
-                for (reminder in updateReminders) {
+                Log.e("test", "Updated = $updated")
+                Log.e("test", "Deleted = $showed")
+                for (reminder in updated) {
                     val i = Intent(this@UpdateService, AlarmReceiver::class.java).apply {
                         putExtra("reminder", reminder)
                     }
@@ -74,51 +78,32 @@ class UpdateService : Service() {
                     )
                 }
                 Log.e("test", "Update Complete")
-                if (showReminders.isNotEmpty()){
-                    makeAllNotifications(showReminders)
-                    noteViewModel.deleteReminders(showReminders)
-                    Log.e("test", "Show Complete")
+                for (reminder in showed){
+                    setAlarm(reminder, time)
                 }
-                val notificationIntent = Intent(this@UpdateService, NoteActivity::class.java)
-                notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                val builder =
-                    NotificationCompat.Builder(this@UpdateService, Notifications.CHANNEL_ID)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("Update Completed!")
-                        .setDefaults(NotificationCompat.DEFAULT_ALL)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setAutoCancel(true)
-                manager.notify(0, builder.build())
+                Log.e("test", "Show Complete")
                 stopForeground(true)
                 stopSelf()
             }
+        }
         return START_NOT_STICKY
     }
 
-    private fun makeAllNotifications(reminders: List<Reminder>){
-        for (reminder in reminders){
-            createNotification(this@UpdateService, reminder.title, reminder.id, reminder.noteId)
-        }
-        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-        val wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "MyApp:MyWakeLock")
-        wakeLock.acquire(5000)
-    }
-    @SuppressLint("MissingPermission")
-    private fun createNotification(context:Context, title: String, reminderId:Int, noteId: Int){
-        val notificationIntent = Intent(context, NoteActivity::class.java).apply {
-            putExtra("noteId", noteId)
-        }
-        notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        val pendingIntent = PendingIntent.getActivity(context, reminderId, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        val builder = NotificationCompat.Builder(context, Notifications.CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(title)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-        val manager = NotificationManagerCompat.from(context)
-        manager.notify(reminderId, builder.build())
+    private fun setAlarm(reminder: Reminder, time: Long){
+            val alarmManager =
+                getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val i = Intent(this, AlarmReceiver::class.java).apply {
+                putExtra("reminder", reminder)
+            }
+
+            val pendingIntent =
+                PendingIntent.getBroadcast(this, reminder.id, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                time,
+                pendingIntent
+            )
     }
 
 

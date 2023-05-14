@@ -77,6 +77,9 @@ class NotesFragment : BaseFragment() {
                             it.isVisible =
                                 it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                         }
+                        mainActivity.menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
+                        mainActivity.menu?.findItem(R.id.category_item)?.isVisible = FragmentManager.currentFrag !is CategoriesFragment
+                        mainActivity.menu?.findItem(R.id.reminder_item)?.isVisible = FragmentManager.currentFrag !is RemindersFragment
                     }
                 }
 

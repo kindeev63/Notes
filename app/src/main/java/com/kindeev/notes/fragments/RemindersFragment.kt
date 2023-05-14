@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.forEach
@@ -64,7 +65,6 @@ class RemindersFragment : BaseFragment() {
                 val mainActivity = activity as MainActivity
                 if (open) {
                     openReminder(reminder)
-
                 } else {
                     if (noteViewModel.selectedReminders.size == 0) {
                         val searchItem = mainActivity.menu?.findItem(R.id.action_search)
