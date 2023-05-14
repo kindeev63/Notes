@@ -27,5 +27,4 @@
     <string name="select_time">Выберите время</string>
     <string name="no_notes">Нет заметок</string>
     <string name="not_select_a_note">Вы не выбрали заметку</string>
-    <string name="successfully">Готово</string>
 </resources>

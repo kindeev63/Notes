@@ -1,35 +1,19 @@
 package com.kindeev.notes.fragments
 
-import android.app.AlarmManager
-import android.app.DatePickerDialog
-import android.app.PendingIntent
-import android.app.TimePickerDialog
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.forEach
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.kindeev.notes.NoteViewModel
 import com.kindeev.notes.R
-import com.kindeev.notes.ReminderDialogFragment
 import com.kindeev.notes.activities.MainActivity
-import com.kindeev.notes.adapters.PickNotesAdapter
 import com.kindeev.notes.adapters.RemindersAdapter
 import com.kindeev.notes.databinding.FragmentRemindersBinding
-import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
-import com.kindeev.notes.receivers.AlarmReceiver
-import java.util.*
 
 class RemindersFragment : BaseFragment() {
     private lateinit var binding: FragmentRemindersBinding
