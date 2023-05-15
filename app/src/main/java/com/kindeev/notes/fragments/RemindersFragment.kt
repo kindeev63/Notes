@@ -4,11 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.forEach
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.kindeev.notes.NoteViewModel
+import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.adapters.RemindersAdapter
@@ -60,13 +59,13 @@ class RemindersFragment : BaseFragment() {
                         mainActivity.menu?.forEach {
                             it.isVisible = it.itemId != R.id.delete_item
                         }
-
                     } else {
                         mainActivity.menu?.forEach {
                             it.isVisible =
                                 it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                         }
                     }
+                    mainActivity.menu?.findItem(R.id.reminder_item)?.isVisible = false
                 }
 
             }
@@ -86,9 +85,6 @@ class RemindersFragment : BaseFragment() {
     }
 
     private fun openReminder(reminder: Reminder? = null) {
-        if ((noteViewModel.allNotes.value?: emptyList()).isEmpty()){
-            Toast.makeText(requireContext(), R.string.no_notes, Toast.LENGTH_SHORT).show()
-        }
         val idsList = remindersList.map { it.id }
         var reminderId = 0
         if (reminder==null){

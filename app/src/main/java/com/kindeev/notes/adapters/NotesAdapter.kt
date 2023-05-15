@@ -4,9 +4,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kindeev.notes.NoteViewModel
+import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.R
-import com.kindeev.notes.States
+import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.NoteItemBinding
 import com.kindeev.notes.db.Note
 

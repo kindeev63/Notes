@@ -3,7 +3,6 @@ package com.kindeev.notes.activities
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -14,10 +13,10 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
-import com.kindeev.notes.MainApp
-import com.kindeev.notes.NoteViewModel
+import com.kindeev.notes.other.MainApp
+import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.R
-import com.kindeev.notes.States
+import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.db.Note
 import java.text.SimpleDateFormat

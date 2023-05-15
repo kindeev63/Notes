@@ -11,7 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.adapters.CategoriesAdapter
 import com.kindeev.notes.activities.MainActivity
-import com.kindeev.notes.NoteViewModel
+import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.FragmentCategoriesBinding
 import com.kindeev.notes.db.Category

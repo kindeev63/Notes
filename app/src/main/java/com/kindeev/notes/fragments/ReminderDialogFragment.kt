@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.kindeev.notes.NoteViewModel
+import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.adapters.PickNotesAdapter
 import com.kindeev.notes.databinding.FragmentReminderDialogBinding
@@ -28,7 +28,7 @@ import com.kindeev.notes.receivers.AlarmReceiver
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ReminderDialogFragment(val reminder: Reminder? = null, private val reminderId: Int, private val noteViewModel: NoteViewModel) : DialogFragment() {
+class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: Int, private val noteViewModel: NoteViewModel) : DialogFragment() {
     private lateinit var date: Calendar
     private lateinit var binding: FragmentReminderDialogBinding
     private var note: Note? = null
@@ -37,7 +37,7 @@ class ReminderDialogFragment(val reminder: Reminder? = null, private val reminde
     ): View {
         val timePicker =
             MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H).setHour(date[Calendar.HOUR_OF_DAY])
-                .setMinute(date[Calendar.MINUTE]).setTitleText(R.string.select_time).build()
+                .setMinute(date[Calendar.MINUTE]).setTitleText(R.string.select_time).setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK).build()
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setSelection(date.timeInMillis).build()
         timePicker.addOnPositiveButtonClickListener {
@@ -116,10 +116,12 @@ class ReminderDialogFragment(val reminder: Reminder? = null, private val reminde
         if (reminder==null){
             note = null
         } else {
-            noteViewModel.getNoteById(reminder.noteId){
-                note = it!!
-                binding.tNoteTitleDialog.text = it.title
-                binding.noteContentDialog.setBackgroundColor(it.color)
+            if (reminder.noteId!=null){
+                noteViewModel.getNoteById(reminder.noteId!!) {
+                    note = it!!
+                    binding.tNoteTitleDialog.text = it.title
+                    binding.noteContentDialog.setBackgroundColor(it.color)
+                }
             }
         }
 
@@ -133,15 +135,11 @@ class ReminderDialogFragment(val reminder: Reminder? = null, private val reminde
         dialog.setOnShowListener {
             val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             okButton.setOnClickListener {
-                if (note==null){
-                    Toast.makeText(requireContext(), R.string.not_select_a_note, Toast.LENGTH_SHORT).show()
-                } else {
-                    val newReminder = Reminder(reminderId, binding.eTitleDialog.text.toString(), date.timeInMillis, note!!.id)
+                    val newReminder = Reminder(reminderId, binding.eTitleDialog.text.toString(), date.timeInMillis, if (note==null) null else note?.id)
                     noteViewModel.insertReminder(newReminder)
                     setAlarm(newReminder)
                     Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
-                }
             }
         }
         return dialog

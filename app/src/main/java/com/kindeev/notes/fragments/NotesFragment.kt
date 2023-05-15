@@ -14,6 +14,7 @@ import com.kindeev.notes.activities.NoteActivity
 import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.db.Note
+import com.kindeev.notes.other.NoteViewModel
 
 class NotesFragment : BaseFragment() {
     private lateinit var binding: FragmentNotesBinding
@@ -77,10 +78,8 @@ class NotesFragment : BaseFragment() {
                             it.isVisible =
                                 it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                         }
-                        mainActivity.menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
-                        mainActivity.menu?.findItem(R.id.category_item)?.isVisible = FragmentManager.currentFrag !is CategoriesFragment
-                        mainActivity.menu?.findItem(R.id.reminder_item)?.isVisible = FragmentManager.currentFrag !is RemindersFragment
                     }
+                    mainActivity.menu?.findItem(R.id.note_item)?.isVisible = false
                 }
 
             }

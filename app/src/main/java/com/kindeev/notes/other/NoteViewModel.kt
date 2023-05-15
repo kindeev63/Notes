@@ -1,4 +1,4 @@
-package com.kindeev.notes
+package com.kindeev.notes.other
 
 import android.app.Application
 import android.provider.CalendarContract.Reminders

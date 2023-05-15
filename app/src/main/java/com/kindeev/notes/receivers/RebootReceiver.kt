@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.kindeev.notes.Notifications
+import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
 import com.kindeev.notes.services.UpdateService
 

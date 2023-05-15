@@ -24,6 +24,4 @@
     <string name="pick_note">Pick note</string>
     <string name="note_not_exist">This note does not exist</string>
     <string name="select_time">Select time</string>
-    <string name="no_notes">No notes</string>
-    <string name="not_select_a_note">You have not selected a note</string>
 </resources>

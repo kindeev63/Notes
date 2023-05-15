@@ -1,24 +1,18 @@
 package com.kindeev.notes.receivers
 
 import android.annotation.SuppressLint
-import android.app.Notification
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.PowerManager
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.kindeev.notes.MainApp
-import com.kindeev.notes.Notifications
+import com.kindeev.notes.other.MainApp
+import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.activities.NoteActivity
-import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
 
 class AlarmReceiver: BroadcastReceiver() {
@@ -33,12 +27,19 @@ class AlarmReceiver: BroadcastReceiver() {
         wakeLock.acquire(5000)
     }
     @SuppressLint("MissingPermission")
-    private fun createNotification(context:Context, title: String, reminderId:Int, noteId: Int){
+    private fun createNotification(context:Context, title: String, reminderId:Int, noteId: Int?){
         val notificationIntent = Intent(context, NoteActivity::class.java).apply {
             putExtra("noteId", noteId)
         }
+        val mainActIntent = Intent(context, MainActivity::class.java)
         notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        val pendingIntent = PendingIntent.getActivity(context, reminderId, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = if (noteId==null){
+            PendingIntent.getActivity(context, reminderId, mainActIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+
+        } else {
+            PendingIntent.getActivity(context, reminderId, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+
+        }
         val builder = NotificationCompat.Builder(context, Notifications.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
