@@ -11,6 +11,7 @@ import android.graphics.PorterDuff
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
@@ -28,6 +29,7 @@ import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
+import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.RemindersFragment
 import com.kindeev.notes.receivers.AlarmReceiver
@@ -248,6 +250,39 @@ class MainActivity : AppCompatActivity() {
         menu?.findItem(R.id.category_item)?.isVisible = FragmentManager.currentFrag !is CategoriesFragment
         menu?.findItem(R.id.reminder_item)?.isVisible = FragmentManager.currentFrag !is RemindersFragment
         return true
+    }
+
+    override fun onBackPressed() {
+        when(FragmentManager.currentFrag){
+            is NotesFragment -> {
+                Log.e("test", "Note")
+                if (noteViewModel.selectedNotes.isNotEmpty()){
+                    noteViewModel.selectedNotes.clear()
+                    (FragmentManager.currentFrag as NotesFragment).notesAdapter.notifyDataSetChanged()
+                } else {
+                    super.onBackPressed()
+                }
+            }
+            is CategoriesFragment -> {
+                Log.e("test", "Category")
+                FragmentManager.setFragment(NotesFragment.newInstance(), this)
+                supportActionBar?.title = resources.getString(R.string.all_notes)
+            }
+            is RemindersFragment -> {
+                Log.e("test", "Reminder")
+                if (noteViewModel.selectedReminders.isNotEmpty()){
+                    noteViewModel.selectedReminders.clear()
+                    (FragmentManager.currentFrag as RemindersFragment).remindersAdapter.notifyDataSetChanged()
+                } else {
+                    FragmentManager.setFragment(NotesFragment.newInstance(), this)
+                    supportActionBar?.title = resources.getString(R.string.all_notes)
+                }
+            }
+        }
+        menu?.findItem(R.id.delete_item)?.isVisible = false
+        menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
+        menu?.findItem(R.id.category_item)?.isVisible = FragmentManager.currentFrag !is CategoriesFragment
+        menu?.findItem(R.id.reminder_item)?.isVisible = FragmentManager.currentFrag !is RemindersFragment
     }
 
     private fun cancelAlarm(reminderId: Int){
