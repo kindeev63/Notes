@@ -26,4 +26,5 @@
     <string name="note_not_exist">Этой заметки не существует</string>
     <string name="select_time">Выберите время</string>
     <string name="description">Описание</string>
+    <string name="no_notes">Нет заметок</string>
 </resources>

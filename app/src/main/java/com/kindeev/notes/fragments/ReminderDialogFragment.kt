@@ -72,30 +72,24 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
                 datePicker.show(childFragmentManager, "datePicker")
             }
             noteContentDialog.setOnClickListener {
-                showListDialog(noteViewModel.allNotes.value?: emptyList()){
-                    note = it
-                    tNoteTitleDialog.text = it.title
-                    noteContentDialog.setBackgroundColor(it.color)
+                if (noteViewModel.allNotes.value?.isEmpty() != false){
+                    Toast.makeText(requireContext(), R.string.no_notes, Toast.LENGTH_SHORT).show()
+                } else {
+                    showListDialog(noteViewModel.allNotes.value?: emptyList()){
+                        note = it
+                        tNoteTitleDialog.text = it.title
+                        noteContentDialog.setBackgroundColor(it.color)
+                    }
                 }
+
             }
         }
 
         return binding.root
     }
     private fun showListDialog(notes: List<Note>, listener: (Note) -> Unit){
-        val recyclerView = RecyclerView(requireContext())
-        val dialog = AlertDialog.Builder(requireContext()).apply {
-            setTitle(resources.getString(R.string.pick_note))
-            setView(recyclerView)
-            setNegativeButton(R.string.cancel, null)
-
-        }.create()
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = PickNotesAdapter(dialog, listener).apply {
-            setData(notes)
-        }
-
-        dialog.show()
+        val dialog = PickNoteFragment.newInstance(notes, listener)
+        dialog.show(childFragmentManager, "pick_notes")
     }
 
 

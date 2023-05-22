@@ -9,7 +9,7 @@ import com.kindeev.notes.R
 import com.kindeev.notes.databinding.NoteItemBinding
 import com.kindeev.notes.db.Note
 
-class PickNotesAdapter(private val dialog: AlertDialog, private val onItemClick: (note: Note) -> Unit) :
+class PickNotesAdapter(private val onItemClick: (note: Note) -> Unit) :
     RecyclerView.Adapter<PickNotesAdapter.PickNotesHolder>() {
     private var notesList = emptyList<Note>()
     class PickNotesHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -32,7 +32,6 @@ class PickNotesAdapter(private val dialog: AlertDialog, private val onItemClick:
         holder.bind(notesList[position])
         holder.itemView.setOnClickListener {
                 onItemClick(notesList[position])
-            dialog.cancel()
         }
     }
     fun setData(notes: List<Note>? = null) {
