@@ -19,7 +19,7 @@ class AlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val noteViewModel = (context.applicationContext as MainApp).noteViewModel
         val reminder = intent.getSerializableExtra("reminder") as Reminder
-        createNotification(context, reminder.title, reminder.id, reminder.noteId)
+        createNotification(context, reminder.title, reminder.description, reminder.id, reminder.noteId)
         noteViewModel.deleteReminders(listOf(reminder))
 
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -27,7 +27,7 @@ class AlarmReceiver: BroadcastReceiver() {
         wakeLock.acquire(5000)
     }
     @SuppressLint("MissingPermission")
-    private fun createNotification(context:Context, title: String, reminderId:Int, noteId: Int?){
+    private fun createNotification(context:Context, title: String, description: String, reminderId:Int, noteId: Int?){
         val notificationIntent = Intent(context, NoteActivity::class.java).apply {
             putExtra("noteId", noteId)
         }
@@ -43,6 +43,7 @@ class AlarmReceiver: BroadcastReceiver() {
         val builder = NotificationCompat.Builder(context, Notifications.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
+            .setContentText(description)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)

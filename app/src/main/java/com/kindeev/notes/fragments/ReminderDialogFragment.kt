@@ -64,6 +64,7 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
             tTimeDialog.text = formatterTime.format(date.timeInMillis)
             tDateDialog.text = formatterDate.format(date.timeInMillis)
             eTitleDialog.setText(reminder?.title ?: "")
+            eDescriptionDialog.setText(reminder?.description ?: "")
             LinearTimeDialog.setOnClickListener {
                 timePicker.show(childFragmentManager, "timePicker")
             }
@@ -135,7 +136,7 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
         dialog.setOnShowListener {
             val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             okButton.setOnClickListener {
-                    val newReminder = Reminder(reminderId, binding.eTitleDialog.text.toString(), date.timeInMillis, if (note==null) null else note?.id)
+                    val newReminder = Reminder(reminderId, binding.eTitleDialog.text.toString(), binding.eDescriptionDialog.text.toString(), date.timeInMillis, if (note==null) null else note?.id)
                     noteViewModel.insertReminder(newReminder)
                     setAlarm(newReminder)
                     Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()

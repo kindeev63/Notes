@@ -11,6 +11,8 @@ data class Reminder(
     val id: Int = 0,
     @ColumnInfo(name = "title")
     var title: String,
+    @ColumnInfo(name = "description")
+    var description: String,
     @ColumnInfo(name = "time")
     var time: Long,
     @ColumnInfo(name = "noteId")
