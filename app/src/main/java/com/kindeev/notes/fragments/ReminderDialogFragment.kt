@@ -78,6 +78,7 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
                     showListDialog(noteViewModel.allNotes.value?: emptyList()){
                         note = it
                         tNoteTitleDialog.text = it.title
+                        tNoteTimeDialog.text = it.time
                         noteContentDialog.setBackgroundColor(it.color)
                     }
                 }
@@ -115,6 +116,7 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
                 noteViewModel.getNoteById(reminder.noteId!!) {
                     note = it!!
                     binding.tNoteTitleDialog.text = it.title
+                    binding.tNoteTimeDialog.text = it.time
                     binding.noteContentDialog.setBackgroundColor(it.color)
                 }
             }
