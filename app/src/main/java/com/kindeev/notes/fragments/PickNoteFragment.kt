@@ -12,6 +12,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.R
 import com.kindeev.notes.adapters.PickNotesAdapter
+import com.kindeev.notes.databinding.FragmentPickAppBinding
 import com.kindeev.notes.databinding.FragmentPickNoteBinding
 import com.kindeev.notes.db.Note
 
@@ -66,17 +67,9 @@ class PickNoteFragment(private val allNotes: List<Note>, private val listener: (
         binding = FragmentPickNoteBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(binding.root)
-            .setPositiveButton(R.string.save, null)
             .setNegativeButton(R.string.cancel) { dialog, _ ->
                 dialog.cancel()
             }.create()
-        dialog.setOnShowListener {
-            val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            okButton.setOnClickListener {
-
-                dialog.dismiss()
-            }
-        }
         return dialog
     }
 

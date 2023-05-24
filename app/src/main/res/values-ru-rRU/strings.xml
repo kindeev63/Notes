@@ -27,4 +27,7 @@
     <string name="select_time">Выберите время</string>
     <string name="description">Описание</string>
     <string name="no_notes">Нет заметок</string>
+    <string name="open_note">Открыть заметку</string>
+    <string name="open_app">Открыть приложение</string>
+    <string name="pick_note_or_app">Выберите заметку или приложение</string>
 </resources>

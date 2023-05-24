@@ -16,5 +16,7 @@ data class Reminder(
     @ColumnInfo(name = "time")
     var time: Long,
     @ColumnInfo(name = "noteId")
-    var noteId: Int?
+    var noteId: Int?,
+    @ColumnInfo(name = "packageName")
+    var packageName: String?
 ): Serializable

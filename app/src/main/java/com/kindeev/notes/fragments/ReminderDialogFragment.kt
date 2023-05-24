@@ -5,7 +5,10 @@ import android.app.Dialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +34,8 @@ import java.util.*
 class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: Int, private val noteViewModel: NoteViewModel) : DialogFragment() {
     private lateinit var date: Calendar
     private lateinit var binding: FragmentReminderDialogBinding
-    private var note: Note? = null
+    private var noteId: Int? = null
+    private var packageName: String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -71,18 +75,38 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
             LinearDateDialog.setOnClickListener {
                 datePicker.show(childFragmentManager, "datePicker")
             }
+            radioGroup.setOnCheckedChangeListener { _, checkedId ->
+                when(checkedId){
+                    R.id.openNoteButton -> {
+                        noteCardDialog.visibility = View.VISIBLE
+                        appCardDialog.visibility = View.GONE
+                    }
+                    R.id.openAppButton -> {
+                        appCardDialog.visibility = View.VISIBLE
+                        noteCardDialog.visibility = View.GONE
+                    }
+                }
+            }
+
             noteContentDialog.setOnClickListener {
                 if (noteViewModel.allNotes.value?.isEmpty() != false){
                     Toast.makeText(requireContext(), R.string.no_notes, Toast.LENGTH_SHORT).show()
                 } else {
                     showListDialog(noteViewModel.allNotes.value?: emptyList()){
-                        note = it
+                        noteId = it.id
                         tNoteTitleDialog.text = it.title
                         tNoteTimeDialog.text = it.time
                         noteContentDialog.setBackgroundColor(it.color)
                     }
                 }
 
+            }
+            appContentDialog.setOnClickListener {
+                showAppsDialog {
+                    appIconDialog.setImageDrawable(it.loadIcon(requireContext().packageManager))
+                    appNameDialog.text = it.loadLabel(requireContext().packageManager)
+                    packageName = it.packageName
+                }
             }
         }
 
@@ -91,6 +115,10 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
     private fun showListDialog(notes: List<Note>, listener: (Note) -> Unit){
         val dialog = PickNoteFragment.newInstance(notes, listener)
         dialog.show(childFragmentManager, "pick_notes")
+    }
+    private fun showAppsDialog(listener: (ApplicationInfo) -> Unit){
+        val dialog = PickAppFragment.newInstance(listener)
+        dialog.show(childFragmentManager, "pick_apps")
     }
 
 
@@ -104,25 +132,32 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        binding = FragmentReminderDialogBinding.inflate(layoutInflater)
         date = Calendar.getInstance().apply {
             if (reminder!=null){
                 timeInMillis = reminder.time
             }
         }
-        if (reminder==null){
-            note = null
-        } else {
-            if (reminder.noteId!=null){
+        binding.apply {
+            if (reminder?.noteId == null) {
+                openAppButton.isChecked = true
+                appCardDialog.visibility = View.VISIBLE
+                noteCardDialog.visibility = View.GONE
+                val appInfo = requireContext().packageManager.getApplicationInfo(reminder?.packageName?: requireContext().packageName, PackageManager.GET_META_DATA)
+                appNameDialog.text = requireContext().packageManager.getApplicationLabel(appInfo)
+                appIconDialog.setImageDrawable(requireContext().packageManager.getApplicationIcon(appInfo))
+            } else {
+                openNoteButton.isChecked = true
+                noteCardDialog.visibility = View.VISIBLE
+                appCardDialog.visibility = View.GONE
                 noteViewModel.getNoteById(reminder.noteId!!) {
-                    note = it!!
+                    noteId = it!!.id
                     binding.tNoteTitleDialog.text = it.title
                     binding.tNoteTimeDialog.text = it.time
                     binding.noteContentDialog.setBackgroundColor(it.color)
                 }
             }
         }
-
-        binding = FragmentReminderDialogBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(binding.root)
             .setPositiveButton(R.string.save, null)
@@ -132,11 +167,20 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
         dialog.setOnShowListener {
             val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             okButton.setOnClickListener {
-                    val newReminder = Reminder(reminderId, binding.eTitleDialog.text.toString(), binding.eDescriptionDialog.text.toString(), date.timeInMillis, if (note==null) null else note?.id)
+                if (binding.openNoteButton.isChecked && noteId==null){
+                    Toast.makeText(requireContext(), R.string.pick_note_or_app, Toast.LENGTH_SHORT).show()
+                } else {
+                    val newReminder = Reminder(reminderId, binding.eTitleDialog.text.toString(), binding.eDescriptionDialog.text.toString(), date.timeInMillis, null, null)
+                    if (binding.openAppButton.isChecked){
+                        newReminder.packageName = packageName
+                    } else {
+                        newReminder.noteId = noteId
+                    }
                     noteViewModel.insertReminder(newReminder)
                     setAlarm(newReminder)
                     Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
+                }
             }
         }
         return dialog

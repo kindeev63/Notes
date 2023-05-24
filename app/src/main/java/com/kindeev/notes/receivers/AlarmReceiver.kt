@@ -19,7 +19,7 @@ class AlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val noteViewModel = (context.applicationContext as MainApp).noteViewModel
         val reminder = intent.getSerializableExtra("reminder") as Reminder
-        createNotification(context, reminder.title, reminder.description, reminder.id, reminder.noteId)
+        createNotification(context, reminder.title, reminder.description, reminder.id, reminder.noteId, reminder.packageName)
         noteViewModel.deleteReminders(listOf(reminder))
 
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -27,19 +27,13 @@ class AlarmReceiver: BroadcastReceiver() {
         wakeLock.acquire(5000)
     }
     @SuppressLint("MissingPermission")
-    private fun createNotification(context:Context, title: String, description: String, reminderId:Int, noteId: Int?){
-        val notificationIntent = Intent(context, NoteActivity::class.java).apply {
+    private fun createNotification(context:Context, title: String, description: String, reminderId:Int, noteId: Int?, packageName: String?){
+        val notificationIntent = if (noteId==null) context.packageManager.getLaunchIntentForPackage(packageName!!) else Intent(context, NoteActivity::class.java).apply {
             putExtra("noteId", noteId)
         }
         val mainActIntent = Intent(context, MainActivity::class.java)
-        notificationIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        val pendingIntent = if (noteId==null){
-            PendingIntent.getActivity(context, reminderId, mainActIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-
-        } else {
-            PendingIntent.getActivity(context, reminderId, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-
-        }
+        notificationIntent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val pendingIntent = PendingIntent.getActivity(context, reminderId, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val builder = NotificationCompat.Builder(context, Notifications.CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
