@@ -31,10 +31,9 @@ import com.kindeev.notes.receivers.AlarmReceiver
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: Int, private val noteViewModel: NoteViewModel) : DialogFragment() {
+class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: Int, private val noteViewModel: NoteViewModel, private var noteId: Int? = null) : DialogFragment() {
     private lateinit var date: Calendar
     private lateinit var binding: FragmentReminderDialogBinding
-    private var noteId: Int? = null
     private var packageName: String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -139,7 +138,7 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
             }
         }
         binding.apply {
-            if (reminder?.noteId == null) {
+            if (reminder?.noteId == null && noteId == null) {
                 openAppButton.isChecked = true
                 appCardDialog.visibility = View.VISIBLE
                 noteCardDialog.visibility = View.GONE
@@ -150,7 +149,7 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
                 openNoteButton.isChecked = true
                 noteCardDialog.visibility = View.VISIBLE
                 appCardDialog.visibility = View.GONE
-                noteViewModel.getNoteById(reminder.noteId!!) {
+                noteViewModel.getNoteById(reminder?.noteId?: noteId!!) {
                     noteId = it!!.id
                     binding.tNoteTitleDialog.text = it.title
                     binding.tNoteTimeDialog.text = it.time
@@ -204,6 +203,6 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
 
     companion object {
         @JvmStatic
-        fun newInstance(reminder: Reminder?, reminderId: Int, noteViewModel: NoteViewModel) = ReminderDialogFragment(reminder, reminderId, noteViewModel)
+        fun newInstance(reminder: Reminder?, reminderId: Int, noteViewModel: NoteViewModel, noteId: Int?=null) = ReminderDialogFragment(reminder, reminderId, noteViewModel, noteId)
     }
 }

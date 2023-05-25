@@ -85,7 +85,7 @@ class RemindersFragment : BaseFragment() {
     }
 
     private fun openReminder(reminder: Reminder? = null) {
-        val idsList = remindersList.map { it.id }
+        val idsList = noteViewModel.allReminders.value?.map { it.id } ?: emptyList()
         var reminderId = 0
         if (reminder==null){
             while (true) {

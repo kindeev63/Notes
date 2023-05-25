@@ -29,4 +29,5 @@
     <string name="open_note">Open note</string>
     <string name="open_app">Open app</string>
     <string name="pick_note_or_app">Pick note or app</string>
+    <string name="add_reminder">Add reminder</string>
 </resources>

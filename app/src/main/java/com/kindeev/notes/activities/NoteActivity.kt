@@ -19,6 +19,7 @@ import com.kindeev.notes.R
 import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.db.Note
+import com.kindeev.notes.fragments.ReminderDialogFragment
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -91,7 +92,7 @@ class NoteActivity : AppCompatActivity() {
     private fun setData() {
         if (!intent.hasExtra("noteId")) return
         noteViewModel.getNoteById(intent.getIntExtra("noteId", 0)) { oldNote ->
-            if (oldNote==null) notSaveFinish()
+            if (oldNote == null) notSaveFinish()
             currentNote = oldNote?.copy()
             color = oldNote?.color ?: Color.WHITE
             binding.apply {
@@ -106,9 +107,10 @@ class NoteActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if ((noteViewModel.allCategories.value?.size
-                ?: 0) > 0
-        ) menuInflater.inflate(R.menu.note_menu, menu)
+        menuInflater.inflate(R.menu.note_menu, menu)
+        menu?.findItem(R.id.category_item)?.isVisible = (noteViewModel.allCategories.value?.size
+            ?: 0) > 0
+        menu?.findItem(R.id.add_reminder_item)?.isVisible = intent.hasExtra("noteId")
         return true
     }
 
@@ -116,12 +118,28 @@ class NoteActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.set_category_item -> createDialog()
             android.R.id.home -> finish()
+            R.id.add_reminder_item -> {
+                val idsList = noteViewModel.allReminders.value?.map { it.id } ?: emptyList()
+                var reminderId = 0
+                while (true) {
+                    if (reminderId !in idsList) break
+                    reminderId++
+                }
+                val dialogFragment =
+                    ReminderDialogFragment.newInstance(
+                        null,
+                        reminderId,
+                        noteViewModel,
+                        currentNote?.id
+                    )
+                dialogFragment.show(supportFragmentManager, "reminder_dialog")
+            }
         }
         return true
 
     }
 
-    private fun notSaveFinish(){
+    private fun notSaveFinish() {
         save = false
         Toast.makeText(this, R.string.note_not_exist, Toast.LENGTH_SHORT).show()
         finish()
@@ -161,8 +179,6 @@ class NoteActivity : AppCompatActivity() {
     }
 
     private fun setSpinnerAdapter() {
-
-
 
 
         val colorAdapter = object : ArrayAdapter<Int>(this, R.layout.spinner_item, colors) {
