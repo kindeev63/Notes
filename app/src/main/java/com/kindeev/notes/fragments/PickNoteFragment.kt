@@ -12,7 +12,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.R
 import com.kindeev.notes.adapters.PickNotesAdapter
-import com.kindeev.notes.databinding.FragmentPickAppBinding
 import com.kindeev.notes.databinding.FragmentPickNoteBinding
 import com.kindeev.notes.db.Note
 

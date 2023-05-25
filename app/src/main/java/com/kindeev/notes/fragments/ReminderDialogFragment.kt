@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,14 +15,11 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.R
-import com.kindeev.notes.adapters.PickNotesAdapter
 import com.kindeev.notes.databinding.FragmentReminderDialogBinding
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
@@ -171,7 +167,7 @@ class ReminderDialogFragment(val reminder: Reminder?, private val reminderId: In
                 } else {
                     val newReminder = Reminder(reminderId, binding.eTitleDialog.text.toString(), binding.eDescriptionDialog.text.toString(), date.timeInMillis, null, null)
                     if (binding.openAppButton.isChecked){
-                        newReminder.packageName = packageName
+                        newReminder.packageName = packageName ?: requireContext().packageName
                     } else {
                         newReminder.noteId = noteId
                     }

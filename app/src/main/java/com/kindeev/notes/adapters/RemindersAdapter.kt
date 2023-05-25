@@ -10,6 +10,7 @@ import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.ReminderItemBinding
 import com.kindeev.notes.db.Reminder
 import java.text.SimpleDateFormat
+import java.util.*
 
 class RemindersAdapter(private val noteViewModel: NoteViewModel, private val onItemClick: (reminder: Reminder, open: Boolean) -> Unit) :
     RecyclerView.Adapter<RemindersAdapter.RemindersHolder>() {
@@ -18,8 +19,8 @@ class RemindersAdapter(private val noteViewModel: NoteViewModel, private val onI
         private val binding = ReminderItemBinding.bind(view)
         fun bind(reminder: Reminder, choosingNotes: Boolean, reminderSelected: Boolean) = with(binding) {
             tReminderTitle.text = reminder.title
-            val dateFormat = SimpleDateFormat("yyyy.MM.dd")
-            val timeFormat = SimpleDateFormat("HH:mm")
+            val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
             tReminderTime.text = timeFormat.format(reminder.time)
             tReminderDate.text = dateFormat.format(reminder.time)
             chDeleteReminder.visibility =

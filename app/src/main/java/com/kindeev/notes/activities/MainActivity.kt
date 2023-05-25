@@ -29,7 +29,6 @@ import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
-import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.RemindersFragment
 import com.kindeev.notes.receivers.AlarmReceiver
@@ -95,7 +94,6 @@ class MainActivity : AppCompatActivity() {
             }
             is NotesFragment -> {
                 FragmentManager.setFragment(FragmentManager.currentFrag as NotesFragment, this)
-                (FragmentManager.currentFrag as NotesFragment).searchText = ""
                 supportActionBar?.title =
                     (FragmentManager.currentFrag as NotesFragment).currentCategoryName
                         ?: resources.getString(R.string.all_notes)

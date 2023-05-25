@@ -1,14 +1,12 @@
 package com.kindeev.notes.other
 
 import android.app.Application
-import android.provider.CalendarContract.Reminders
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.kindeev.notes.db.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 open class NoteViewModel(application: Application) : AndroidViewModel(application) {
@@ -73,7 +71,7 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    suspend fun getAllReminders(): List<Reminder>? {
+    suspend fun getAllReminders(): List<Reminder> {
         return withContext(Dispatchers.IO) {
             repository.getAllReminders()
         }

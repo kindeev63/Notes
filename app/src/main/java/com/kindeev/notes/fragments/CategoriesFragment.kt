@@ -129,7 +129,7 @@ class CategoriesFragment : BaseFragment() {
         categoriesList: List<Category>?,
         searchText: String
     ): List<Category> {
-        return categoriesList?.filter { it.name.contains(searchText) } ?: emptyList()
+        return categoriesList?.filter { it.name.lowercase().contains(searchText.lowercase()) } ?: emptyList()
     }
 
     private fun showEditDialog(

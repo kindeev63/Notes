@@ -15,6 +15,7 @@ import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.other.NoteViewModel
+import java.util.*
 
 class NotesFragment : BaseFragment() {
     private lateinit var binding: FragmentNotesBinding
@@ -22,7 +23,7 @@ class NotesFragment : BaseFragment() {
     lateinit var notesAdapter: NotesAdapter
     private var notesList = emptyList<Note>()
     var currentCategoryName: String? = null
-    var searchText: String = ""
+    private var searchText: String = ""
 
     override fun onClickNew() = openNote()
     override fun search(text: String) {
@@ -48,7 +49,7 @@ class NotesFragment : BaseFragment() {
         } else {
             notes.filter { categoryName in it.categories.split(", ") }
         }
-        return newNotes.filter { it.title.contains(searchText) }
+        return newNotes.filter { it.title.lowercase().contains(searchText.lowercase()) }
     }
 
     override fun onCreateView(

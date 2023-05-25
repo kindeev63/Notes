@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
@@ -16,11 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.R
 import com.kindeev.notes.adapters.PickAppsAdapter
 import com.kindeev.notes.databinding.FragmentPickAppBinding
-import com.kindeev.notes.databinding.FragmentPickNoteBinding
-import com.kindeev.notes.databinding.FragmentReminderDialogBinding
-import com.kindeev.notes.db.Note
-import com.kindeev.notes.db.Reminder
-import java.util.*
 
 class PickAppFragment(private val listener: (ApplicationInfo) -> Unit) : DialogFragment() {
     private lateinit var binding: FragmentPickAppBinding

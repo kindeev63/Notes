@@ -2,7 +2,6 @@ package com.kindeev.notes.services
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -22,7 +21,6 @@ import java.util.*
 class UpdateService : Service() {
     private lateinit var noteViewModel: NoteViewModel
     private lateinit var alarmManager: AlarmManager
-    private lateinit var manager: NotificationManager
     private val scope = CoroutineScope(Dispatchers.Main)
 
     @SuppressLint("MissingPermission")
@@ -43,7 +41,7 @@ class UpdateService : Service() {
         startForeground(111, notification)
         GlobalScope.launch {
             val allReminders = withContext(Dispatchers.IO) {
-                noteViewModel.getAllReminders() ?: emptyList()
+                noteViewModel.getAllReminders()
             }
             scope.launch {
                 Log.e("test", "All reminders = $allReminders")

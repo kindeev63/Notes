@@ -19,14 +19,17 @@ class RemindersFragment : BaseFragment() {
     private lateinit var noteViewModel: NoteViewModel
     lateinit var remindersAdapter: RemindersAdapter
     private var remindersList = emptyList<Reminder>()
-    var searchText: String = ""
+    private var searchText: String = ""
 
     override fun onClickNew() {
         openReminder()
     }
 
     override fun search(text: String) {
-
+        searchText = text
+        remindersList = filterReminders(noteViewModel.allReminders.value, searchText)
+        remindersAdapter.setData(reminders = remindersList)
+        binding.noReminders.visibility = if (remindersList.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun filterReminders(
@@ -34,7 +37,7 @@ class RemindersFragment : BaseFragment() {
         searchText: String
     ): List<Reminder> {
 
-        return remindersList?.filter { it.title.contains(searchText) } ?: emptyList()
+        return remindersList?.filter { it.title.lowercase().contains(searchText.lowercase()) } ?: emptyList()
     }
 
     override fun onCreateView(

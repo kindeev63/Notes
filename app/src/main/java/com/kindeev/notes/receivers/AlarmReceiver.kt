@@ -31,7 +31,6 @@ class AlarmReceiver: BroadcastReceiver() {
         val notificationIntent = if (noteId==null) context.packageManager.getLaunchIntentForPackage(packageName!!) else Intent(context, NoteActivity::class.java).apply {
             putExtra("noteId", noteId)
         }
-        val mainActIntent = Intent(context, MainActivity::class.java)
         notificationIntent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         val pendingIntent = PendingIntent.getActivity(context, reminderId, notificationIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val builder = NotificationCompat.Builder(context, Notifications.CHANNEL_ID)
