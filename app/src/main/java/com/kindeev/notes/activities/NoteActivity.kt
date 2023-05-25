@@ -108,9 +108,9 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.note_menu, menu)
-        menu?.findItem(R.id.category_item)?.isVisible = (noteViewModel.allCategories.value?.size
-            ?: 0) > 0
         menu?.findItem(R.id.add_reminder_item)?.isVisible = intent.hasExtra("noteId")
+        menu?.findItem(R.id.set_category_item)?.isVisible = (noteViewModel.allCategories.value?.size
+            ?: 0) > 0
         return true
     }
 
