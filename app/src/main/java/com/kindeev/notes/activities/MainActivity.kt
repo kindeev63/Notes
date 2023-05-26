@@ -25,6 +25,7 @@ import com.kindeev.notes.fragments.FragmentManager
 import com.kindeev.notes.fragments.NotesFragment
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.forEach
+import androidx.drawerlayout.widget.DrawerLayout
 import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.other.Notifications
@@ -193,17 +194,23 @@ class MainActivity : AppCompatActivity() {
                 noteViewModel.selectedNotes.clear()
                 FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.categories)
+                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
 
             R.id.reminder_item -> {
                 noteViewModel.selectedNotes.clear()
                 FragmentManager.setFragment(RemindersFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.reminders)
+                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
 
             R.id.note_item -> {
                 FragmentManager.setFragment(NotesFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.all_notes)
+                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
             }
 
 
@@ -265,6 +272,8 @@ class MainActivity : AppCompatActivity() {
                 Log.e("test", "Category")
                 FragmentManager.setFragment(NotesFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.all_notes)
+                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
             }
             is RemindersFragment -> {
                 Log.e("test", "Reminder")
@@ -274,6 +283,8 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     FragmentManager.setFragment(NotesFragment.newInstance(), this)
                     supportActionBar?.title = resources.getString(R.string.all_notes)
+                    binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
                 }
             }
         }
@@ -293,18 +304,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setCategory(categoryName: String?) {
         supportActionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
-        if (FragmentManager.currentFrag !is NotesFragment) {
-            FragmentManager.setFragment(NotesFragment.newInstance(), this)
-            val notesFrag = FragmentManager.currentFrag as NotesFragment
-            notesFrag.currentCategoryName = categoryName
-            menu?.findItem(R.id.note_item)?.isVisible = false
-            menu?.findItem(R.id.category_item)?.isVisible = true
-            menu?.findItem(R.id.reminder_item)?.isVisible = true
-        } else {
-            val notesFrag = FragmentManager.currentFrag as NotesFragment
-            notesFrag.currentCategoryName = categoryName
-            notesFrag.setCategory()
-        }
+        val notesFrag = FragmentManager.currentFrag as NotesFragment
+        notesFrag.setCategory(categoryName)
     }
 
     private fun createNotificationChannel(){

@@ -35,7 +35,8 @@ class NotesFragment : BaseFragment() {
         binding.noNotes.visibility = if (notesList.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    fun setCategory() {
+    fun setCategory(categoryName: String?) {
+        currentCategoryName = categoryName
         notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
         notesAdapter.setData(notes = notesList)
         binding.noNotes.visibility = if (notesList.isEmpty()) View.VISIBLE else View.GONE
