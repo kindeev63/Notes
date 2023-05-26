@@ -3,7 +3,6 @@ package com.kindeev.notes.activities
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -33,7 +32,7 @@ class NoteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNoteBinding
     private var categoriesList: ArrayList<String> = arrayListOf()
     lateinit var noteViewModel: NoteViewModel
-    private var currentNote: Note? = null
+    private lateinit var currentNote: Note
     private var save = true
     private var color: Int = -1
     private val colors = listOf(
@@ -97,14 +96,14 @@ class NoteActivity : AppCompatActivity() {
     private fun setData() {
         noteViewModel.getNoteById(intent.getIntExtra("noteId", 0)) { oldNote ->
             if (oldNote == null) notSaveFinish()
-            currentNote = oldNote?.copy()
-            color = oldNote?.color ?: Color.WHITE
+            currentNote = oldNote!!.copy()
+            color = oldNote.color
             binding.apply {
-                eNoteTitle.setText(oldNote?.title)
-                eNoteText.setText(oldNote?.text)
+                eNoteTitle.setText(oldNote.title)
+                eNoteText.setText(oldNote.text)
             }
             binding.colorPicker.setSelection(colors.indexOf(color))
-            if (oldNote?.categories?.isNotEmpty() == true) {
+            if (oldNote.categories.isNotEmpty()) {
                 categoriesList = ArrayList(oldNote.categories.split(", "))
             }
         }
@@ -122,6 +121,7 @@ class NoteActivity : AppCompatActivity() {
             R.id.set_category_item -> createDialog()
             android.R.id.home -> finish()
             R.id.add_reminder_item -> {
+                saveNote()
                 var reminderId = 0
                 GlobalScope.launch {
                     val idsList = withContext(Dispatchers.IO) {
@@ -136,7 +136,7 @@ class NoteActivity : AppCompatActivity() {
                             null,
                             reminderId,
                             noteViewModel,
-                            currentNote?.id
+                            currentNote.id
                         )
                     dialogFragment.show(supportFragmentManager, "reminder_dialog")
                 }
@@ -155,6 +155,7 @@ class NoteActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         if (save) saveNote()
+        States.noteEdited = false
     }
 
     private fun saveNote() {
@@ -164,13 +165,12 @@ class NoteActivity : AppCompatActivity() {
         val noteTitle = binding.eNoteTitle.text.toString()
         val noteText = binding.eNoteText.text.toString()
         val noteCategories = categoriesList.joinToString(separator = ", ")
-        currentNote?.title = noteTitle
-        currentNote?.text = noteText
-        currentNote?.categories = noteCategories
-        currentNote?.time = formattedDateTime
-        currentNote?.color = color
-        noteViewModel.updateNote(note = currentNote!!)
-        States.noteEdited = false
+        currentNote.title = noteTitle
+        currentNote.text = noteText
+        currentNote.categories = noteCategories
+        currentNote.time = formattedDateTime
+        currentNote.color = color
+        noteViewModel.updateNote(note = currentNote)
     }
 
     private fun setSpinnerAdapter() {
