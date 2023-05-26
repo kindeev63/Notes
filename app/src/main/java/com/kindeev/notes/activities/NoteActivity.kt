@@ -90,7 +90,6 @@ class NoteActivity : AppCompatActivity() {
     }
 
     private fun setData() {
-        if (!intent.hasExtra("noteId")) return
         noteViewModel.getNoteById(intent.getIntExtra("noteId", 0)) { oldNote ->
             if (oldNote == null) notSaveFinish()
             currentNote = oldNote?.copy()
@@ -108,7 +107,6 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.note_menu, menu)
-        menu?.findItem(R.id.add_reminder_item)?.isVisible = intent.hasExtra("noteId")
         menu?.findItem(R.id.set_category_item)?.isVisible = (noteViewModel.allCategories.value?.size
             ?: 0) > 0
         return true
@@ -157,24 +155,12 @@ class NoteActivity : AppCompatActivity() {
         val noteTitle = binding.eNoteTitle.text.toString()
         val noteText = binding.eNoteText.text.toString()
         val noteCategories = categoriesList.joinToString(separator = ", ")
-        if (currentNote != null) {
-            currentNote?.title = noteTitle
-            currentNote?.text = noteText
-            currentNote?.categories = noteCategories
-            currentNote?.time = formattedDateTime
-            currentNote?.color = color
-            noteViewModel.updateNote(note = currentNote!!)
-        } else {
-            val newNote = Note(
-                id = 0,
-                title = noteTitle,
-                text = noteText,
-                categories = noteCategories,
-                time = formattedDateTime,
-                color = color
-            )
-            noteViewModel.insertNote(newNote)
-        }
+        currentNote?.title = noteTitle
+        currentNote?.text = noteText
+        currentNote?.categories = noteCategories
+        currentNote?.time = formattedDateTime
+        currentNote?.color = color
+        noteViewModel.updateNote(note = currentNote!!)
         States.noteEdited = false
     }
 

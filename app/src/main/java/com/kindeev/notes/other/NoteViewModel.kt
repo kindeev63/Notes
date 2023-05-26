@@ -29,6 +29,11 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
         repository.insertNote(note)
     }
 
+    fun insertNote(note: Note, function: (Note) -> Unit) = viewModelScope.launch {
+        repository.insertNote(note)
+        function(note)
+    }
+
     fun insertCategory(category: Category) = viewModelScope.launch {
         repository.insertCategory(category)
     }

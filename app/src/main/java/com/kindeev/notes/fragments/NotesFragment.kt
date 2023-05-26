@@ -1,7 +1,9 @@
 package com.kindeev.notes.fragments
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +17,7 @@ import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.other.NoteViewModel
+import java.text.SimpleDateFormat
 import java.util.*
 
 class NotesFragment : BaseFragment() {
@@ -98,10 +101,26 @@ class NotesFragment : BaseFragment() {
     }
 
     private fun openNote(note: Note? = null) {
-        val intent = Intent(requireContext(), NoteActivity::class.java).apply {
-            if (note != null) putExtra("noteId", note.id)
+        if (note == null) {
+            val idsList = noteViewModel.allNotes.value?.map { it.id } ?: emptyList()
+            var noteId = 0
+            while (true) {
+                if (noteId !in idsList) break
+                noteId++
+            }
+            val currentDate = Date()
+            val formatter = SimpleDateFormat("dd.MM.yyyy  HH:mm", Locale.getDefault())
+            val formattedDateTime = formatter.format(currentDate)
+            val newNote = Note(noteId, "", "", "", formattedDateTime, Color.WHITE)
+            noteViewModel.insertNote(newNote){
+                openNote(it)
+            }
+        } else {
+            val intent = Intent(requireContext(), NoteActivity::class.java).apply {
+                putExtra("noteId", note.id)
+            }
+            startActivity(intent)
         }
-        startActivity(intent)
     }
 
     companion object {

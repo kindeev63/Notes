@@ -7,7 +7,7 @@ import java.io.Serializable
 
 @Entity(tableName = "table_notes")
 data class Note(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: Int = 0,
     @ColumnInfo(name = "title")
     var title: String,
