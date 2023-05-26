@@ -3,6 +3,7 @@ package com.kindeev.notes.activities
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -20,6 +21,10 @@ import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.fragments.ReminderDialogFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -117,20 +122,24 @@ class NoteActivity : AppCompatActivity() {
             R.id.set_category_item -> createDialog()
             android.R.id.home -> finish()
             R.id.add_reminder_item -> {
-                val idsList = noteViewModel.allReminders.value?.map { it.id } ?: emptyList()
                 var reminderId = 0
-                while (true) {
-                    if (reminderId !in idsList) break
-                    reminderId++
+                GlobalScope.launch {
+                    val idsList = withContext(Dispatchers.IO) {
+                        noteViewModel.getAllReminders()
+                    }.map { it.id }
+                    while (true) {
+                        if (reminderId !in idsList) break
+                        reminderId++
+                    }
+                    val dialogFragment =
+                        ReminderDialogFragment.newInstance(
+                            null,
+                            reminderId,
+                            noteViewModel,
+                            currentNote?.id
+                        )
+                    dialogFragment.show(supportFragmentManager, "reminder_dialog")
                 }
-                val dialogFragment =
-                    ReminderDialogFragment.newInstance(
-                        null,
-                        reminderId,
-                        noteViewModel,
-                        currentNote?.id
-                    )
-                dialogFragment.show(supportFragmentManager, "reminder_dialog")
             }
         }
         return true
