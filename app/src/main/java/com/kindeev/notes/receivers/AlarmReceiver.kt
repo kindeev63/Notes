@@ -11,7 +11,6 @@ import androidx.core.app.NotificationManagerCompat
 import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
-import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.activities.NoteActivity
 import com.kindeev.notes.db.Reminder
 

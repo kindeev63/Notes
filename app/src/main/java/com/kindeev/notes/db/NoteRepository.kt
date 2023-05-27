@@ -43,7 +43,7 @@ class NoteRepository(private val noteDao: NoteDao) {
         noteDao.deleteReminders(reminders)
     }
 
-    fun getNoteById(id: Int): Note? {
+    suspend fun getNoteById(id: Int): Note? {
         return noteDao.getNoteById(id)
     }
 
