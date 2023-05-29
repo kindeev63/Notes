@@ -1,22 +1,28 @@
 package com.kindeev.notes.activities
 
+import android.Manifest
 import android.app.AlarmManager
+import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.SubMenu
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import com.kindeev.notes.databinding.ActivityMainBinding
@@ -24,6 +30,8 @@ import com.kindeev.notes.fragments.CategoriesFragment
 import com.kindeev.notes.fragments.FragmentManager
 import com.kindeev.notes.fragments.NotesFragment
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import androidx.drawerlayout.widget.DrawerLayout
 import com.kindeev.notes.other.MainApp
@@ -43,6 +51,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            // Разрешение уже есть, выполняем код
+        } else {
+            // Запрашиваем разрешение у пользователя
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 0)
+        }
+
         val color = Color.argb(255, 255, 255, 255)
         binding.fab.drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
 
@@ -83,6 +99,41 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            1 -> {
+                if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    Toast.makeText(
+                        this,
+                        R.string.must_grant_notifications_permission,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            else -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle(R.string.warning)
+                    builder.setMessage(R.string.warning_text)
+                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    builder.setNegativeButton(R.string.go_to_settings) {dialog, _ ->
+                        val intent = Intent()
+                        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        intent.data = Uri.fromParts("package", packageName, null)
+                        startActivity(intent)
+                        dialog.dismiss()
+                    }
+                    val dialog = builder.create()
+                    dialog.show()
+                }
+            }
+        }
 
     }
 

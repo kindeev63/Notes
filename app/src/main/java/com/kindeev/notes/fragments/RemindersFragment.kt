@@ -1,10 +1,14 @@
 package com.kindeev.notes.fragments
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.other.NoteViewModel
@@ -22,7 +26,11 @@ class RemindersFragment : BaseFragment() {
     private var searchText: String = ""
 
     override fun onClickNew() {
-        openReminder()
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            openReminder()
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+        }
     }
 
     override fun search(text: String) {

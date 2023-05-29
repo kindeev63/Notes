@@ -30,4 +30,8 @@
     <string name="open_app">Open app</string>
     <string name="pick_note_or_app">Pick note or app</string>
     <string name="add_reminder">Add reminder</string>
+    <string name="must_grant_notifications_permission">Grant permission to send notifications in the settings</string>
+    <string name="warning">Important!</string>
+    <string name="warning_text">On some manufacturers\' devices, you need to give the application permissions to launch services (to update reminders after restarting the device) and to work in the background (to display reminders). It may be necessary to issue these permissions on your device model. Review the application settings and issue them if you find the necessary permissions. Most likely you don\'t have these settings, but some manufacturers, such as realme, add these settings. If you don\'t find these settings, then you don\'t need to enable anything, everything will work for you anyway.</string>
+    <string name="go_to_settings">Go to settings</string>
 </resources>
