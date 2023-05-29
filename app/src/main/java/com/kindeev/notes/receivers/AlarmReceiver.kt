@@ -5,7 +5,9 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.RingtoneManager
 import android.os.PowerManager
+import android.os.Vibrator
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.kindeev.notes.other.MainApp
@@ -16,14 +18,30 @@ import com.kindeev.notes.db.Reminder
 
 class AlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val noteViewModel = (context.applicationContext as MainApp).noteViewModel
         val reminder = intent.getSerializableExtra("reminder") as Reminder
-        createNotification(context, reminder.title, reminder.description, reminder.id, reminder.noteId, reminder.packageName)
-        noteViewModel.deleteReminders(listOf(reminder))
-
+        createNotification(
+            context,
+            reminder.title,
+            reminder.description,
+            reminder.id,
+            reminder.noteId,
+            reminder.packageName
+        )
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        val wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP, "MyApp:MyWakeLock")
+        val wakeLock = powerManager.newWakeLock(
+            PowerManager.FULL_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+            "MyApp:MyWakeLock"
+        )
+        if (reminder.sound) playNotificationSound(context)
         wakeLock.acquire(5000)
+        val noteViewModel = (context.applicationContext as MainApp).noteViewModel
+        noteViewModel.deleteReminders(listOf(reminder))
+    }
+
+    private fun playNotificationSound(context: Context){
+        val notificationSound = RingtoneManager.getRingtone(context, RingtoneManager.getDefaultUri(
+            RingtoneManager.TYPE_NOTIFICATION))
+        notificationSound.play()
     }
     @SuppressLint("MissingPermission")
     private fun createNotification(context:Context, title: String, description: String, reminderId:Int, noteId: Int?, packageName: String?){
