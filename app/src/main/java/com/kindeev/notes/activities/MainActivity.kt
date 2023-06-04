@@ -33,7 +33,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
-import androidx.drawerlayout.widget.DrawerLayout
 import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.other.Notifications
@@ -73,33 +72,11 @@ class MainActivity : AppCompatActivity() {
             setHomeAsUpIndicator(R.drawable.ic_open_drawer)
         }
 
-        noteViewModel.allCategories.observe(this) {
-            val menu = binding.navView.menu
-            menu.clear()
-            menu.add(R.id.group_id, 0, Menu.NONE, resources.getString(R.string.all_notes))
-            val categories: SubMenu = menu.addSubMenu(resources.getString(R.string.categories))
-            for (item in it) {
-                categories.add(R.id.group_id, item.id, Menu.NONE, item.name)
-            }
-        }
-
         binding.apply {
-
             fab.setOnClickListener {
                 FragmentManager.currentFrag?.onClickNew()
             }
-            navView.setNavigationItemSelectedListener {
-                if (it.itemId == 0) {
-                    setCategory(null)
-                } else {
-                    setCategory(it.title.toString())
-                }
-                binding.drawer.closeDrawer(GravityCompat.START)
-                return@setNavigationItemSelectedListener true
-            }
         }
-
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -166,9 +143,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         this.menu = menu
-
-
-
         when (FragmentManager.currentFrag){
             is NotesFragment -> {
                 if (noteViewModel.selectedNotes.size == 0){
@@ -245,7 +219,6 @@ class MainActivity : AppCompatActivity() {
                 noteViewModel.selectedNotes.clear()
                 FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.categories)
-                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
 
@@ -253,20 +226,24 @@ class MainActivity : AppCompatActivity() {
                 noteViewModel.selectedNotes.clear()
                 FragmentManager.setFragment(RemindersFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.reminders)
-                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
 
             R.id.note_item -> {
                 FragmentManager.setFragment(NotesFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.all_notes)
-                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)
             }
 
 
             android.R.id.home -> {
-                binding.drawer.openDrawer(GravityCompat.START)
+                when(FragmentManager.currentFrag){
+                    is NotesFragment -> {
+                        val drawer = (FragmentManager.currentFrag as NotesFragment).binding.drawerNotes
+                        drawer.openDrawer(GravityCompat.START)
+                    }
+                }
+
             }
             R.id.delete_item -> {
                 when (FragmentManager.currentFrag){
@@ -286,7 +263,7 @@ class MainActivity : AppCompatActivity() {
 
                         noteViewModel.deleteNotes(noteViewModel.selectedNotes.toList())
                         noteViewModel.selectedNotes.clear()
-                        notesFrag.notesAdapter.notifyDataSetChanged()
+                        notesFrag.notesAdapter?.notifyDataSetChanged()
                     }
                     is RemindersFragment -> {
                         val notesFrag = FragmentManager.currentFrag as RemindersFragment
@@ -314,7 +291,7 @@ class MainActivity : AppCompatActivity() {
                 Log.e("test", "Note")
                 if (noteViewModel.selectedNotes.isNotEmpty()){
                     noteViewModel.selectedNotes.clear()
-                    (FragmentManager.currentFrag as NotesFragment).notesAdapter.notifyDataSetChanged()
+                    (FragmentManager.currentFrag as NotesFragment).notesAdapter?.notifyDataSetChanged()
                 } else {
                     super.onBackPressed()
                 }
@@ -323,7 +300,6 @@ class MainActivity : AppCompatActivity() {
                 Log.e("test", "Category")
                 FragmentManager.setFragment(NotesFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.all_notes)
-                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)
             }
             is RemindersFragment -> {
@@ -334,7 +310,6 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     FragmentManager.setFragment(NotesFragment.newInstance(), this)
                     supportActionBar?.title = resources.getString(R.string.all_notes)
-                    binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                     supportActionBar?.setDisplayHomeAsUpEnabled(true)
                 }
             }
@@ -352,12 +327,6 @@ class MainActivity : AppCompatActivity() {
         alarmManager.cancel(pendingIntent)
     }
     fun getViewModel() = noteViewModel
-
-    private fun setCategory(categoryName: String?) {
-        supportActionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
-        val notesFrag = FragmentManager.currentFrag as NotesFragment
-        notesFrag.setCategory(categoryName)
-    }
 
     private fun createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){

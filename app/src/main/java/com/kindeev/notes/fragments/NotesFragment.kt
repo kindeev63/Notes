@@ -3,11 +3,12 @@ package com.kindeev.notes.fragments
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.GravityCompat
 import androidx.core.view.forEach
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.*
 import com.kindeev.notes.activities.MainActivity
@@ -20,12 +21,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class NotesFragment : BaseFragment() {
-    private lateinit var binding: FragmentNotesBinding
+    lateinit var binding: FragmentNotesBinding
     private lateinit var noteViewModel: NoteViewModel
     lateinit var notesAdapter: NotesAdapter
     private var notesList = emptyList<Note>()
     var currentCategoryName: String? = null
     private var searchText: String = ""
+    private var fragmentVisible = false
 
     override fun onClickNew() = openNote()
     override fun search(text: String) {
@@ -35,7 +37,8 @@ class NotesFragment : BaseFragment() {
         binding.noNotes.visibility = if (notesList.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    fun setCategory(categoryName: String?) {
+    private fun setCategory(categoryName: String?) {
+        activity?.actionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
         currentCategoryName = categoryName
         notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
         notesAdapter.setData(notes = notesList)
@@ -91,12 +94,38 @@ class NotesFragment : BaseFragment() {
         binding.apply {
             rcNotes.adapter = notesAdapter
             rcNotes.layoutManager = LinearLayoutManager(requireContext())
+
+            navNotes.setNavigationItemSelectedListener {
+                Log.e("test", "click")
+                if (it.itemId == 0) {
+                    setCategory(null)
+                } else {
+                    setCategory(it.title.toString())
+                }
+                binding.drawerNotes.closeDrawer(GravityCompat.START)
+                return@setNavigationItemSelectedListener true
+            }
+
+
         }
         noteViewModel.allNotes.observe(requireActivity()) {
             notesList = filterNotes(it, currentCategoryName, searchText)
             notesAdapter.setData(notes = notesList)
             binding.noNotes.visibility = if (notesList.isEmpty()) View.VISIBLE else View.GONE
         }
+        noteViewModel.allCategories.observe(requireActivity()){
+            try{
+                val menu = (FragmentManager.currentFrag as NotesFragment).binding.navNotes.menu
+                menu.clear()
+                menu.add(R.id.group_id, 0, Menu.NONE, resources.getString(R.string.all_notes))
+                val categories: SubMenu = menu.addSubMenu(resources.getString(R.string.categories))
+                for (item in noteViewModel.allCategories.value ?: emptyList()) {
+                    categories.add(R.id.group_id, item.id, Menu.NONE, item.name)
+                }
+            } catch (_: Exception){}
+
+        }
+        fragmentVisible = true
         return binding.root
     }
 
@@ -112,7 +141,7 @@ class NotesFragment : BaseFragment() {
             val formatter = SimpleDateFormat("dd.MM.yyyy  HH:mm", Locale.getDefault())
             val formattedDateTime = formatter.format(currentDate)
             val newNote = Note(noteId, "", "", "", formattedDateTime, Color.WHITE)
-            noteViewModel.insertNote(newNote){
+            noteViewModel.insertNote(newNote) {
                 openNote(it)
             }
         } else {
