@@ -4,11 +4,16 @@ import androidx.lifecycle.LiveData
 
 class NoteRepository(private val noteDao: NoteDao) {
     val allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
+    val allTasks: LiveData<List<Task>> = noteDao.getAllTasks()
     val allCategories: LiveData<List<Category>> = noteDao.getAllCategories()
     val allReminders: LiveData<List<Reminder>> = noteDao.getAllReminders()
 
     suspend fun insertNote(note: Note) {
         noteDao.insertNote(note)
+    }
+
+    suspend fun insertTask(task: Task) {
+        noteDao.insertTask(task)
     }
 
     suspend fun insertCategory(category: Category) {
@@ -19,20 +24,12 @@ class NoteRepository(private val noteDao: NoteDao) {
         noteDao.insertReminder(reminder)
     }
 
-    suspend fun updateNote(note: Note) {
-        noteDao.updateNote(note)
-    }
-
-    suspend fun updateCategory(category: Category) {
-        noteDao.updateCategory(category)
-    }
-
-    suspend fun updateReminder(reminder: Reminder) {
-        noteDao.updateReminder(reminder)
-    }
-
     suspend fun deleteNotes(notes: List<Note>) {
         noteDao.deleteNotes(notes)
+    }
+
+    suspend fun deleteTask(task: Task) {
+        noteDao.deleteTask(task)
     }
 
     suspend fun deleteCategory(category: Category) {

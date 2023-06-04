@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Notes</string>
-    <string name="all_notes">All Notes</string>
+    <string name="all_notes">All notes</string>
     <string name="categories">Categories</string>
     <string name="save">Save</string>
     <string name="title">Title</string>
@@ -34,4 +34,6 @@
     <string name="warning">Important!</string>
     <string name="warning_text">On some manufacturers\' devices, you need to give the application permissions to launch services (to update reminders after restarting the device) and to work in the background (to display reminders). It may be necessary to issue these permissions on your device model. Review the application settings and issue them if you find the necessary permissions. Most likely you don\'t have these settings, but some manufacturers, such as realme, add these settings. If you don\'t find these settings, then you don\'t need to enable anything, everything will work for you anyway.</string>
     <string name="go_to_settings">Go to settings</string>
+    <string name="tasks">Tasks</string>
+    <string name="all_tasks">All tasks</string>
 </resources>

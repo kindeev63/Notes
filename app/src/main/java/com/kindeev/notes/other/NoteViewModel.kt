@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 open class NoteViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: NoteRepository
     val allNotes: LiveData<List<Note>>
+    val allTasks: LiveData<List<Task>>
     val allCategories: LiveData<List<Category>>
     val allReminders: LiveData<List<Reminder>>
     var selectedNotes = arrayListOf<Note>()
@@ -21,17 +22,21 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
         val noteDao = NoteDataBase.getDataBase(application).getDao()
         repository = NoteRepository(noteDao)
         allNotes = repository.allNotes
+        allTasks = repository.allTasks
         allCategories = repository.allCategories
         allReminders = repository.allReminders
+    }
+    fun insertNote(note: Note, function: (Note) -> Unit) = viewModelScope.launch {
+        repository.insertNote(note)
+        function(note)
     }
 
     fun insertNote(note: Note) = viewModelScope.launch {
         repository.insertNote(note)
     }
 
-    fun insertNote(note: Note, function: (Note) -> Unit) = viewModelScope.launch {
-        repository.insertNote(note)
-        function(note)
+    fun insertTask(task: Task) = viewModelScope.launch {
+        repository.insertTask(task)
     }
 
     fun insertCategory(category: Category) = viewModelScope.launch {
@@ -42,20 +47,12 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
         repository.insertReminder(reminder)
     }
 
-    fun updateNote(note: Note) = viewModelScope.launch {
-        repository.updateNote(note)
-    }
-
-    fun updateCategory(category: Category) = viewModelScope.launch {
-        repository.updateCategory(category)
-    }
-
-    fun updateReminder(reminder: Reminder) = viewModelScope.launch {
-        repository.updateReminder(reminder)
-    }
-
     fun deleteNotes(notes: List<Note>) = viewModelScope.launch {
         repository.deleteNotes(notes)
+    }
+
+    fun deleteTask(task: Task) = viewModelScope.launch {
+        repository.deleteTask(task)
     }
 
     fun deleteCategory(category: Category) = viewModelScope.launch {

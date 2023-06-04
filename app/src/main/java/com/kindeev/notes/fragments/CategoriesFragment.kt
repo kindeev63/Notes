@@ -70,7 +70,7 @@ class CategoriesFragment : BaseFragment() {
                             if (categoryName in categoriesList) {
                                 categoriesList.remove(categoryName)
                                 note.categories = categoriesList.joinToString(separator = ", ")
-                                noteViewModel.updateNote(note)
+                                noteViewModel.insertNote(note)
                             }
                         }
                     }
@@ -93,14 +93,14 @@ class CategoriesFragment : BaseFragment() {
                         ).show()
                     } else {
                         category.name = newName
-                        noteViewModel.updateCategory(category)
+                        noteViewModel.insertCategory(category)
                         for (note in noteViewModel.allNotes.value ?: emptyList()) {
                             val categoriesList = ArrayList(note.categories.split(", "))
                             if (oldName in categoriesList) {
                                 categoriesList.remove(oldName)
                                 categoriesList.add(newName)
                                 note.categories = categoriesList.joinToString(separator = ", ")
-                                noteViewModel.updateNote(note)
+                                noteViewModel.insertNote(note)
                             }
                         }
                     }

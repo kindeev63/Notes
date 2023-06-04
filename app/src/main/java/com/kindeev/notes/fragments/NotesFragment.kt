@@ -117,10 +117,10 @@ class NotesFragment : BaseFragment() {
             try{
                 val menu = (FragmentManager.currentFrag as NotesFragment).binding.navNotes.menu
                 menu.clear()
-                menu.add(R.id.group_id, 0, Menu.NONE, resources.getString(R.string.all_notes))
+                menu.add(R.id.notes_group, 0, Menu.NONE, resources.getString(R.string.all_notes))
                 val categories: SubMenu = menu.addSubMenu(resources.getString(R.string.categories))
                 for (item in noteViewModel.allCategories.value ?: emptyList()) {
-                    categories.add(R.id.group_id, item.id, Menu.NONE, item.name)
+                    categories.add(R.id.notes_group, item.id, Menu.NONE, item.name)
                 }
             } catch (_: Exception){}
 

@@ -170,7 +170,7 @@ class NoteActivity : AppCompatActivity() {
         currentNote.categories = noteCategories
         currentNote.time = formattedDateTime
         currentNote.color = color
-        noteViewModel.updateNote(note = currentNote)
+        noteViewModel.insertNote(note = currentNote)
     }
 
     private fun setSpinnerAdapter() {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/notes_group">
+    <group android:id="@+id/tasks_group">
         <item
-            android:id="@+id/all_notes_item"
-            android:title="@string/all_notes" />
+            android:id="@+id/all_tasks_item"
+            android:title="@string/all_tasks" />
     </group>
 </menu>

@@ -10,13 +10,14 @@ import com.kindeev.notes.databinding.FragmentTasksBinding
 
 
 class TasksFragment : BaseFragment() {
-    private lateinit var binding: FragmentTasksBinding
+    lateinit var binding: FragmentTasksBinding
+    var currentCategoryName: String? = null
     override fun onClickNew() {
 
     }
 
     override fun search(text: String) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onCreateView(

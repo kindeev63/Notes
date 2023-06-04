@@ -12,6 +12,10 @@
         android:title="@string/app_name"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/task_item"
+        android:title="@string/tasks"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/category_item"
         android:title="@string/categories"
         app:showAsAction="never"/>
