@@ -140,10 +140,6 @@ class MainActivity : AppCompatActivity() {
                     (FragmentManager.currentFrag as TasksFragment).currentCategoryName
                         ?: resources.getString(R.string.all_notes)
             }
-            is CategoriesFragment -> {
-                FragmentManager.setFragment(FragmentManager.currentFrag as CategoriesFragment, this)
-                supportActionBar?.title = resources.getString(R.string.categories)
-            }
 
             is RemindersFragment -> {
                 FragmentManager.setFragment(FragmentManager.currentFrag as RemindersFragment, this)
@@ -170,7 +166,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             is TasksFragment -> {}
-            is CategoriesFragment -> {}
             is RemindersFragment -> {
                 if (noteViewModel.selectedReminders.size == 0) {
                     menu?.forEach {
@@ -186,8 +181,6 @@ class MainActivity : AppCompatActivity() {
         }
         menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
         menu?.findItem(R.id.task_item)?.isVisible = FragmentManager.currentFrag !is TasksFragment
-        menu?.findItem(R.id.category_item)?.isVisible =
-            FragmentManager.currentFrag !is CategoriesFragment
         menu?.findItem(R.id.reminder_item)?.isVisible =
             FragmentManager.currentFrag !is RemindersFragment
 
@@ -234,14 +227,6 @@ class MainActivity : AppCompatActivity() {
         searchView.isIconified = true
         searchItem.collapseActionView()
         when (item.itemId) {
-            R.id.category_item -> {
-                noteViewModel.selectedNotes.clear()
-                noteViewModel.selectedReminders.clear()
-                FragmentManager.setFragment(CategoriesFragment.newInstance(), this)
-                supportActionBar?.title = resources.getString(R.string.categories)
-                supportActionBar?.setDisplayHomeAsUpEnabled(false)
-            }
-
             R.id.reminder_item -> {
                 noteViewModel.selectedNotes.clear()
                 FragmentManager.setFragment(RemindersFragment.newInstance(), this)
@@ -315,8 +300,6 @@ class MainActivity : AppCompatActivity() {
         }
         menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
         menu?.findItem(R.id.task_item)?.isVisible = FragmentManager.currentFrag !is TasksFragment
-        menu?.findItem(R.id.category_item)?.isVisible =
-            FragmentManager.currentFrag !is CategoriesFragment
         menu?.findItem(R.id.reminder_item)?.isVisible =
             FragmentManager.currentFrag !is RemindersFragment
         return true
@@ -332,12 +315,6 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     super.onBackPressed()
                 }
-            }
-            is CategoriesFragment -> {
-                Log.e("test", "Category")
-                FragmentManager.setFragment(NotesFragment.newInstance(), this)
-                supportActionBar?.title = resources.getString(R.string.all_notes)
-                supportActionBar?.setDisplayHomeAsUpEnabled(true)
             }
             is TasksFragment -> {
                 Log.e("test", "Task")
@@ -359,8 +336,6 @@ class MainActivity : AppCompatActivity() {
         menu?.findItem(R.id.delete_item)?.isVisible = false
         menu?.findItem(R.id.note_item)?.isVisible = FragmentManager.currentFrag !is NotesFragment
         menu?.findItem(R.id.task_item)?.isVisible = FragmentManager.currentFrag !is TasksFragment
-        menu?.findItem(R.id.category_item)?.isVisible =
-            FragmentManager.currentFrag !is CategoriesFragment
         menu?.findItem(R.id.reminder_item)?.isVisible =
             FragmentManager.currentFrag !is RemindersFragment
     }

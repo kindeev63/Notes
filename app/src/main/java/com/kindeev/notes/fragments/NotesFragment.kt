@@ -3,8 +3,13 @@ package com.kindeev.notes.fragments
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.*
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
 import androidx.core.view.forEach
@@ -13,8 +18,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.*
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.activities.NoteActivity
+import com.kindeev.notes.adapters.CategoriesAdapter
 import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
+import com.kindeev.notes.db.Category
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.other.NoteViewModel
 import java.text.SimpleDateFormat
@@ -25,9 +32,10 @@ class NotesFragment : BaseFragment() {
     private lateinit var noteViewModel: NoteViewModel
     lateinit var notesAdapter: NotesAdapter
     private var notesList = emptyList<Note>()
+    private lateinit var categoriesAdapter: CategoriesAdapter
+    private var categoriesList = emptyList<Category>()
     var currentCategoryName: String? = null
     private var searchText: String = ""
-    private var fragmentVisible = false
 
     override fun onClickNew() = openNote()
     override fun search(text: String) {
@@ -38,7 +46,7 @@ class NotesFragment : BaseFragment() {
     }
 
     private fun setCategory(categoryName: String?) {
-        activity?.actionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
+        (activity as AppCompatActivity).supportActionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
         currentCategoryName = categoryName
         notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
         notesAdapter.setData(notes = notesList)
@@ -92,41 +100,156 @@ class NotesFragment : BaseFragment() {
             }
         notesAdapter = NotesAdapter(noteViewModel, onClickNote)
         binding.apply {
+            val screenWidth = resources.displayMetrics.widthPixels
+            val newWidth = screenWidth * 5 / 6
+            val layoutParams = navNotes.layoutParams
+            layoutParams.width = newWidth
+            navNotes.layoutParams = layoutParams
             rcNotes.adapter = notesAdapter
             rcNotes.layoutManager = LinearLayoutManager(requireContext())
-
-            navNotes.setNavigationItemSelectedListener {
-                Log.e("test", "click")
-                if (it.itemId == 0) {
-                    setCategory(null)
-                } else {
-                    setCategory(it.title.toString())
-                }
-                binding.drawerNotes.closeDrawer(GravityCompat.START)
-                return@setNavigationItemSelectedListener true
+            allNotesCard.setOnClickListener {
+                setCategory(null)
+                drawerNotes.closeDrawer(GravityCompat.START)
             }
-
-
+            addCategoryView.setOnClickListener {
+                showEditDialog(
+                    resources.getString(R.string.add_category),
+                    resources.getString(R.string.add),
+                    resources.getString(R.string.cancel)
+                ) { name ->
+                    if (name !in categoriesList.map { it.name })
+                        if (name.isEmpty()) {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.category_name_is_empty,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            noteViewModel.insertCategory(Category(id = 0, name = name))
+                        }
+                    else
+                        Toast.makeText(
+                            requireContext(),
+                            resources.getString(R.string.category_exists),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                }
+            }
+            val onClickCategory: (Category, Boolean) -> Unit =
+                { category: Category, long: Boolean ->
+                    if (long) {
+                        AlertDialog.Builder(requireContext()).apply {
+                            setTitle(R.string.want_to_do)
+                            setPositiveButton(R.string.edit) { _, _ ->
+                                showEditDialog(
+                                    resources.getString(R.string.edit_category),
+                                    resources.getString(R.string.save),
+                                    resources.getString(R.string.cancel),
+                                    category.name
+                                ) { newName ->
+                                    val oldName = category.name
+                                    if (newName !in categoriesList.map { it.name }) {
+                                        if (newName.isEmpty()) {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                R.string.category_name_is_empty,
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            if (currentCategoryName==category.name){
+                                                setCategory(newName)
+                                            }
+                                            category.name = newName
+                                            noteViewModel.insertCategory(category)
+                                            for (note in noteViewModel.allNotes.value
+                                                ?: emptyList()) {
+                                                val categoriesList =
+                                                    ArrayList(note.categories.split(", "))
+                                                if (oldName in categoriesList) {
+                                                    categoriesList.remove(oldName)
+                                                    categoriesList.add(newName)
+                                                    note.categories =
+                                                        categoriesList.joinToString(separator = ", ")
+                                                    noteViewModel.insertNote(note)
+                                                }
+                                            }
+                                        }
+                                    } else if (newName != oldName) Toast.makeText(
+                                        requireContext(),
+                                        R.string.category_exists,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                            setNegativeButton(R.string.delete) { _, _ ->
+                                if (currentCategoryName==category.name){
+                                    setCategory(null)
+                                }
+                                noteViewModel.deleteCategory(category)
+                                val categoryName = category.name
+                                for (note in noteViewModel.allNotes.value ?: emptyList()) {
+                                    val categoriesList = ArrayList(note.categories.split(", "))
+                                    if (categoryName in categoriesList) {
+                                        categoriesList.remove(categoryName)
+                                        note.categories =
+                                            categoriesList.joinToString(separator = ", ")
+                                        noteViewModel.insertNote(note)
+                                    }
+                                }
+                            }
+                            show()
+                        }
+                    } else {
+                        setCategory(category.name)
+                        drawerNotes.closeDrawer(GravityCompat.START)
+                    }
+                }
+            noteViewModel.allCategories.observe(requireActivity()) {
+                try {
+                    categoriesList = filterCategories(it, searchText)
+                    categoriesAdapter.setData(categoriesList)
+                } catch (_: Exception) {}
+            }
+            categoriesAdapter = CategoriesAdapter(onClickCategory)
+            rcCategories.adapter = categoriesAdapter
+            rcCategories.layoutManager = LinearLayoutManager(requireContext())
         }
         noteViewModel.allNotes.observe(requireActivity()) {
             notesList = filterNotes(it, currentCategoryName, searchText)
             notesAdapter.setData(notes = notesList)
             binding.noNotes.visibility = if (notesList.isEmpty()) View.VISIBLE else View.GONE
         }
-        noteViewModel.allCategories.observe(requireActivity()){
-            try{
-                val menu = (FragmentManager.currentFrag as NotesFragment).binding.navNotes.menu
-                menu.clear()
-                menu.add(R.id.notes_group, 0, Menu.NONE, resources.getString(R.string.all_notes))
-                val categories: SubMenu = menu.addSubMenu(resources.getString(R.string.categories))
-                for (item in noteViewModel.allCategories.value ?: emptyList()) {
-                    categories.add(R.id.notes_group, item.id, Menu.NONE, item.name)
-                }
-            } catch (_: Exception){}
-
-        }
-        fragmentVisible = true
         return binding.root
+    }
+
+    private fun filterCategories(
+        categoriesList: List<Category>?,
+        searchText: String
+    ): List<Category> {
+        return categoriesList?.filter { it.name.lowercase().contains(searchText.lowercase()) } ?: emptyList()
+    }
+
+    private fun showEditDialog(
+        title: String,
+        textOk: String,
+        textCancel: String,
+        categoryName: String = "",
+        result: (String) -> Unit
+    ) {
+        AlertDialog.Builder(requireContext()).apply {
+            setTitle(title)
+            val input = EditText(requireContext()).apply {
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL
+                setText(categoryName)
+            }
+            setView(input)
+            setPositiveButton(textOk) { _, _ ->
+                val text = input.text.toString()
+                result(text)
+            }
+            setNegativeButton(textCancel) { d, _ -> d.cancel() }
+            show()
+        }
     }
 
     private fun openNote(note: Note? = null) {

@@ -16,10 +16,6 @@
         android:title="@string/tasks"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/category_item"
-        android:title="@string/categories"
-        app:showAsAction="never"/>
-    <item
         android:id="@+id/reminder_item"
         android:title="@string/reminders"
         app:showAsAction="never"/>

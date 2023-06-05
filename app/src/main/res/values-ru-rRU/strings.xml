@@ -14,7 +14,6 @@
     <string name="select_categories">Выберите категории</string>
     <string name="category_exists">Эта категория уже существует</string>
     <string name="delete_note">Удалить заметку</string>
-    <string name="delete_category">Удалить категорию</string>
     <string name="delete">Удалить</string>
     <string name="search">Поиск</string>
     <string name="empty">Пусто</string>
@@ -37,4 +36,6 @@
     <string name="go_to_settings">Перейти в настройки</string>
     <string name="tasks">Задачи</string>
     <string name="all_tasks">Все задачи</string>
+    <string name="want_to_do">Что вы хотите сделать</string>
+    <string name="edit">Изменить</string>
 </resources>

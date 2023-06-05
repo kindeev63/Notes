@@ -1,17 +1,19 @@
 package com.kindeev.notes.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.kindeev.notes.R
+import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.databinding.FragmentTasksBinding
+import com.kindeev.notes.other.NoteViewModel
 
 
 class TasksFragment : BaseFragment() {
     lateinit var binding: FragmentTasksBinding
     var currentCategoryName: String? = null
+    private lateinit var noteViewModel: NoteViewModel
     override fun onClickNew() {
 
     }
@@ -25,6 +27,7 @@ class TasksFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentTasksBinding.inflate(inflater, container, false)
+        noteViewModel = (activity as MainActivity).getViewModel()
 
 
 
