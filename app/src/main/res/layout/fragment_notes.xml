@@ -100,7 +100,7 @@
                 android:textSize="16sp" />
 
             <LinearLayout
-                android:id="@+id/addCategoryView"
+                android:id="@+id/addCategoryNotes"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:gravity="center"
@@ -114,7 +114,7 @@
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rcCategories"
+            android:id="@+id/rcCategoriesNotes"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 

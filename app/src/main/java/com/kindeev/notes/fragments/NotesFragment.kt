@@ -111,7 +111,7 @@ class NotesFragment : BaseFragment() {
                 setCategory(null)
                 drawerNotes.closeDrawer(GravityCompat.START)
             }
-            addCategoryView.setOnClickListener {
+            addCategoryNotes.setOnClickListener {
                 showEditDialog(
                     resources.getString(R.string.add_category),
                     resources.getString(R.string.add),
@@ -211,8 +211,8 @@ class NotesFragment : BaseFragment() {
                 } catch (_: Exception) {}
             }
             categoriesAdapter = CategoriesAdapter(onClickCategory)
-            rcCategories.adapter = categoriesAdapter
-            rcCategories.layoutManager = LinearLayoutManager(requireContext())
+            rcCategoriesNotes.adapter = categoriesAdapter
+            rcCategoriesNotes.layoutManager = LinearLayoutManager(requireContext())
         }
         noteViewModel.allNotes.observe(requireActivity()) {
             notesList = filterNotes(it, currentCategoryName, searchText)
