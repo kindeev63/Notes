@@ -13,7 +13,8 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
     private val repository: NoteRepository
     val allNotes: LiveData<List<Note>>
     val allTasks: LiveData<List<Task>>
-    val allCategories: LiveData<List<Category>>
+    val allCategoriesOfNotes: LiveData<List<Category>>
+    val allCategoriesOfTasks: LiveData<List<Category>>
     val allReminders: LiveData<List<Reminder>>
     var selectedNotes = arrayListOf<Note>()
     var selectedReminders = arrayListOf<Reminder>()
@@ -23,7 +24,8 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
         repository = NoteRepository(noteDao)
         allNotes = repository.allNotes
         allTasks = repository.allTasks
-        allCategories = repository.allCategories
+        allCategoriesOfNotes = repository.allCategoriesOfNotes
+        allCategoriesOfTasks = repository.allCategoriesOfTasks
         allReminders = repository.allReminders
     }
     fun insertNote(note: Note, function: (Note) -> Unit) = viewModelScope.launch {

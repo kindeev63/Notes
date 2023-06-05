@@ -11,8 +11,8 @@ interface NoteDao {
     @Query("SELECT * FROM table_tasks")
     fun getAllTasks(): LiveData<List<Task>>
 
-    @Query("SELECT * FROM table_categories")
-    fun getAllCategories(): LiveData<List<Category>>
+    @Query("SELECT * FROM table_categories WHERE type = :type")
+    fun getAllCategoriesByType(type: String): LiveData<List<Category>>
 
     @Query("SELECT * FROM table_reminders")
     fun getAllReminders(): LiveData<List<Reminder>>

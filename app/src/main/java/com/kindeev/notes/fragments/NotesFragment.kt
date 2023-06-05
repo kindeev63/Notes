@@ -125,7 +125,7 @@ class NotesFragment : BaseFragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            noteViewModel.insertCategory(Category(id = 0, name = name))
+                            noteViewModel.insertCategory(Category(id = 0, name = name, type = "notes"))
                         }
                     else
                         Toast.makeText(
@@ -204,7 +204,7 @@ class NotesFragment : BaseFragment() {
                         drawerNotes.closeDrawer(GravityCompat.START)
                     }
                 }
-            noteViewModel.allCategories.observe(requireActivity()) {
+            noteViewModel.allCategoriesOfNotes.observe(requireActivity()) {
                 try {
                     categoriesList = filterCategories(it, searchText)
                     categoriesAdapter.setData(categoriesList)

@@ -9,5 +9,7 @@ data class Category(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     @ColumnInfo(name = "name")
-    var name: String
+    var name: String,
+    @ColumnInfo(name = "type")
+    var type: String
 )

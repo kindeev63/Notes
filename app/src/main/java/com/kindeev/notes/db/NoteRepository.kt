@@ -5,7 +5,8 @@ import androidx.lifecycle.LiveData
 class NoteRepository(private val noteDao: NoteDao) {
     val allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
     val allTasks: LiveData<List<Task>> = noteDao.getAllTasks()
-    val allCategories: LiveData<List<Category>> = noteDao.getAllCategories()
+    val allCategoriesOfNotes: LiveData<List<Category>> = noteDao.getAllCategoriesByType("notes")
+    val allCategoriesOfTasks: LiveData<List<Category>> = noteDao.getAllCategoriesByType("tasks")
     val allReminders: LiveData<List<Reminder>> = noteDao.getAllReminders()
 
     suspend fun insertNote(note: Note) {

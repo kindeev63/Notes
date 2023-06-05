@@ -65,7 +65,7 @@ class NoteActivity : AppCompatActivity() {
 
     private fun createDialog() {
         val categoriesNames: Array<String> =
-            (noteViewModel.allCategories.value ?: emptyList()).toList().map { it.name }
+            (noteViewModel.allCategoriesOfNotes.value ?: emptyList()).toList().map { it.name }
                 .toTypedArray()
         val checkedCategories =
             categoriesNames.map { it in categoriesList }.toBooleanArray()
@@ -111,7 +111,7 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.note_menu, menu)
-        menu?.findItem(R.id.set_category_item)?.isVisible = (noteViewModel.allCategories.value?.size
+        menu?.findItem(R.id.set_category_item)?.isVisible = (noteViewModel.allCategoriesOfNotes.value?.size
             ?: 0) > 0
         return true
     }
