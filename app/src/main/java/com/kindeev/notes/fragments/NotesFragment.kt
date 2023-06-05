@@ -204,15 +204,13 @@ class NotesFragment : BaseFragment() {
                         drawerNotes.closeDrawer(GravityCompat.START)
                     }
                 }
-            noteViewModel.allCategoriesOfNotes.observe(requireActivity()) {
-                try {
-                    categoriesList = filterCategories(it, searchText)
-                    categoriesAdapter.setData(categoriesList)
-                } catch (_: Exception) {}
-            }
             categoriesAdapter = CategoriesAdapter(onClickCategory)
             rcCategoriesNotes.adapter = categoriesAdapter
             rcCategoriesNotes.layoutManager = LinearLayoutManager(requireContext())
+        }
+        noteViewModel.allCategoriesOfNotes.observe(requireActivity()) {
+            categoriesList = filterCategories(it, searchText)
+            categoriesAdapter.setData(categories = categoriesList)
         }
         noteViewModel.allNotes.observe(requireActivity()) {
             notesList = filterNotes(it, currentCategoryName, searchText)

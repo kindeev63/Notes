@@ -37,8 +37,8 @@ class CategoriesAdapter(private val onItemClick: (category: Category, long: Bool
         }
     }
 
-    fun setData(data: List<Category>) {
-        categoriesList = data
+    fun setData(categories: List<Category>?) {
+        categoriesList = categories ?: categoriesList
         notifyDataSetChanged()
     }
 }

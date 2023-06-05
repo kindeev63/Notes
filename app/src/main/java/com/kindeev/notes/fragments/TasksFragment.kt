@@ -183,15 +183,13 @@ class TasksFragment : BaseFragment() {
                         drawerTasks.closeDrawer(GravityCompat.START)
                     }
                 }
-            noteViewModel.allCategoriesOfTasks.observe(requireActivity()) {
-                try {
-                    categoriesList = filterCategories(it, searchText)
-                    categoriesAdapter.setData(categoriesList)
-                } catch (_: Exception) {}
-            }
             categoriesAdapter = CategoriesAdapter(onClickCategory)
             rcCategoriesTasks.adapter = categoriesAdapter
             rcCategoriesTasks.layoutManager = LinearLayoutManager(requireContext())
+        }
+        noteViewModel.allCategoriesOfTasks.observe(requireActivity()) {
+            categoriesList = filterCategories(it, searchText)
+            categoriesAdapter.setData(categories = categoriesList)
         }
         noteViewModel.allTasks.observe(requireActivity()) {
             tasksList = filterTasks(it, currentCategoryName, searchText)
