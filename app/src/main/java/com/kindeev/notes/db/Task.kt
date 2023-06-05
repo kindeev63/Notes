@@ -9,7 +9,7 @@ data class Task(
     @PrimaryKey(autoGenerate = false)
     val id: Int = 0,
     @ColumnInfo(name = "text")
-    var text: String,
+    var title: String,
     @ColumnInfo(name = "done")
     var done: Boolean,
     @ColumnInfo(name = "categories")

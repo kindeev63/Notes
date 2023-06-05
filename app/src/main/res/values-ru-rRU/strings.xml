@@ -38,4 +38,6 @@
     <string name="all_tasks">Все задачи</string>
     <string name="want_to_do">Что вы хотите сделать</string>
     <string name="edit">Изменить</string>
+    <string name="enter_name_of_task">Введите название задачи</string>
+    <string name="delete_task">Удалить задачу</string>
 </resources>

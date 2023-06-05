@@ -138,7 +138,7 @@ class MainActivity : AppCompatActivity() {
                 FragmentManager.setFragment(FragmentManager.currentFrag as TasksFragment, this)
                 supportActionBar?.title =
                     (FragmentManager.currentFrag as TasksFragment).currentCategoryName
-                        ?: resources.getString(R.string.all_notes)
+                        ?: resources.getString(R.string.all_tasks)
             }
 
             is RemindersFragment -> {

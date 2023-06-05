@@ -37,4 +37,6 @@
     <string name="all_tasks">All tasks</string>
     <string name="want_to_do">What do you want to do</string>
     <string name="edit">Edit</string>
+    <string name="enter_name_of_task">Enter the name of the task</string>
+    <string name="delete_task">Delete task</string>
 </resources>

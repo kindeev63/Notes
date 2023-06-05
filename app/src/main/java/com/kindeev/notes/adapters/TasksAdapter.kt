@@ -1,5 +1,6 @@
 package com.kindeev.notes.adapters
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,12 @@ class TasksAdapter(private val noteViewModel: NoteViewModel, private val onItemC
     class TasksHolder(view: View) : RecyclerView.ViewHolder(view) {
         val binding = TaskItemBinding.bind(view)
         fun bind(task: Task) = with(binding) {
-            taskText.text = task.text
+            taskTitle.text = task.title
+            taskTitle.paintFlags = if (task.done) {
+                taskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            } else {
+                taskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            }
             taskContent.setBackgroundColor(task.color)
             taskDone.isChecked = task.done
 
@@ -24,7 +30,7 @@ class TasksAdapter(private val noteViewModel: NoteViewModel, private val onItemC
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TasksHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.note_item, parent, false)
+        LayoutInflater.from(parent.context).inflate(R.layout.task_item, parent, false)
     )
 
     override fun getItemCount() = tasksList.size
@@ -35,12 +41,12 @@ class TasksAdapter(private val noteViewModel: NoteViewModel, private val onItemC
             tasksList[position].done = holder.binding.taskDone.isChecked
             noteViewModel.insertTask(tasksList[position])
         }
-        holder.binding.taskText.setOnClickListener {
+        holder.binding.taskTitle.setOnClickListener {
             if (!States.taskEdited) {
                 onItemClick(tasksList[position], false)
             }
         }
-        holder.itemView.setOnLongClickListener {
+        holder.binding.taskTitle.setOnLongClickListener {
             onItemClick(tasksList[position], true)
             return@setOnLongClickListener true
         }

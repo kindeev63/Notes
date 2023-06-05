@@ -102,7 +102,7 @@ class NoteActivity : AppCompatActivity() {
                 eNoteTitle.setText(oldNote.title)
                 eNoteText.setText(oldNote.text)
             }
-            binding.colorPicker.setSelection(colors.indexOf(color))
+            binding.colorPickerNote.setSelection(colors.indexOf(color))
             if (oldNote.categories.isNotEmpty()) {
                 categoriesList = ArrayList(oldNote.categories.split(", "))
             }
@@ -199,8 +199,8 @@ class NoteActivity : AppCompatActivity() {
                 return view
             }
         }
-        binding.colorPicker.adapter = colorAdapter
-        binding.colorPicker.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.colorPickerNote.adapter = colorAdapter
+        binding.colorPickerNote.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
                 view: View?,

@@ -30,7 +30,7 @@ class TasksFragment : BaseFragment() {
     private var searchText: String = ""
 
     override fun onClickNew(){
-
+        openTask()
     }
     override fun search(text: String) {
         searchText = text
@@ -57,7 +57,7 @@ class TasksFragment : BaseFragment() {
         } else {
             tasks.filter { categoryName in it.categories.split(", ") }
         }
-        return newTasks.filter { it.text.lowercase().contains(searchText.lowercase()) }
+        return newTasks.filter { it.title.lowercase().contains(searchText.lowercase()) }
     }
 
     override fun onCreateView(
@@ -70,7 +70,14 @@ class TasksFragment : BaseFragment() {
         val onClickTask: (Task, Boolean) -> Unit =
             { task: Task, long: Boolean ->
                 if (long) {
-
+                    AlertDialog.Builder(requireContext()).apply {
+                        setTitle(R.string.delete_task)
+                        setPositiveButton(R.string.delete) { _, _ ->
+                            noteViewModel.deleteTask(task)
+                        }
+                        setNegativeButton(R.string.cancel) { _, _ -> }
+                        show()
+                    }
                 } else {
                     openTask(task)
                 }
@@ -230,11 +237,18 @@ class TasksFragment : BaseFragment() {
     }
 
     private fun openTask(task: Task? = null) {
-        if (task == null) {
-            // Создание задачи
+        val idsList = noteViewModel.allTasks.value?.map { it.id } ?: emptyList()
+        var taskId = 0
+        if (task==null){
+            while (true) {
+                if (taskId !in idsList) break
+                taskId++
+            }
         } else {
-            // Открытие задачи
+            taskId = task.id
         }
+        val dialogFragment = TaskDialogFragment.newInstance(task, taskId, noteViewModel)
+        dialogFragment.show(childFragmentManager, "task_dialog")
     }
 
     companion object {
