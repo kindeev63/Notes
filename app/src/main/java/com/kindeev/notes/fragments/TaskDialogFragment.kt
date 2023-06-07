@@ -99,6 +99,7 @@ class TaskDialogFragment(
                             binding.eTaskTitle.text.toString(),
                             task?.done?: false,
                             categoriesList.joinToString(separator = ", "),
+                            Calendar.getInstance().timeInMillis,
                             color
                         )
                         noteViewModel.insertTask(newTask)

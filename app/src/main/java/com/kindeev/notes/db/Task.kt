@@ -14,6 +14,8 @@ data class Task(
     var done: Boolean,
     @ColumnInfo(name = "categories")
     var categories: String,
+    @ColumnInfo(name="time")
+    var time: Long,
     @ColumnInfo(name="color")
     var color: Int,
 )

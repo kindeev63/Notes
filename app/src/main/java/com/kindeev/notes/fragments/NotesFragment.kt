@@ -259,9 +259,7 @@ class NotesFragment : BaseFragment() {
                 noteId++
             }
             val currentDate = Date()
-            val formatter = SimpleDateFormat("dd.MM.yyyy  HH:mm", Locale.getDefault())
-            val formattedDateTime = formatter.format(currentDate)
-            val newNote = Note(noteId, "", "", "", formattedDateTime, Color.WHITE)
+            val newNote = Note(noteId, "", "", "", currentDate.time, Color.WHITE)
             noteViewModel.insertNote(newNote) {
                 openNote(it)
             }

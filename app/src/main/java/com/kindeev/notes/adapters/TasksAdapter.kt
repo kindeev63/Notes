@@ -1,5 +1,6 @@
 package com.kindeev.notes.adapters
 
+import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
@@ -19,14 +20,28 @@ class TasksAdapter(private val noteViewModel: NoteViewModel, private val onItemC
         fun bind(task: Task) = with(binding) {
             taskTitle.text = task.title
             taskTitle.paintFlags = if (task.done) {
+                taskTitle.setTextColor(Color.GRAY)
                 taskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             } else {
+                taskTitle.setTextColor(Color.BLACK)
                 taskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
             taskContent.setBackgroundColor(task.color)
             taskDone.isChecked = task.done
 
         }
+    }
+
+    private fun filterTasks(tasks: List<Task>?) {
+        val oldTasksList = tasks?.sortedBy{ it.time }?.reversed() ?: emptyList()
+        val newTasksList = ArrayList(oldTasksList)
+        for (task in oldTasksList){
+            if (task.done){
+                newTasksList.remove(task)
+                newTasksList.add(task)
+            }
+        }
+        tasksList = newTasksList
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TasksHolder(
@@ -40,6 +55,7 @@ class TasksAdapter(private val noteViewModel: NoteViewModel, private val onItemC
         holder.binding.taskDone.setOnClickListener {
             tasksList[position].done = holder.binding.taskDone.isChecked
             noteViewModel.insertTask(tasksList[position])
+            filterTasks(tasksList)
         }
         holder.binding.taskTitle.setOnClickListener {
             if (!States.taskEdited) {
@@ -53,7 +69,7 @@ class TasksAdapter(private val noteViewModel: NoteViewModel, private val onItemC
     }
 
     fun setData(tasks: List<Task>? = null) {
-        tasksList = tasks ?: tasksList
+        filterTasks(tasks)
         notifyDataSetChanged()
     }
 }

@@ -9,6 +9,8 @@ import com.kindeev.notes.R
 import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.NoteItemBinding
 import com.kindeev.notes.db.Note
+import java.text.SimpleDateFormat
+import java.util.*
 
 class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemClick: (note: Note, open: Boolean) -> Unit) :
     RecyclerView.Adapter<NotesAdapter.NotesHolder>() {
@@ -17,14 +19,15 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
         private val binding = NoteItemBinding.bind(view)
         fun bind(note: Note, choosingNotes: Boolean, noteSelected: Boolean) = with(binding) {
             tTitle.text = note.title
-            tTime.text = note.time
+            val formatter = SimpleDateFormat("dd.MM.yyyy  HH:mm", Locale.getDefault())
+            val formattedDateTime = formatter.format(note.time)
+            tTime.text = formattedDateTime
             noteContent.setBackgroundColor(note.color)
             chDeleteNote.visibility =
             if (choosingNotes){
                 View.VISIBLE
             } else View.GONE
             chDeleteNote.isChecked = noteSelected
-
         }
     }
 
@@ -63,7 +66,7 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
     }
 
     fun setData(notes: List<Note>? = null) {
-        notesList = notes ?: notesList
+        notesList = notes?.sortedBy{ it.time }?.reversed() ?: notesList
         notifyDataSetChanged()
     }
 }

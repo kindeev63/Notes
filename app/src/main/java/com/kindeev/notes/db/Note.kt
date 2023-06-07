@@ -16,7 +16,7 @@ data class Note(
     @ColumnInfo(name = "categories")
     var categories: String,
     @ColumnInfo(name="time")
-    var time: String,
+    var time: Long,
     @ColumnInfo(name="color")
     var color: Int,
 ): Serializable

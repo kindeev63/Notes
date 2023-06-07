@@ -121,24 +121,25 @@ class NoteActivity : AppCompatActivity() {
             R.id.set_category_item -> createDialog()
             android.R.id.home -> finish()
             R.id.add_reminder_item -> {
-                saveNote()
-                var reminderId = 0
-                GlobalScope.launch {
-                    val idsList = withContext(Dispatchers.IO) {
-                        noteViewModel.getAllReminders()
-                    }.map { it.id }
-                    while (true) {
-                        if (reminderId !in idsList) break
-                        reminderId++
+                saveNote {note ->
+                    var reminderId = 0
+                    GlobalScope.launch {
+                        val idsList = withContext(Dispatchers.IO) {
+                            noteViewModel.getAllReminders()
+                        }.map { it.id }
+                        while (true) {
+                            if (reminderId !in idsList) break
+                            reminderId++
+                        }
+                        val dialogFragment =
+                            ReminderDialogFragment.newInstance(
+                                null,
+                                reminderId,
+                                noteViewModel,
+                                note.id
+                            )
+                        dialogFragment.show(supportFragmentManager, "reminder_dialog")
                     }
-                    val dialogFragment =
-                        ReminderDialogFragment.newInstance(
-                            null,
-                            reminderId,
-                            noteViewModel,
-                            currentNote.id
-                        )
-                    dialogFragment.show(supportFragmentManager, "reminder_dialog")
                 }
             }
         }
@@ -158,19 +159,16 @@ class NoteActivity : AppCompatActivity() {
         States.noteEdited = false
     }
 
-    private fun saveNote() {
-        val currentDate = Date()
-        val formatter = SimpleDateFormat("dd.MM.yyyy  HH:mm", Locale.getDefault())
-        val formattedDateTime = formatter.format(currentDate)
+    private fun saveNote(function: (Note) -> Unit = {}) {
         val noteTitle = binding.eNoteTitle.text.toString()
         val noteText = binding.eNoteText.text.toString()
         val noteCategories = categoriesList.joinToString(separator = ", ")
         currentNote.title = noteTitle
         currentNote.text = noteText
         currentNote.categories = noteCategories
-        currentNote.time = formattedDateTime
+        currentNote.time = Calendar.getInstance().timeInMillis
         currentNote.color = color
-        noteViewModel.insertNote(note = currentNote)
+        noteViewModel.insertNote(note = currentNote, function)
     }
 
     private fun setSpinnerAdapter() {
