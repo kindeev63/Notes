@@ -4,16 +4,13 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.view.*
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
 import androidx.core.view.forEach
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.*
 import com.kindeev.notes.activities.MainActivity
@@ -24,7 +21,6 @@ import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.db.Category
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.other.NoteViewModel
-import java.text.SimpleDateFormat
 import java.util.*
 
 class NotesFragment : BaseFragment() {
@@ -36,11 +32,24 @@ class NotesFragment : BaseFragment() {
     private var categoriesList = emptyList<Category>()
     var currentCategoryName: String? = null
     private var searchText: String = ""
+    private var color: Int = -1
+    private val colors = listOf(
+        Color.parseColor("#FFFFFF"),
+        Color.parseColor("#B22222"),
+        Color.parseColor("#FF69B4"),
+        Color.parseColor("#FF4500"),
+        Color.parseColor("#FFD700"),
+        Color.parseColor("#8B008B"),
+        Color.parseColor("#8B4513"),
+        Color.parseColor("#00FF00"),
+        Color.parseColor("#40E0D0"),
+        Color.parseColor("#696969"),
+    )
 
     override fun onClickNew() = openNote()
     override fun search(text: String) {
         searchText = text
-        notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
+        notesList = filterNotes()
         notesAdapter.setData(notes = notesList)
         binding.noNotes.visibility = if (notesList.isEmpty()) View.VISIBLE else View.GONE
     }
@@ -48,22 +57,19 @@ class NotesFragment : BaseFragment() {
     private fun setCategory(categoryName: String?) {
         (activity as AppCompatActivity).supportActionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
         currentCategoryName = categoryName
-        notesList = filterNotes(noteViewModel.allNotes.value, currentCategoryName, searchText)
+        notesList = filterNotes()
         notesAdapter.setData(notes = notesList)
         binding.noNotes.visibility = if (notesList.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    private fun filterNotes(
-        notes: List<Note>?,
-        categoryName: String?,
-        searchText: String
-    ): List<Note> {
-        val newNotes = if (categoryName == null || notes == null) {
-            notes ?: emptyList()
+    private fun filterNotes(): List<Note> {
+        val newNotes = if (currentCategoryName == null || noteViewModel.allNotes.value == null) {
+            noteViewModel.allNotes.value ?: emptyList()
         } else {
-            notes.filter { categoryName in it.categories.split(", ") }
+            noteViewModel.allNotes.value?.filter { currentCategoryName in it.categories.split(", ") } ?: emptyList()
         }
-        return newNotes.filter { it.title.lowercase().contains(searchText.lowercase()) }
+        val notes = if (noteViewModel.colorFilter) newNotes.filter { it.color == color } else newNotes
+        return notes.filter { it.title.lowercase().contains(searchText.lowercase()) }
     }
 
     override fun onCreateView(
@@ -100,6 +106,28 @@ class NotesFragment : BaseFragment() {
             }
         notesAdapter = NotesAdapter(noteViewModel, onClickNote)
         binding.apply {
+            setSpinnerAdapter()
+            if (noteViewModel.colorFilter){
+                colorFilterNotes.visibility = View.VISIBLE
+                chColorNotes.text = ""
+            } else {
+                colorFilterNotes.visibility = View.GONE
+                chColorNotes.text = resources.getString(R.string.color)
+            }
+            chColorNotes.setOnClickListener {
+                if (chColorNotes.isChecked){
+                    colorFilterNotes.visibility = View.VISIBLE
+                    chColorNotes.text = ""
+                    noteViewModel.colorFilter = true
+                } else {
+                    colorFilterNotes.visibility = View.GONE
+                    chColorNotes.text = resources.getString(R.string.color)
+                    noteViewModel.colorFilter = false
+                }
+                notesList = filterNotes()
+                notesAdapter.setData(notesList)
+            }
+
             val screenWidth = resources.displayMetrics.widthPixels
             val newWidth = screenWidth * 5 / 6
             val layoutParams = navNotes.layoutParams
@@ -213,7 +241,7 @@ class NotesFragment : BaseFragment() {
             categoriesAdapter.setData(categories = categoriesList)
         }
         noteViewModel.allNotes.observe(requireActivity()) {
-            notesList = filterNotes(it, currentCategoryName, searchText)
+            notesList = filterNotes()
             notesAdapter.setData(notes = notesList)
             binding.noNotes.visibility = if (notesList.isEmpty()) View.VISIBLE else View.GONE
         }
@@ -269,6 +297,51 @@ class NotesFragment : BaseFragment() {
             }
             startActivity(intent)
         }
+    }
+
+    private fun setSpinnerAdapter() {
+        val colorAdapter = object : ArrayAdapter<Int>(requireContext(), R.layout.spinner_item, colors) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view: View =
+                    convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
+                val colorItem = view.findViewById<LinearLayout>(R.id.colorItem)
+                val color = getItem(position)
+                colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
+                return view
+            }
+
+            override fun getDropDownView(
+                position: Int,
+                convertView: View?,
+                parent: ViewGroup
+            ): View {
+                val view: View =
+                    convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
+                val colorItem = view.findViewById<LinearLayout>(R.id.colorItem)
+                val color = getItem(position)
+                colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
+                return view
+            }
+        }
+        binding.colorFilterNotes.adapter = colorAdapter
+        binding.colorFilterNotes.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val newColor = parent.getItemAtPosition(position) as Int
+                color = newColor
+                notesList = filterNotes()
+                notesAdapter.setData(notesList)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Ничего не делаем
+            }
+        }
+        binding.colorFilterNotes.setSelection(colors.indexOf(color))
     }
 
     companion object {

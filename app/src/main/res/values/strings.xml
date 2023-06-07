@@ -39,4 +39,5 @@
     <string name="edit">Edit</string>
     <string name="enter_name_of_task">Enter the name of the task</string>
     <string name="delete_task">Delete task</string>
+    <string name="color">Color</string>
 </resources>

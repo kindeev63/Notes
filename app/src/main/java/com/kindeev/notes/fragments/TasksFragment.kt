@@ -1,10 +1,10 @@
 package com.kindeev.notes.fragments
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
 import android.view.*
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -15,6 +15,7 @@ import com.kindeev.notes.adapters.CategoriesAdapter
 import com.kindeev.notes.adapters.TasksAdapter
 import com.kindeev.notes.databinding.FragmentTasksBinding
 import com.kindeev.notes.db.Category
+import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.other.NoteViewModel
 import java.util.*
@@ -28,13 +29,26 @@ class TasksFragment : BaseFragment() {
     private var categoriesList = emptyList<Category>()
     var currentCategoryName: String? = null
     private var searchText: String = ""
+    private var color: Int = -1
+    private val colors = listOf(
+        Color.parseColor("#FFFFFF"),
+        Color.parseColor("#B22222"),
+        Color.parseColor("#FF69B4"),
+        Color.parseColor("#FF4500"),
+        Color.parseColor("#FFD700"),
+        Color.parseColor("#8B008B"),
+        Color.parseColor("#8B4513"),
+        Color.parseColor("#00FF00"),
+        Color.parseColor("#40E0D0"),
+        Color.parseColor("#696969"),
+    )
 
     override fun onClickNew(){
         openTask()
     }
     override fun search(text: String) {
         searchText = text
-        tasksList = filterTasks(noteViewModel.allTasks.value, currentCategoryName, searchText)
+        tasksList = filterTasks()
         tasksAdapter.setData(tasks = tasksList)
         binding.noTasks.visibility = if (tasksList.isEmpty()) View.VISIBLE else View.GONE
     }
@@ -42,22 +56,19 @@ class TasksFragment : BaseFragment() {
     private fun setCategory(categoryName: String?) {
         (activity as AppCompatActivity).supportActionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
         currentCategoryName = categoryName
-        tasksList = filterTasks(noteViewModel.allTasks.value, currentCategoryName, searchText)
+        tasksList = filterTasks()
         tasksAdapter.setData(tasks = tasksList)
         binding.noTasks.visibility = if (tasksList.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    private fun filterTasks(
-        tasks: List<Task>?,
-        categoryName: String?,
-        searchText: String
-    ): List<Task> {
-        val newTasks = if (categoryName == null || tasks == null) {
-            tasks ?: emptyList()
+    private fun filterTasks(): List<Task> {
+        val newTasks = if (currentCategoryName == null || noteViewModel.allTasks.value == null) {
+            noteViewModel.allTasks.value ?: emptyList()
         } else {
-            tasks.filter { categoryName in it.categories.split(", ") }
+            noteViewModel.allTasks.value?.filter { currentCategoryName in it.categories.split(", ") } ?: emptyList()
         }
-        return newTasks.filter { it.title.lowercase().contains(searchText.lowercase()) }
+        val tasks = if (noteViewModel.colorFilter) newTasks.filter { it.color == color } else newTasks
+        return tasks.filter { it.title.lowercase().contains(searchText.lowercase()) }
     }
 
     override fun onCreateView(
@@ -86,6 +97,28 @@ class TasksFragment : BaseFragment() {
 
         tasksAdapter = TasksAdapter(noteViewModel, onClickTask)
         binding.apply {
+            setSpinnerAdapter()
+            if (noteViewModel.colorFilter){
+                colorFilterTasks.visibility = View.VISIBLE
+                chColorTasks.text = ""
+            } else {
+                colorFilterTasks.visibility = View.GONE
+                chColorTasks.text = resources.getString(R.string.color)
+            }
+            chColorTasks.setOnClickListener {
+                if (chColorTasks.isChecked){
+                    colorFilterTasks.visibility = View.VISIBLE
+                    chColorTasks.text = ""
+                    noteViewModel.colorFilter = true
+                } else {
+                    colorFilterTasks.visibility = View.GONE
+                    chColorTasks.text = resources.getString(R.string.color)
+                    noteViewModel.colorFilter = false
+                }
+                tasksList = filterTasks()
+                tasksAdapter.setData(tasksList)
+            }
+
             val screenWidth = resources.displayMetrics.widthPixels
             val newWidth = screenWidth * 5 / 6
             val layoutParams = navTasks.layoutParams
@@ -199,7 +232,7 @@ class TasksFragment : BaseFragment() {
             categoriesAdapter.setData(categories = categoriesList)
         }
         noteViewModel.allTasks.observe(requireActivity()) {
-            tasksList = filterTasks(it, currentCategoryName, searchText)
+            tasksList = filterTasks()
             tasksAdapter.setData(tasks = tasksList)
             binding.noTasks.visibility = if (tasksList.isEmpty()) View.VISIBLE else View.GONE
         }
@@ -249,6 +282,51 @@ class TasksFragment : BaseFragment() {
         }
         val dialogFragment = TaskDialogFragment.newInstance(task, taskId, noteViewModel)
         dialogFragment.show(childFragmentManager, "task_dialog")
+    }
+
+    private fun setSpinnerAdapter() {
+        val colorAdapter = object : ArrayAdapter<Int>(requireContext(), R.layout.spinner_item, colors) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view: View =
+                    convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
+                val colorItem = view.findViewById<LinearLayout>(R.id.colorItem)
+                val color = getItem(position)
+                colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
+                return view
+            }
+
+            override fun getDropDownView(
+                position: Int,
+                convertView: View?,
+                parent: ViewGroup
+            ): View {
+                val view: View =
+                    convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
+                val colorItem = view.findViewById<LinearLayout>(R.id.colorItem)
+                val color = getItem(position)
+                colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
+                return view
+            }
+        }
+        binding.colorFilterTasks.adapter = colorAdapter
+        binding.colorFilterTasks.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val newColor = parent.getItemAtPosition(position) as Int
+                color = newColor
+                tasksList = filterTasks()
+                tasksAdapter.setData(tasksList)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Ничего не делаем
+            }
+        }
+        binding.colorFilterTasks.setSelection(colors.indexOf(color))
     }
 
     companion object {

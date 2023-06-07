@@ -18,6 +18,7 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
     val allReminders: LiveData<List<Reminder>>
     var selectedNotes = arrayListOf<Note>()
     var selectedReminders = arrayListOf<Reminder>()
+    var colorFilter = false
 
     init {
         val noteDao = NoteDataBase.getDataBase(application).getDao()

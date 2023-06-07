@@ -232,6 +232,7 @@ class MainActivity : AppCompatActivity() {
                 FragmentManager.setFragment(RemindersFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.reminders)
                 supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                noteViewModel.colorFilter = false
             }
 
             R.id.note_item -> {
@@ -239,6 +240,7 @@ class MainActivity : AppCompatActivity() {
                 FragmentManager.setFragment(NotesFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.all_notes)
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                noteViewModel.colorFilter = false
             }
             R.id.task_item -> {
                 noteViewModel.selectedNotes.clear()
@@ -246,6 +248,7 @@ class MainActivity : AppCompatActivity() {
                 FragmentManager.setFragment(TasksFragment.newInstance(), this)
                 supportActionBar?.title = resources.getString(R.string.all_tasks)
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                noteViewModel.colorFilter = false
             }
 
 

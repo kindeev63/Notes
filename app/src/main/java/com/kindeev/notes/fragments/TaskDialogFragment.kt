@@ -141,8 +141,6 @@ class TaskDialogFragment(
     }
 
     private fun setSpinnerAdapter() {
-
-
         val colorAdapter = object : ArrayAdapter<Int>(requireContext(), R.layout.spinner_item, colors) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view: View =

@@ -40,4 +40,5 @@
     <string name="edit">Изменить</string>
     <string name="enter_name_of_task">Введите название задачи</string>
     <string name="delete_task">Удалить задачу</string>
+    <string name="color">Цвет</string>
 </resources>
