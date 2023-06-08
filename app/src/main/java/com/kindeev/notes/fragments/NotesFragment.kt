@@ -20,6 +20,7 @@ import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.db.Category
 import com.kindeev.notes.db.Note
+import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.NoteViewModel
 import java.util.*
 
@@ -33,18 +34,6 @@ class NotesFragment : BaseFragment() {
     var currentCategoryName: String? = null
     private var searchText: String = ""
     private var color: Int = -1
-    private val colors = listOf(
-        Color.parseColor("#FFFFFF"),
-        Color.parseColor("#B22222"),
-        Color.parseColor("#FF69B4"),
-        Color.parseColor("#FF4500"),
-        Color.parseColor("#FFD700"),
-        Color.parseColor("#8B008B"),
-        Color.parseColor("#8B4513"),
-        Color.parseColor("#00FF00"),
-        Color.parseColor("#40E0D0"),
-        Color.parseColor("#696969"),
-    )
 
     override fun onClickNew() = openNote()
     override fun search(text: String) {
@@ -300,7 +289,7 @@ class NotesFragment : BaseFragment() {
     }
 
     private fun setSpinnerAdapter() {
-        val colorAdapter = object : ArrayAdapter<Int>(requireContext(), R.layout.spinner_item, colors) {
+        val colorAdapter = object : ArrayAdapter<Int>(requireContext(), R.layout.spinner_item, Colors.colors) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view: View =
                     convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
@@ -341,7 +330,7 @@ class NotesFragment : BaseFragment() {
                 // Ничего не делаем
             }
         }
-        binding.colorFilterNotes.setSelection(colors.indexOf(color))
+        binding.colorFilterNotes.setSelection(Colors.colors.indexOf(color))
     }
 
     companion object {

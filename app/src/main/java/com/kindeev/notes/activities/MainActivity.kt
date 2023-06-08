@@ -165,7 +165,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-            is TasksFragment -> {}
+            is TasksFragment -> {
+                menu?.forEach {
+                    it.isVisible = it.itemId != R.id.delete_item
+                }
+            }
             is RemindersFragment -> {
                 if (noteViewModel.selectedReminders.size == 0) {
                     menu?.forEach {

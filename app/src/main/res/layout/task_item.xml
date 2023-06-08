@@ -22,13 +22,21 @@
             android:layout_height="70dp"
             android:orientation="horizontal">
 
-            <CheckBox
-                android:id="@+id/taskDone"
+            <LinearLayout
+                android:id="@+id/taskDoneLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="false"
-                android:focusable="false"
-                android:visibility="visible" />
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/taskDone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:visibility="visible" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/taskTitle"

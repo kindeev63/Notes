@@ -40,4 +40,7 @@
     <string name="enter_name_of_task">Enter the name of the task</string>
     <string name="delete_task">Delete task</string>
     <string name="color">Color</string>
+    <string name="deselect">Deselect</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
