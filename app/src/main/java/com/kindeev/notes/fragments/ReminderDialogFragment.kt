@@ -27,16 +27,26 @@ import com.kindeev.notes.receivers.AlarmReceiver
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ReminderDialogFragment(
-    val reminder: Reminder?,
-    private val reminderId: Int,
-    private val noteViewModel: NoteViewModel,
-    private var noteId: Int? = null
-) : DialogFragment() {
+class ReminderDialogFragment() : DialogFragment() {
     private lateinit var date: Calendar
     private lateinit var binding: FragmentReminderDialogBinding
     private var packageName: String? = null
     private var sound = true
+    private var reminder: Reminder? = null
+    private var reminderId: Int = 0
+    private lateinit var noteViewModel: NoteViewModel
+    private var noteId: Int? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            if (it.containsKey("reminder")) reminder = it.getSerializable("reminder") as Reminder
+            reminderId = it.getInt("reminderId", 0)
+            noteViewModel = it.getSerializable("noteViewModel") as NoteViewModel
+            if (it.containsKey("noteId")) noteId = it.getInt("noteId", 0)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -142,7 +152,7 @@ class ReminderDialogFragment(
         binding = FragmentReminderDialogBinding.inflate(layoutInflater)
         date = Calendar.getInstance().apply {
             if (reminder != null) {
-                timeInMillis = reminder.time
+                timeInMillis = reminder!!.time
             }
         }
         binding.apply {
@@ -227,10 +237,28 @@ class ReminderDialogFragment(
         )
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Сохраняем состояние фрагмента
+        if (reminder!=null) outState.putSerializable("reminder", reminder)
+        outState.putInt("reminderId", reminderId)
+        outState.putSerializable("noteViewModel", noteViewModel)
+        if (noteId != null) outState.putInt("noteId", noteId!!)
+    }
+
     companion object {
         @JvmStatic
         fun newInstance(
             reminder: Reminder?, reminderId: Int, noteViewModel: NoteViewModel, noteId: Int? = null
-        ) = ReminderDialogFragment(reminder, reminderId, noteViewModel, noteId)
+        ): ReminderDialogFragment {
+            val fragment = ReminderDialogFragment()
+            val args = Bundle()
+            if (reminder != null) args.putSerializable("reminder", reminder)
+            args.putInt("reminderId", reminderId)
+            args.putSerializable("noteViewModel", noteViewModel)
+            if (noteId != null) args.putInt("noteId", noteId)
+            fragment.arguments = args
+            return fragment
+        }
     }
 }

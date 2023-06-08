@@ -8,8 +8,9 @@ import com.kindeev.notes.db.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 
-open class NoteViewModel(application: Application) : AndroidViewModel(application) {
+open class NoteViewModel(application: Application) : AndroidViewModel(application), Serializable {
     private val repository: NoteRepository
     val allNotes: LiveData<List<Note>>
     val allTasks: LiveData<List<Task>>

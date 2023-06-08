@@ -15,32 +15,29 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.FragmentTaskDialogBinding
+import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.db.Task
+import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.NoteViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class TaskDialogFragment(
-    val task: Task?,
-    private val taskId: Int,
-    private val noteViewModel: NoteViewModel
-) : DialogFragment() {
+class TaskDialogFragment() : DialogFragment() {
     private lateinit var binding: FragmentTaskDialogBinding
     private var color: Int = -1
     private var categoriesList: ArrayList<String> = arrayListOf()
-    private val colors = listOf(
-        Color.parseColor("#FFFFFF"),
-        Color.parseColor("#B22222"),
-        Color.parseColor("#FF69B4"),
-        Color.parseColor("#FF4500"),
-        Color.parseColor("#FFD700"),
-        Color.parseColor("#8B008B"),
-        Color.parseColor("#8B4513"),
-        Color.parseColor("#00FF00"),
-        Color.parseColor("#40E0D0"),
-        Color.parseColor("#696969"),
-    )
+    private var task: Task? = null
+    private var taskId: Int = 0
+    private lateinit var noteViewModel: NoteViewModel
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            if (it.containsKey("task")) task = it.getSerializable("task") as Task
+            taskId = it.getInt("taskId", 0)
+            noteViewModel = it.getSerializable("noteViewModel") as NoteViewModel
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,12 +68,12 @@ class TaskDialogFragment(
                 createDialog()
             }
             if (task != null) {
-                eTaskTitle.setText(task.title)
-                if (task.categories.isNotEmpty()) {
-                    categoriesList = ArrayList(task.categories.split(", "))
+                eTaskTitle.setText(task!!.title)
+                if (task!!.categories.isNotEmpty()) {
+                    categoriesList = ArrayList(task!!.categories.split(", "))
                 }
-                color = task.color
-                binding.colorPickerTask.setSelection(colors.indexOf(color))
+                color = task!!.color
+                binding.colorPickerTask.setSelection(Colors.colors.indexOf(color))
             }
             val dialog = AlertDialog.Builder(requireContext()).setView(binding.root)
                 .setPositiveButton(R.string.save, null)
@@ -141,7 +138,7 @@ class TaskDialogFragment(
     }
 
     private fun setSpinnerAdapter() {
-        val colorAdapter = object : ArrayAdapter<Int>(requireContext(), R.layout.spinner_item, colors) {
+        val colorAdapter = object : ArrayAdapter<Int>(requireContext(), R.layout.spinner_item, Colors.colors) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view: View =
                     convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
@@ -182,9 +179,24 @@ class TaskDialogFragment(
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Сохраняем состояние фрагмента
+        if (task!=null) outState.putSerializable("task", task)
+        outState.putInt("taskId", taskId)
+        outState.putSerializable("noteViewModel", noteViewModel)
+    }
+
     companion object {
         @JvmStatic
-        fun newInstance(task: Task?, taskId: Int, noteViewModel: NoteViewModel) =
-            TaskDialogFragment(task, taskId, noteViewModel)
+        fun newInstance(task: Task?, taskId: Int, noteViewModel: NoteViewModel): TaskDialogFragment {
+            val fragment = TaskDialogFragment()
+            val args = Bundle()
+            if (task != null) args.putSerializable("task", task)
+            args.putInt("taskId", taskId)
+            args.putSerializable("noteViewModel", noteViewModel)
+            fragment.arguments = args
+            return fragment
+        }
     }
 }
