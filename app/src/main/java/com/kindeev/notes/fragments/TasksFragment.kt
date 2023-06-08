@@ -15,7 +15,6 @@ import com.kindeev.notes.adapters.CategoriesAdapter
 import com.kindeev.notes.adapters.TasksAdapter
 import com.kindeev.notes.databinding.FragmentTasksBinding
 import com.kindeev.notes.db.Category
-import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.NoteViewModel
@@ -43,7 +42,7 @@ class TasksFragment : BaseFragment() {
     }
 
     private fun setCategory(categoryName: String?) {
-        (activity as AppCompatActivity).supportActionBar?.title = categoryName ?: resources.getString(R.string.all_notes)
+        (activity as AppCompatActivity).supportActionBar?.title = categoryName ?: resources.getString(R.string.all_tasks)
         currentCategoryName = categoryName
         tasksList = filterTasks()
         tasksAdapter.setData(tasks = tasksList)
