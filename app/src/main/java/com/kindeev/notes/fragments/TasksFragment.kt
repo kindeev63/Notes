@@ -17,12 +17,12 @@ import com.kindeev.notes.databinding.FragmentTasksBinding
 import com.kindeev.notes.db.Category
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.other.Colors
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainViewModel
 import java.util.*
 
 class TasksFragment : BaseFragment() {
     lateinit var binding: FragmentTasksBinding
-    private lateinit var noteViewModel: NoteViewModel
+    private lateinit var mainViewModel: MainViewModel
     private lateinit var tasksAdapter: TasksAdapter
     private var tasksList = emptyList<Task>()
     private lateinit var categoriesAdapter: CategoriesAdapter
@@ -50,12 +50,12 @@ class TasksFragment : BaseFragment() {
     }
 
     private fun filterTasks(): List<Task> {
-        val newTasks = if (currentCategoryName == null || noteViewModel.allTasks.value == null) {
-            noteViewModel.allTasks.value ?: emptyList()
+        val newTasks = if (currentCategoryName == null || mainViewModel.allTasks.value == null) {
+            mainViewModel.allTasks.value ?: emptyList()
         } else {
-            noteViewModel.allTasks.value?.filter { currentCategoryName in it.categories.split(", ") } ?: emptyList()
+            mainViewModel.allTasks.value?.filter { currentCategoryName in it.categories.split(", ") } ?: emptyList()
         }
-        val tasks = if (noteViewModel.colorFilter) newTasks.filter { it.color == color } else newTasks
+        val tasks = if (mainViewModel.colorFilter) newTasks.filter { it.color == color } else newTasks
         return tasks.filter { it.title.lowercase().contains(searchText.lowercase()) }
     }
 
@@ -64,7 +64,7 @@ class TasksFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentTasksBinding.inflate(inflater, container, false)
-        noteViewModel = (activity as MainActivity).getViewModel()
+        mainViewModel = (activity as MainActivity).getViewModel()
 
         val onClickTask: (Task, Boolean) -> Unit =
             { task: Task, long: Boolean ->
@@ -72,7 +72,7 @@ class TasksFragment : BaseFragment() {
                     AlertDialog.Builder(requireContext()).apply {
                         setTitle(R.string.delete_task)
                         setPositiveButton(R.string.delete) { _, _ ->
-                            noteViewModel.deleteTask(task)
+                            mainViewModel.deleteTask(task)
                         }
                         setNegativeButton(R.string.cancel) { _, _ -> }
                         show()
@@ -83,10 +83,10 @@ class TasksFragment : BaseFragment() {
 
             }
 
-        tasksAdapter = TasksAdapter(requireContext(), noteViewModel, onClickTask)
+        tasksAdapter = TasksAdapter(requireContext(), mainViewModel, onClickTask)
         binding.apply {
             setSpinnerAdapter()
-            if (noteViewModel.colorFilter){
+            if (mainViewModel.colorFilter){
                 colorFilterTasks.visibility = View.VISIBLE
                 chColorTasks.text = ""
             } else {
@@ -97,11 +97,11 @@ class TasksFragment : BaseFragment() {
                 if (chColorTasks.isChecked){
                     colorFilterTasks.visibility = View.VISIBLE
                     chColorTasks.text = ""
-                    noteViewModel.colorFilter = true
+                    mainViewModel.colorFilter = true
                 } else {
                     colorFilterTasks.visibility = View.GONE
                     chColorTasks.text = resources.getString(R.string.color)
-                    noteViewModel.colorFilter = false
+                    mainViewModel.colorFilter = false
                 }
                 tasksList = filterTasks()
                 tasksAdapter.setData(tasksList)
@@ -132,7 +132,7 @@ class TasksFragment : BaseFragment() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
-                            noteViewModel.insertCategory(Category(id = 0, name = name, type = "tasks"))
+                            mainViewModel.insertCategory(Category(id = 0, name = name, type = "tasks"))
                         }
                     else
                         Toast.makeText(
@@ -167,8 +167,8 @@ class TasksFragment : BaseFragment() {
                                                 setCategory(newName)
                                             }
                                             category.name = newName
-                                            noteViewModel.insertCategory(category)
-                                            for (task in noteViewModel.allTasks.value
+                                            mainViewModel.insertCategory(category)
+                                            for (task in mainViewModel.allTasks.value
                                                 ?: emptyList()) {
                                                 val categoriesList =
                                                     ArrayList(task.categories.split(", "))
@@ -177,7 +177,7 @@ class TasksFragment : BaseFragment() {
                                                     categoriesList.add(newName)
                                                     task.categories =
                                                         categoriesList.joinToString(separator = ", ")
-                                                    noteViewModel.insertTask(task)
+                                                    mainViewModel.insertTask(task)
                                                 }
                                             }
                                         }
@@ -192,15 +192,15 @@ class TasksFragment : BaseFragment() {
                                 if (currentCategoryName==category.name){
                                     setCategory(null)
                                 }
-                                noteViewModel.deleteCategory(category)
+                                mainViewModel.deleteCategory(category)
                                 val categoryName = category.name
-                                for (task in noteViewModel.allTasks.value ?: emptyList()) {
+                                for (task in mainViewModel.allTasks.value ?: emptyList()) {
                                     val categoriesList = ArrayList(task.categories.split(", "))
                                     if (categoryName in categoriesList) {
                                         categoriesList.remove(categoryName)
                                         task.categories =
                                             categoriesList.joinToString(separator = ", ")
-                                        noteViewModel.insertTask(task)
+                                        mainViewModel.insertTask(task)
                                     }
                                 }
                             }
@@ -215,11 +215,11 @@ class TasksFragment : BaseFragment() {
             rcCategoriesTasks.adapter = categoriesAdapter
             rcCategoriesTasks.layoutManager = LinearLayoutManager(requireContext())
         }
-        noteViewModel.allCategoriesOfTasks.observe(requireActivity()) {
+        mainViewModel.allCategoriesOfTasks.observe(requireActivity()) {
             categoriesList = filterCategories(it, searchText)
             categoriesAdapter.setData(categories = categoriesList)
         }
-        noteViewModel.allTasks.observe(requireActivity()) {
+        mainViewModel.allTasks.observe(requireActivity()) {
             tasksList = filterTasks()
             tasksAdapter.setData(tasks = tasksList)
             binding.noTasks.visibility = if (tasksList.isEmpty()) View.VISIBLE else View.GONE
@@ -258,7 +258,7 @@ class TasksFragment : BaseFragment() {
     }
 
     private fun openTask(task: Task? = null) {
-        val idsList = noteViewModel.allTasks.value?.map { it.id } ?: emptyList()
+        val idsList = mainViewModel.allTasks.value?.map { it.id } ?: emptyList()
         var taskId = 0
         if (task==null){
             while (true) {
@@ -268,7 +268,7 @@ class TasksFragment : BaseFragment() {
         } else {
             taskId = task.id
         }
-        val dialogFragment = TaskDialogFragment.newInstance(task, taskId, noteViewModel)
+        val dialogFragment = TaskDialogFragment.newInstance(task, taskId, mainViewModel)
         dialogFragment.show(childFragmentManager, "task_dialog")
     }
 

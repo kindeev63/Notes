@@ -14,7 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import com.kindeev.notes.other.MainApp
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.ActivityNoteBinding
@@ -25,14 +25,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 class NoteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNoteBinding
     private var categoriesList: ArrayList<String> = arrayListOf()
-    lateinit var noteViewModel: NoteViewModel
+    lateinit var mainViewModel: MainViewModel
     private lateinit var currentNote: Note
     private var save = true
     private var color: Int = -1
@@ -47,14 +46,14 @@ class NoteActivity : AppCompatActivity() {
 
         States.noteEdited = true
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        noteViewModel = (application as MainApp).noteViewModel
+        mainViewModel = (application as MainApp).mainViewModel
         setData()
         setSpinnerAdapter()
     }
 
     private fun createDialog() {
         val categoriesNames: Array<String> =
-            (noteViewModel.allCategoriesOfNotes.value ?: emptyList()).toList().map { it.name }
+            (mainViewModel.allCategoriesOfNotes.value ?: emptyList()).toList().map { it.name }
                 .toTypedArray()
         val checkedCategories =
             categoriesNames.map { it in categoriesList }.toBooleanArray()
@@ -83,7 +82,7 @@ class NoteActivity : AppCompatActivity() {
     }
 
     private fun setData() {
-        noteViewModel.getNoteById(intent.getIntExtra("noteId", 0)) { oldNote ->
+        mainViewModel.getNoteById(intent.getIntExtra("noteId", 0)) { oldNote ->
             if (oldNote == null) notSaveFinish()
             currentNote = oldNote!!.copy()
             color = oldNote.color
@@ -100,7 +99,7 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.note_menu, menu)
-        menu?.findItem(R.id.set_category_item)?.isVisible = (noteViewModel.allCategoriesOfNotes.value?.size
+        menu?.findItem(R.id.set_category_item)?.isVisible = (mainViewModel.allCategoriesOfNotes.value?.size
             ?: 0) > 0
         return true
     }
@@ -114,7 +113,7 @@ class NoteActivity : AppCompatActivity() {
                     var reminderId = 0
                     GlobalScope.launch {
                         val idsList = withContext(Dispatchers.IO) {
-                            noteViewModel.getAllReminders()
+                            mainViewModel.getAllReminders()
                         }.map { it.id }
                         while (true) {
                             if (reminderId !in idsList) break
@@ -124,7 +123,7 @@ class NoteActivity : AppCompatActivity() {
                             ReminderDialogFragment.newInstance(
                                 null,
                                 reminderId,
-                                noteViewModel,
+                                mainViewModel,
                                 note.id
                             )
                         dialogFragment.show(supportFragmentManager, "reminder_dialog")
@@ -157,7 +156,7 @@ class NoteActivity : AppCompatActivity() {
         currentNote.categories = noteCategories
         currentNote.time = Calendar.getInstance().timeInMillis
         currentNote.color = color
-        noteViewModel.insertNote(note = currentNote, function)
+        mainViewModel.insertNote(note = currentNote, function)
     }
 
     private fun setSpinnerAdapter() {

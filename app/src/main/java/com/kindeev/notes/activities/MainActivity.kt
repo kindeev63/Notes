@@ -16,6 +16,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,7 +30,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import com.kindeev.notes.other.MainApp
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
 import com.kindeev.notes.fragments.*
@@ -37,7 +38,7 @@ import com.kindeev.notes.receivers.AlarmReceiver
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var noteViewModel: NoteViewModel
+    private lateinit var mainViewModel: MainViewModel
     var topMenu: Menu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,9 +66,8 @@ class MainActivity : AppCompatActivity() {
 
         // Отключение автоматического включения темной темы
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
         createNotificationChannel()
-        noteViewModel = (application as MainApp).noteViewModel
+        mainViewModel = (application as MainApp).mainViewModel
 
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
@@ -80,10 +80,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.bNav.setOnItemSelectedListener { bottomMenuItem ->
             if (binding.bNav.selectedItemId == bottomMenuItem.itemId) return@setOnItemSelectedListener true
-            noteViewModel.selectedNotes.clear()
-            noteViewModel.selectedReminders.clear()
+            mainViewModel.selectedNotes.clear()
+            mainViewModel.selectedReminders.clear()
             supportActionBar?.setDisplayHomeAsUpEnabled(bottomMenuItem.itemId != R.id.bottom_reminder_item)
-            noteViewModel.colorFilter = false
+            mainViewModel.colorFilter = false
             topMenu?.forEach { topMenuItem ->
                 topMenuItem.isVisible = topMenuItem.itemId != R.id.delete_item
             }
@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity() {
 
             is NotesFragment -> {
                 supportActionBar?.title =
-                    fragment.currentCategoryName
+                    fragment.viewModel?.category?.name
                         ?: resources.getString(R.string.all_notes)
                 binding.bNav.selectedItemId = R.id.bottom_notes_item
             }
@@ -189,7 +189,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         this.topMenu = menu
-        if (noteViewModel.selectedNotes.isEmpty() && noteViewModel.selectedReminders.isEmpty()) {
+        if (mainViewModel.selectedNotes.isEmpty() && mainViewModel.selectedReminders.isEmpty()) {
             menu?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item
             }
@@ -253,23 +253,23 @@ class MainActivity : AppCompatActivity() {
                 when (val fragment = FragmentManager.currentFrag) {
                     is NotesFragment -> {
                         val remindersForDelete =
-                            noteViewModel.allReminders.value?.filter { reminder ->
-                                noteViewModel.selectedNotes.any { note ->
+                            mainViewModel.allReminders.value?.filter { reminder ->
+                                mainViewModel.selectedNotes.any { note ->
                                     reminder.noteId == note.id
                                 }
                             }
-                        remindersForDelete?.let { noteViewModel.deleteReminders(it) }
-                        noteViewModel.deleteNotes(noteViewModel.selectedNotes.toList())
-                        noteViewModel.selectedNotes.clear()
+                        remindersForDelete?.let { mainViewModel.deleteReminders(it) }
+                        mainViewModel.deleteNotes(mainViewModel.selectedNotes.toList())
+                        mainViewModel.selectedNotes.clear()
                         fragment.notesAdapter?.notifyDataSetChanged()
                     }
 
                     is RemindersFragment -> {
-                        noteViewModel.selectedReminders.map { it.id }.forEach { reminderId ->
+                        mainViewModel.selectedReminders.map { it.id }.forEach { reminderId ->
                             cancelAlarm(reminderId)
                         }
-                        noteViewModel.deleteReminders(noteViewModel.selectedReminders.toList())
-                        noteViewModel.selectedReminders.clear()
+                        mainViewModel.deleteReminders(mainViewModel.selectedReminders.toList())
+                        mainViewModel.selectedReminders.clear()
                         fragment.remindersAdapter.notifyDataSetChanged()
                     }
                 }
@@ -281,8 +281,8 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         when (val fragment = FragmentManager.currentFrag) {
             is NotesFragment -> {
-                if (noteViewModel.selectedNotes.isNotEmpty()) {
-                    noteViewModel.selectedNotes.clear()
+                if (mainViewModel.selectedNotes.isNotEmpty()) {
+                    mainViewModel.selectedNotes.clear()
                     fragment.notesAdapter?.notifyDataSetChanged()
                 } else {
                     super.onBackPressed()
@@ -290,8 +290,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             is RemindersFragment -> {
-                if (noteViewModel.selectedReminders.isNotEmpty()) {
-                    noteViewModel.selectedReminders.clear()
+                if (mainViewModel.selectedReminders.isNotEmpty()) {
+                    mainViewModel.selectedReminders.clear()
                     fragment.remindersAdapter.notifyDataSetChanged()
                 } else {
                     super.onBackPressed()
@@ -314,7 +314,7 @@ class MainActivity : AppCompatActivity() {
         alarmManager.cancel(pendingIntent)
     }
 
-    fun getViewModel() = noteViewModel
+    fun getViewModel() = mainViewModel
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

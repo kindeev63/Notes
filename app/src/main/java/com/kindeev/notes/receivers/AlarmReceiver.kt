@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.PowerManager
-import android.os.Vibrator
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.kindeev.notes.other.MainApp
@@ -34,7 +33,7 @@ class AlarmReceiver: BroadcastReceiver() {
         )
         if (reminder.sound) playNotificationSound(context)
         wakeLock.acquire(5000)
-        val noteViewModel = (context.applicationContext as MainApp).noteViewModel
+        val noteViewModel = (context.applicationContext as MainApp).mainViewModel
         noteViewModel.deleteReminders(listOf(reminder))
     }
 

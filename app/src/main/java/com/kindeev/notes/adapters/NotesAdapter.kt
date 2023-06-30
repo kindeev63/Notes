@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.NoteItemBinding
@@ -12,7 +12,7 @@ import com.kindeev.notes.db.Note
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemClick: (note: Note, open: Boolean) -> Unit) :
+class NotesAdapter(private val mainViewModel: MainViewModel, private val onItemClick: (note: Note, open: Boolean) -> Unit) :
     RecyclerView.Adapter<NotesAdapter.NotesHolder>() {
     private var notesList = emptyList<Note>()
     class NotesHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -38,14 +38,14 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
     override fun getItemCount() = notesList.size
 
     override fun onBindViewHolder(holder: NotesHolder, position: Int) {
-        holder.bind(notesList[position], noteViewModel.selectedNotes.size > 0, notesList[position] in noteViewModel.selectedNotes)
+        holder.bind(notesList[position], mainViewModel.selectedNotes.size > 0, notesList[position] in mainViewModel.selectedNotes)
         holder.itemView.setOnClickListener {
             if (!States.noteEdited) {
-                val open = noteViewModel.selectedNotes.size == 0
-                if (noteViewModel.selectedNotes.size > 0){
+                val open = mainViewModel.selectedNotes.size == 0
+                if (mainViewModel.selectedNotes.size > 0){
                     val note = notesList[position]
-                    if (note in noteViewModel.selectedNotes) noteViewModel.selectedNotes.remove(note)
-                    else noteViewModel.selectedNotes.add(note)
+                    if (note in mainViewModel.selectedNotes) mainViewModel.selectedNotes.remove(note)
+                    else mainViewModel.selectedNotes.add(note)
                     notifyDataSetChanged()
                 }
                 onItemClick(notesList[position], open)
@@ -55,8 +55,8 @@ class NotesAdapter(private val noteViewModel: NoteViewModel, private val onItemC
         holder.itemView.setOnLongClickListener {
             if (!States.noteEdited){
                 val note = notesList[position]
-                if (note in noteViewModel.selectedNotes) noteViewModel.selectedNotes.remove(note)
-                else noteViewModel.selectedNotes.add(note)
+                if (note in mainViewModel.selectedNotes) mainViewModel.selectedNotes.remove(note)
+                else mainViewModel.selectedNotes.add(note)
                 notifyDataSetChanged()
                 onItemClick(note, false)
 

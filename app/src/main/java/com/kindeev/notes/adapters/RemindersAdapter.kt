@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.ReminderItemBinding
@@ -12,7 +12,7 @@ import com.kindeev.notes.db.Reminder
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RemindersAdapter(private val noteViewModel: NoteViewModel, private val onItemClick: (reminder: Reminder, open: Boolean) -> Unit) :
+class RemindersAdapter(private val mainViewModel: MainViewModel, private val onItemClick: (reminder: Reminder, open: Boolean) -> Unit) :
     RecyclerView.Adapter<RemindersAdapter.RemindersHolder>() {
     private var remindersList = emptyList<Reminder>()
     class RemindersHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -39,14 +39,14 @@ class RemindersAdapter(private val noteViewModel: NoteViewModel, private val onI
     override fun getItemCount() = remindersList.size
 
     override fun onBindViewHolder(holder: RemindersHolder, position: Int) {
-        holder.bind(remindersList[position], noteViewModel.selectedReminders.size > 0, remindersList[position] in noteViewModel.selectedReminders)
+        holder.bind(remindersList[position], mainViewModel.selectedReminders.size > 0, remindersList[position] in mainViewModel.selectedReminders)
         holder.itemView.setOnClickListener {
             if (!States.reminderEdited) {
-                val open = noteViewModel.selectedReminders.size == 0
-                if (noteViewModel.selectedReminders.size > 0){
+                val open = mainViewModel.selectedReminders.size == 0
+                if (mainViewModel.selectedReminders.size > 0){
                     val reminder = remindersList[position]
-                    if (reminder in noteViewModel.selectedReminders) noteViewModel.selectedReminders.remove(reminder)
-                    else noteViewModel.selectedReminders.add(reminder)
+                    if (reminder in mainViewModel.selectedReminders) mainViewModel.selectedReminders.remove(reminder)
+                    else mainViewModel.selectedReminders.add(reminder)
                     notifyDataSetChanged()
                 }
                 onItemClick(remindersList[position], open)
@@ -56,8 +56,8 @@ class RemindersAdapter(private val noteViewModel: NoteViewModel, private val onI
         holder.itemView.setOnLongClickListener {
             if (!States.reminderEdited){
                 val reminder = remindersList[position]
-                if (reminder in noteViewModel.selectedReminders) noteViewModel.selectedReminders.remove(reminder)
-                else noteViewModel.selectedReminders.add(reminder)
+                if (reminder in mainViewModel.selectedReminders) mainViewModel.selectedReminders.remove(reminder)
+                else mainViewModel.selectedReminders.add(reminder)
                 notifyDataSetChanged()
                 onItemClick(reminder, false)
 

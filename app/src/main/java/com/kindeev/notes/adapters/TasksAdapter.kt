@@ -8,13 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.TaskItemBinding
 import com.kindeev.notes.db.Task
 
-class TasksAdapter(private val context: Context, private val noteViewModel: NoteViewModel, private val onItemClick: (task: Task, long: Boolean) -> Unit) :
+class TasksAdapter(private val context: Context, private val mainViewModel: MainViewModel, private val onItemClick: (task: Task, long: Boolean) -> Unit) :
     RecyclerView.Adapter<TasksAdapter.TasksHolder>() {
     private var tasksList = emptyList<Task>()
     class TasksHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -61,7 +61,7 @@ class TasksAdapter(private val context: Context, private val noteViewModel: Note
                     setPositiveButton(R.string.yes) { _, _ ->
                         holder.binding.taskDone.isChecked = false
                         tasksList[position].done = false
-                        noteViewModel.insertTask(tasksList[position])
+                        mainViewModel.insertTask(tasksList[position])
                         filterTasks(tasksList)
                     }
                     setNegativeButton(R.string.no) { _, _ -> }
@@ -70,7 +70,7 @@ class TasksAdapter(private val context: Context, private val noteViewModel: Note
             } else {
                 holder.binding.taskDone.isChecked = true
                 tasksList[position].done = true
-                noteViewModel.insertTask(tasksList[position])
+                mainViewModel.insertTask(tasksList[position])
                 filterTasks(tasksList)
             }
         }

@@ -15,11 +15,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.FragmentTaskDialogBinding
-import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.other.Colors
-import com.kindeev.notes.other.NoteViewModel
-import java.text.SimpleDateFormat
+import com.kindeev.notes.viewmodels.MainViewModel
 import java.util.*
 
 
@@ -29,13 +27,13 @@ class TaskDialogFragment() : DialogFragment() {
     private var categoriesList: ArrayList<String> = arrayListOf()
     private var task: Task? = null
     private var taskId: Int = 0
-    private lateinit var noteViewModel: NoteViewModel
+    private lateinit var mainViewModel: MainViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             if (it.containsKey("task")) task = it.getSerializable("task") as Task
             taskId = it.getInt("taskId", 0)
-            noteViewModel = it.getSerializable("noteViewModel") as NoteViewModel
+            mainViewModel = it.getSerializable("noteViewModel") as MainViewModel
         }
     }
     override fun onCreateView(
@@ -59,7 +57,7 @@ class TaskDialogFragment() : DialogFragment() {
         binding = FragmentTaskDialogBinding.inflate(layoutInflater)
         setSpinnerAdapter()
         binding.apply {
-            categoriesPickerTask.visibility = if (noteViewModel.allCategoriesOfTasks.value?.isEmpty() != false) {
+            categoriesPickerTask.visibility = if (mainViewModel.allCategoriesOfTasks.value?.isEmpty() != false) {
                 View.GONE
             } else {
                 View.VISIBLE
@@ -99,7 +97,7 @@ class TaskDialogFragment() : DialogFragment() {
                             Calendar.getInstance().timeInMillis,
                             color
                         )
-                        noteViewModel.insertTask(newTask)
+                        mainViewModel.insertTask(newTask)
                         dialog.dismiss()
                     }
                 }
@@ -110,7 +108,7 @@ class TaskDialogFragment() : DialogFragment() {
 
     private fun createDialog() {
         val categoriesNames: Array<String> =
-            (noteViewModel.allCategoriesOfTasks.value ?: emptyList()).toList().map { it.name }
+            (mainViewModel.allCategoriesOfTasks.value ?: emptyList()).toList().map { it.name }
                 .toTypedArray()
         val checkedCategories =
             categoriesNames.map { it in categoriesList }.toBooleanArray()
@@ -184,17 +182,17 @@ class TaskDialogFragment() : DialogFragment() {
         // Сохраняем состояние фрагмента
         if (task!=null) outState.putSerializable("task", task)
         outState.putInt("taskId", taskId)
-        outState.putSerializable("noteViewModel", noteViewModel)
+        outState.putSerializable("noteViewModel", mainViewModel)
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(task: Task?, taskId: Int, noteViewModel: NoteViewModel): TaskDialogFragment {
+        fun newInstance(task: Task?, taskId: Int, mainViewModel: MainViewModel): TaskDialogFragment {
             val fragment = TaskDialogFragment()
             val args = Bundle()
             if (task != null) args.putSerializable("task", task)
             args.putInt("taskId", taskId)
-            args.putSerializable("noteViewModel", noteViewModel)
+            args.putSerializable("noteViewModel", mainViewModel)
             fragment.arguments = args
             return fragment
         }

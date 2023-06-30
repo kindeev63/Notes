@@ -18,7 +18,7 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.FragmentReminderDialogBinding
 import com.kindeev.notes.db.Note
@@ -34,7 +34,7 @@ class ReminderDialogFragment() : DialogFragment() {
     private var sound = true
     private var reminder: Reminder? = null
     private var reminderId: Int = 0
-    private lateinit var noteViewModel: NoteViewModel
+    private lateinit var mainViewModel: MainViewModel
     private var noteId: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +42,7 @@ class ReminderDialogFragment() : DialogFragment() {
         arguments?.let {
             if (it.containsKey("reminder")) reminder = it.getSerializable("reminder") as Reminder
             reminderId = it.getInt("reminderId", 0)
-            noteViewModel = it.getSerializable("noteViewModel") as NoteViewModel
+            mainViewModel = it.getSerializable("noteViewModel") as MainViewModel
             if (it.containsKey("noteId")) noteId = it.getInt("noteId", 0)
         }
     }
@@ -101,10 +101,10 @@ class ReminderDialogFragment() : DialogFragment() {
             }
 
             noteContentDialog.setOnClickListener {
-                if (noteViewModel.allNotes.value?.isEmpty() != false) {
+                if (mainViewModel.allNotes.value?.isEmpty() != false) {
                     Toast.makeText(requireContext(), R.string.no_notes, Toast.LENGTH_SHORT).show()
                 } else {
-                    showListDialog(noteViewModel.allNotes.value ?: emptyList()) {
+                    showListDialog(mainViewModel.allNotes.value ?: emptyList()) {
                         noteId = it.id
                         tNoteTitleDialog.text = it.title
                         noteContentDialog.setBackgroundColor(it.color)
@@ -176,7 +176,7 @@ class ReminderDialogFragment() : DialogFragment() {
                 openNoteButton.isChecked = true
                 noteCardDialog.visibility = View.VISIBLE
                 appCardDialog.visibility = View.GONE
-                noteViewModel.getNoteById(reminder?.noteId ?: noteId!!) {
+                mainViewModel.getNoteById(reminder?.noteId ?: noteId!!) {
                     noteId = it!!.id
                     binding.tNoteTitleDialog.text = it.title
                     binding.noteContentDialog.setBackgroundColor(it.color)
@@ -209,7 +209,7 @@ class ReminderDialogFragment() : DialogFragment() {
                     } else {
                         newReminder.noteId = noteId
                     }
-                    noteViewModel.insertReminder(newReminder)
+                    mainViewModel.insertReminder(newReminder)
                     setAlarm(newReminder)
                     Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
@@ -242,20 +242,20 @@ class ReminderDialogFragment() : DialogFragment() {
         // Сохраняем состояние фрагмента
         if (reminder!=null) outState.putSerializable("reminder", reminder)
         outState.putInt("reminderId", reminderId)
-        outState.putSerializable("noteViewModel", noteViewModel)
+        outState.putSerializable("noteViewModel", mainViewModel)
         if (noteId != null) outState.putInt("noteId", noteId!!)
     }
 
     companion object {
         @JvmStatic
         fun newInstance(
-            reminder: Reminder?, reminderId: Int, noteViewModel: NoteViewModel, noteId: Int? = null
+            reminder: Reminder?, reminderId: Int, mainViewModel: MainViewModel, noteId: Int? = null
         ): ReminderDialogFragment {
             val fragment = ReminderDialogFragment()
             val args = Bundle()
             if (reminder != null) args.putSerializable("reminder", reminder)
             args.putInt("reminderId", reminderId)
-            args.putSerializable("noteViewModel", noteViewModel)
+            args.putSerializable("noteViewModel", mainViewModel)
             if (noteId != null) args.putInt("noteId", noteId)
             fragment.arguments = args
             return fragment

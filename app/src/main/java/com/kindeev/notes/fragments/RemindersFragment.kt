@@ -11,7 +11,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.adapters.RemindersAdapter
@@ -20,7 +20,7 @@ import com.kindeev.notes.db.Reminder
 
 class RemindersFragment : BaseFragment() {
     private lateinit var binding: FragmentRemindersBinding
-    private lateinit var noteViewModel: NoteViewModel
+    private lateinit var mainViewModel: MainViewModel
     lateinit var remindersAdapter: RemindersAdapter
     private var remindersList = emptyList<Reminder>()
     private var searchText: String = ""
@@ -35,7 +35,7 @@ class RemindersFragment : BaseFragment() {
 
     override fun search(text: String) {
         searchText = text
-        remindersList = filterReminders(noteViewModel.allReminders.value, searchText)
+        remindersList = filterReminders(mainViewModel.allReminders.value, searchText)
         remindersAdapter.setData(reminders = remindersList)
         binding.noReminders.visibility = if (remindersList.isEmpty()) View.VISIBLE else View.GONE
     }
@@ -53,7 +53,7 @@ class RemindersFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentRemindersBinding.inflate(inflater, container, false)
-        noteViewModel = (activity as MainActivity).getViewModel()
+        mainViewModel = (activity as MainActivity).getViewModel()
 
         val onClickReminder: (Reminder, Boolean) -> Unit =
             { reminder: Reminder, open: Boolean ->
@@ -61,7 +61,7 @@ class RemindersFragment : BaseFragment() {
                 if (open) {
                     openReminder(reminder)
                 } else {
-                    if (noteViewModel.selectedReminders.size == 0) {
+                    if (mainViewModel.selectedReminders.size == 0) {
                         val searchItem = mainActivity.topMenu?.findItem(R.id.action_search)
                         val searchView = searchItem?.actionView as SearchView
                         searchView.setQuery("", false)
@@ -80,12 +80,12 @@ class RemindersFragment : BaseFragment() {
 
             }
 
-        remindersAdapter = RemindersAdapter(noteViewModel, onClickReminder)
+        remindersAdapter = RemindersAdapter(mainViewModel, onClickReminder)
         binding.apply {
             rcReminders.adapter = remindersAdapter
             rcReminders.layoutManager = LinearLayoutManager(requireContext())
         }
-        noteViewModel.allReminders.observe(requireActivity()) {
+        mainViewModel.allReminders.observe(requireActivity()) {
             remindersList = filterReminders(it, searchText)
             remindersAdapter.setData(reminders = remindersList)
             binding.noReminders.visibility = if (remindersList.isEmpty()) View.VISIBLE else View.GONE
@@ -95,7 +95,7 @@ class RemindersFragment : BaseFragment() {
     }
 
     private fun openReminder(reminder: Reminder? = null) {
-        val idsList = noteViewModel.allReminders.value?.map { it.id } ?: emptyList()
+        val idsList = mainViewModel.allReminders.value?.map { it.id } ?: emptyList()
         var reminderId = 0
         if (reminder==null){
             while (true) {
@@ -105,7 +105,7 @@ class RemindersFragment : BaseFragment() {
         } else {
             reminderId = reminder.id
         }
-        val dialogFragment = ReminderDialogFragment.newInstance(reminder, reminderId, noteViewModel)
+        val dialogFragment = ReminderDialogFragment.newInstance(reminder, reminderId, mainViewModel)
         dialogFragment.show(childFragmentManager, "reminder_dialog")
     }
 
