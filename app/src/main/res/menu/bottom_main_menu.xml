@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/bottom_notes_item"
+        android:icon="@drawable/ic_bottom_notes"
+        android:title="@string/app_name"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/bottom_reminder_item"
+        android:icon="@drawable/ic_bottom_reminders"
+        android:title="@string/reminders"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/bottom_task_item"
+        android:icon="@drawable/ic_bottom_tasks"
+        android:title="@string/tasks"
+        app:showAsAction="always" />
+
+</menu>

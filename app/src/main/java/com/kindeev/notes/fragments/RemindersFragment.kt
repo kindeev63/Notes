@@ -76,7 +76,6 @@ class RemindersFragment : BaseFragment() {
                                 it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                         }
                     }
-                    mainActivity.menu?.findItem(R.id.reminder_item)?.isVisible = false
                 }
 
             }
