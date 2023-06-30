@@ -81,14 +81,16 @@ class MainActivity : AppCompatActivity() {
             FragmentManager.currentFrag?.onClickNew()
         }
 
-        binding.bNav.setOnItemSelectedListener {
-            Log.e("test", it.title.toString())
-            if (binding.bNav.selectedItemId == it.itemId) return@setOnItemSelectedListener true
+        binding.bNav.setOnItemSelectedListener { bottomMenuItem ->
+            if (binding.bNav.selectedItemId == bottomMenuItem.itemId) return@setOnItemSelectedListener true
             noteViewModel.selectedNotes.clear()
             noteViewModel.selectedReminders.clear()
-            supportActionBar?.setDisplayHomeAsUpEnabled(it.itemId != R.id.bottom_reminder_item)
+            supportActionBar?.setDisplayHomeAsUpEnabled(bottomMenuItem.itemId != R.id.bottom_reminder_item)
             noteViewModel.colorFilter = false
-            when (it.itemId) {
+            menu?.forEach { topMenuItem ->
+                topMenuItem.isVisible = topMenuItem.itemId != R.id.delete_item
+            }
+            when (bottomMenuItem.itemId) {
                 R.id.bottom_notes_item -> {
                     FragmentManager.setFragment(NotesFragment.newInstance(), this)
                     supportActionBar?.title = resources.getString(R.string.all_notes)
