@@ -25,8 +25,16 @@
         android:layout_marginBottom="16dp"
         android:clickable="true"
         app:backgroundTint="@color/gray"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bNav"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_plus" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_main_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
