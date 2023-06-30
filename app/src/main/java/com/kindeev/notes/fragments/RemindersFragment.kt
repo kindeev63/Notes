@@ -62,16 +62,16 @@ class RemindersFragment : BaseFragment() {
                     openReminder(reminder)
                 } else {
                     if (noteViewModel.selectedReminders.size == 0) {
-                        val searchItem = mainActivity.menu?.findItem(R.id.action_search)
+                        val searchItem = mainActivity.topMenu?.findItem(R.id.action_search)
                         val searchView = searchItem?.actionView as SearchView
                         searchView.setQuery("", false)
                         searchView.isIconified = true
                         searchItem.collapseActionView()
-                        mainActivity.menu?.forEach {
+                        mainActivity.topMenu?.forEach {
                             it.isVisible = it.itemId != R.id.delete_item
                         }
                     } else {
-                        mainActivity.menu?.forEach {
+                        mainActivity.topMenu?.forEach {
                             it.isVisible =
                                 it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                         }

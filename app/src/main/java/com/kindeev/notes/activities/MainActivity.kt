@@ -16,10 +16,8 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.SubMenu
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
@@ -34,14 +32,13 @@ import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
-import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.*
 import com.kindeev.notes.receivers.AlarmReceiver
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var noteViewModel: NoteViewModel
-    var menu: Menu? = null
+    var topMenu: Menu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,9 +84,14 @@ class MainActivity : AppCompatActivity() {
             noteViewModel.selectedReminders.clear()
             supportActionBar?.setDisplayHomeAsUpEnabled(bottomMenuItem.itemId != R.id.bottom_reminder_item)
             noteViewModel.colorFilter = false
-            menu?.forEach { topMenuItem ->
+            topMenu?.forEach { topMenuItem ->
                 topMenuItem.isVisible = topMenuItem.itemId != R.id.delete_item
             }
+            val searchItem = topMenu?.findItem(R.id.action_search)
+            val searchView = searchItem?.actionView as SearchView
+            searchView.setQuery("", false)
+            searchView.isIconified = true
+            searchItem.collapseActionView()
             when (bottomMenuItem.itemId) {
                 R.id.bottom_notes_item -> {
                     FragmentManager.setFragment(NotesFragment.newInstance(), this)
@@ -186,7 +188,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
-        this.menu = menu
+        this.topMenu = menu
         if (noteViewModel.selectedNotes.isEmpty() && noteViewModel.selectedReminders.isEmpty()) {
             menu?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item
@@ -228,11 +230,11 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (item.itemId == R.id.delete_item) {
-            menu?.forEach {
+            topMenu?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item
             }
         }
-        val searchItem = menu?.findItem(R.id.action_search)
+        val searchItem = topMenu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
         searchView.setQuery("", false)
         searchView.isIconified = true
@@ -297,7 +299,7 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onBackPressed()
         }
-        menu?.findItem(R.id.delete_item)?.isVisible = false
+        topMenu?.findItem(R.id.delete_item)?.isVisible = false
     }
 
     private fun cancelAlarm(reminderId: Int) {
