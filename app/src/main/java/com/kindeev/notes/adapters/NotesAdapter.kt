@@ -14,7 +14,7 @@ import java.util.*
 
 class NotesAdapter(private val mainViewModel: MainViewModel, private val onItemClick: (note: Note, open: Boolean) -> Unit) :
     RecyclerView.Adapter<NotesAdapter.NotesHolder>() {
-    private var notesList = emptyList<Note>()
+    private var notesList = mainViewModel.allNotes.value ?: emptyList()
     class NotesHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = NoteItemBinding.bind(view)
         fun bind(note: Note, choosingNotes: Boolean, noteSelected: Boolean) = with(binding) {

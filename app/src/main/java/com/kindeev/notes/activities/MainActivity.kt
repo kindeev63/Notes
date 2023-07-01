@@ -35,6 +35,7 @@ import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
 import com.kindeev.notes.fragments.*
 import com.kindeev.notes.receivers.AlarmReceiver
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -165,9 +166,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             is NotesFragment -> {
-                supportActionBar?.title =
-                    fragment.viewModel?.category?.name
-                        ?: resources.getString(R.string.all_notes)
+                supportActionBar?.title = try {
+                    fragment.viewModel.category?.name ?: resources.getString(R.string.all_notes)
+                } catch (e: Exception) {
+                    resources.getString(R.string.all_notes)
+                }
                 binding.bNav.selectedItemId = R.id.bottom_notes_item
             }
 

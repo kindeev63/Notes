@@ -3,7 +3,7 @@ package com.kindeev.notes.fragments
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.GravityCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.*
 import com.kindeev.notes.activities.MainActivity
@@ -17,41 +17,40 @@ import com.kindeev.notes.viewmodels.NotesFragmentViewModel
 class NotesFragment : BaseFragment() {
     lateinit var binding: FragmentNotesBinding
     private lateinit var mainViewModel: MainViewModel
-    var viewModel: NotesFragmentViewModel? = null
-    lateinit var notesAdapter: NotesAdapter
+    val viewModel: NotesFragmentViewModel by viewModels()
+    var notesAdapter: NotesAdapter? = null
     private lateinit var categoriesAdapter: CategoriesAdapter
 
-    override fun onClickNew() = viewModel?.openNote(mainViewModel = mainViewModel, context = requireContext()) ?: Unit
+    override fun onClickNew() = viewModel.openNote(mainViewModel = mainViewModel, context = requireContext())
     override fun search(text: String) {
-        viewModel?.searchText = text
+        viewModel.searchText = text
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(requireActivity())[NotesFragmentViewModel::class.java]
         binding = FragmentNotesBinding.inflate(inflater, container, false)
         mainViewModel = (activity as MainActivity).getViewModel()
-        mainViewModel.allNotes.observe(requireActivity()) {
-            viewModel?.setAllNotes(it)
-        }
-        viewModel?.notesList?.observe(requireActivity()) {
-            notesAdapter.setData(notes = it)
-            binding.noNotes.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
-        }
-        notesAdapter = NotesAdapter(mainViewModel, viewModel?.onClickNote(
+        notesAdapter = NotesAdapter(mainViewModel, viewModel.onClickNote(
             mainActivity = activity as MainActivity,
             mainViewModel = mainViewModel,
             context = requireContext()
-        )?: {_,_->})
+        ))
+        mainViewModel.allNotes.observe(requireActivity()) {
+            viewModel.setAllNotes(it)
+        }
+        viewModel.notesList.observe(requireActivity()) {
+            notesAdapter?.setData(notes = it)
+            binding.noNotes.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
+        }
         binding.apply {
-            colorFilterNotes.adapter = viewModel?.getSpinnerAdapter(requireContext(), layoutInflater)
-            colorFilterNotes.onItemSelectedListener = viewModel?.spinnerItemSelected()
+            colorFilterNotes.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
+            colorFilterNotes.onItemSelectedListener = viewModel.spinnerItemSelected()
             colorFilterNotes.setSelection(
-                viewModel?.colorFilter?.let { Colors.colors.indexOf(it) } ?: 0
+                viewModel.colorFilter?.let { Colors.colors.indexOf(it) } ?: 0
             )
-            if (viewModel?.colorFilter != null) {
+            if (viewModel.colorFilter != null) {
                 colorFilterNotes.visibility = View.VISIBLE
                 chColorNotes.text = ""
             } else {
@@ -63,28 +62,28 @@ class NotesFragment : BaseFragment() {
                 if (chColorNotes.isChecked) {
                     colorFilterNotes.visibility = View.VISIBLE
                     chColorNotes.text = ""
-                    viewModel?.colorFilter = Colors.colors[0]
+                    viewModel.colorFilter = Colors.colors[0]
                 } else {
                     colorFilterNotes.visibility = View.GONE
                     chColorNotes.text = resources.getString(R.string.color)
-                    viewModel?.colorFilter = null
+                    viewModel.colorFilter = null
                 }
             }
-            navNotes.layoutParams = viewModel?.getDrawerLayoutParams(requireContext(), navNotes.layoutParams)
+            navNotes.layoutParams = viewModel.getDrawerLayoutParams(requireContext(), navNotes.layoutParams)
             rcNotes.adapter = notesAdapter
             rcNotes.layoutManager = LinearLayoutManager(requireContext())
             allNotesCard.setOnClickListener {
-                viewModel?.category = null
+                viewModel.category = null
                 drawerNotes.closeDrawer(GravityCompat.START)
                 (activity as MainActivity).supportActionBar?.title = resources.getString(R.string.all_notes)
             }
             addCategoryNotes.setOnClickListener {
-                viewModel?.addCategory(requireContext(), mainViewModel)
+                viewModel.addCategory(requireContext(), mainViewModel)
             }
             categoriesAdapter = CategoriesAdapter(
-                viewModel?.onClickCategory(requireContext(), mainViewModel, activity as MainActivity) {
+                viewModel.onClickCategory(requireContext(), mainViewModel, activity as MainActivity) {
                     drawerNotes.closeDrawer(GravityCompat.START)
-                } ?: {_,_->}
+                }
             )
             rcCategoriesNotes.adapter = categoriesAdapter
             rcCategoriesNotes.layoutManager = LinearLayoutManager(requireContext())
