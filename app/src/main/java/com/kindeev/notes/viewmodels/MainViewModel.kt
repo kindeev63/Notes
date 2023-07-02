@@ -17,7 +17,6 @@ open class MainViewModel(application: Application) : AndroidViewModel(applicatio
     val allCategoriesOfNotes: LiveData<List<Category>>
     val allCategoriesOfTasks: LiveData<List<Category>>
     val allReminders: LiveData<List<Reminder>>
-    var selectedNotes = arrayListOf<Note>()
     var selectedReminders = arrayListOf<Reminder>()
     var colorFilter = false
 

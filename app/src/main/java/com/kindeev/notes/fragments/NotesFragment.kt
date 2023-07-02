@@ -32,7 +32,7 @@ class NotesFragment : BaseFragment() {
     ): View {
         binding = FragmentNotesBinding.inflate(inflater, container, false)
         mainViewModel = (activity as MainActivity).getViewModel()
-        notesAdapter = NotesAdapter(mainViewModel, viewModel.onClickNote(
+        notesAdapter = NotesAdapter(viewModel.notesList.value ?: emptyList(), viewModel.onClickNote(
             mainActivity = activity as MainActivity,
             mainViewModel = mainViewModel,
             context = requireContext()
@@ -43,6 +43,9 @@ class NotesFragment : BaseFragment() {
         viewModel.notesList.observe(requireActivity()) {
             notesAdapter?.setData(notes = it)
             binding.noNotes.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
+        }
+        viewModel.selectedNotes.observe(requireActivity()) {
+            notesAdapter?.setData(selectedNotes = it)
         }
         binding.apply {
             colorFilterNotes.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)

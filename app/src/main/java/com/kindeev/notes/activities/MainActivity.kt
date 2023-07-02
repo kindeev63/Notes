@@ -81,7 +81,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.bNav.setOnItemSelectedListener { bottomMenuItem ->
             if (binding.bNav.selectedItemId == bottomMenuItem.itemId) return@setOnItemSelectedListener true
-            mainViewModel.selectedNotes.clear()
             mainViewModel.selectedReminders.clear()
             supportActionBar?.setDisplayHomeAsUpEnabled(bottomMenuItem.itemId != R.id.bottom_reminder_item)
             mainViewModel.colorFilter = false
@@ -192,7 +191,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         this.topMenu = menu
-        if (mainViewModel.selectedNotes.isEmpty() && mainViewModel.selectedReminders.isEmpty()) {
+        if (
+//            mainViewModel.selectedNotes.isEmpty() &&
+            mainViewModel.selectedReminders.isEmpty()) {
             menu?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item
             }
@@ -255,16 +256,18 @@ class MainActivity : AppCompatActivity() {
             R.id.delete_item -> {
                 when (val fragment = FragmentManager.currentFrag) {
                     is NotesFragment -> {
-                        val remindersForDelete =
-                            mainViewModel.allReminders.value?.filter { reminder ->
-                                mainViewModel.selectedNotes.any { note ->
-                                    reminder.noteId == note.id
+                        fragment.viewModel.selectedNotes.value?.let { selectedNotes ->
+                            val remindersForDelete =
+                                mainViewModel.allReminders.value?.filter { reminder ->
+                                    selectedNotes.any { note ->
+                                        reminder.noteId == note.id
+                                    }
                                 }
-                            }
-                        remindersForDelete?.let { mainViewModel.deleteReminders(it) }
-                        mainViewModel.deleteNotes(mainViewModel.selectedNotes.toList())
-                        mainViewModel.selectedNotes.clear()
-                        fragment.notesAdapter?.notifyDataSetChanged()
+                            remindersForDelete?.let { mainViewModel.deleteReminders(it) }
+                            mainViewModel.deleteNotes(selectedNotes)
+                            fragment.viewModel.clearSelectedNotes()
+                        }
+
                     }
 
                     is RemindersFragment -> {
@@ -284,9 +287,8 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         when (val fragment = FragmentManager.currentFrag) {
             is NotesFragment -> {
-                if (mainViewModel.selectedNotes.isNotEmpty()) {
-                    mainViewModel.selectedNotes.clear()
-                    fragment.notesAdapter?.notifyDataSetChanged()
+                if (fragment.viewModel.selectedNotes.value?.isNotEmpty() == true) {
+                    fragment.viewModel.clearSelectedNotes()
                 } else {
                     super.onBackPressed()
                 }
