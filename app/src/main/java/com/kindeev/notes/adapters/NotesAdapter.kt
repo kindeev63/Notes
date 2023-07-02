@@ -12,9 +12,8 @@ import com.kindeev.notes.db.Note
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NotesAdapter(data: List<Note>, private val onItemClick: (note: Note, long: Boolean) -> Unit) :
+class NotesAdapter(private var notesList: List<Note>, private val onItemClick: (note: Note, long: Boolean) -> Unit) :
     RecyclerView.Adapter<NotesAdapter.NotesHolder>() {
-    private var notesList = data
     private var selectedNotesList = emptyList<Note>()
 
     class NotesHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -56,7 +55,7 @@ class NotesAdapter(data: List<Note>, private val onItemClick: (note: Note, long:
     }
 
     fun setData(notes: List<Note>? = null, selectedNotes: List<Note>? = null) {
-        notes?.let { notesList = notes.sortedBy { it.time }.reversed() }
+        notes?.let { notesList = it }
         selectedNotes?.let { selectedNotesList = it }
         notifyDataSetChanged()
     }

@@ -17,7 +17,6 @@ open class MainViewModel(application: Application) : AndroidViewModel(applicatio
     val allCategoriesOfNotes: LiveData<List<Category>>
     val allCategoriesOfTasks: LiveData<List<Category>>
     val allReminders: LiveData<List<Reminder>>
-    var colorFilter = false
 
     init {
         val noteDao = NoteDataBase.getDataBase(application).getDao()
@@ -39,6 +38,11 @@ open class MainViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun insertTask(task: Task) = viewModelScope.launch {
         repository.insertTask(task)
+    }
+
+    fun insertTask(task: Task, function: (Task) -> Unit) = viewModelScope.launch {
+        repository.insertTask(task)
+        function(task)
     }
 
     fun insertCategory(category: Category) = viewModelScope.launch {

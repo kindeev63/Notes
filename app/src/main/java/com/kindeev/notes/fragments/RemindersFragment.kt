@@ -15,12 +15,11 @@ import com.kindeev.notes.viewmodels.RemindersFragmentViewModel
 class RemindersFragment : BaseFragment() {
     private lateinit var binding: FragmentRemindersBinding
     val viewModel: RemindersFragmentViewModel by viewModels()
-    private lateinit var mainViewModel: MainViewModel
     private var remindersAdapter: RemindersAdapter? = null
 
     override fun onClickNew() = viewModel.createReminder(
         activity = requireActivity(),
-        mainViewModel = mainViewModel,
+        mainViewModel = mainViewModel(),
         fragmentManager = childFragmentManager
     )
 
@@ -33,11 +32,10 @@ class RemindersFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentRemindersBinding.inflate(inflater, container, false)
-        mainViewModel = (activity as MainActivity).getViewModel()
         remindersAdapter = RemindersAdapter(
             viewModel.selectedReminders.value ?: emptyList(), viewModel.onClickReminder(
                 mainActivity = activity as MainActivity,
-                mainViewModel = mainViewModel,
+                mainViewModel = mainViewModel(),
                 fragmentManager = childFragmentManager
             )
         )
@@ -49,7 +47,7 @@ class RemindersFragment : BaseFragment() {
         viewModel.selectedReminders.observe(requireActivity()) {
             remindersAdapter?.setData(selecteReminders = it)
         }
-        mainViewModel.allReminders.observe(requireActivity()) {
+        mainViewModel().allReminders.observe(requireActivity()) {
             viewModel.setAllReminders(it)
         }
         binding.apply {
@@ -58,6 +56,8 @@ class RemindersFragment : BaseFragment() {
         }
         return binding.root
     }
+
+    private fun mainViewModel() = (activity as MainActivity).getViewModel()
 
     companion object {
         @JvmStatic

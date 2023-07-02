@@ -1,10 +1,8 @@
 package com.kindeev.notes.viewmodels
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.text.InputType
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,74 +12,95 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
-import androidx.core.view.forEach
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
-import com.kindeev.notes.activities.NoteActivity
 import com.kindeev.notes.db.Category
-import com.kindeev.notes.db.Note
+import com.kindeev.notes.db.Task
+import com.kindeev.notes.fragments.TaskDialogFragment
 import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.States
 import java.util.ArrayList
 import java.util.Date
 
-class NotesFragmentViewModel : ViewModel() {
-    private var _allNotes = emptyList<Note>()
-    private val _notesList = MutableLiveData<List<Note>>()
-    val notesList: LiveData<List<Note>> = _notesList
-    private val _selectedNotes = MutableLiveData<List<Note>>()
-    val selectedNotes: LiveData<List<Note>> = _selectedNotes
+class TasksFragmentViewModel : ViewModel() {
+    private var _allTasks = emptyList<Task>()
+    private val _tasksList = MutableLiveData<List<Task>>()
+    val tasksList: LiveData<List<Task>> = _tasksList
     var searchText = ""
         set(value) {
             field = value
-            filterNotes()
+            filterTasks()
         }
     var category: Category? = null
         set(value) {
             field = value
-            filterNotes()
+            filterTasks()
         }
     var colorFilter: Int? = null
         set(value) {
             field = value
-            filterNotes()
+            filterTasks()
         }
 
-    fun setAllNotes(notes: List<Note>) {
-        _allNotes = notes
-        filterNotes()
+    fun setAllTasks(tasks: List<Task>) {
+        _allTasks = tasks
+        filterTasks()
     }
 
-    fun clearSelectedNotes() {
-        _selectedNotes.value = emptyList()
-    }
-
-    private fun filterNotes() {
-        var newNotes = _allNotes.toList()
+    private fun filterTasks() {
+        var newTasks = _allTasks.toList()
         category?.let { category ->
-            newNotes = newNotes.filter { category.name in it.categories.split(", ") }
+            newTasks = newTasks.filter { category.name in it.categories.split(", ") }
         }
         colorFilter?.let { color ->
-            newNotes = newNotes.filter { it.color == color }
+            newTasks = newTasks.filter { it.color == color }
         }
-        _notesList.value = newNotes.filter { it.title.lowercase().contains(searchText.lowercase()) }
-            .sortedBy { it.time }.reversed()
+
+        val oldTasks = newTasks.reversed()
+        val newTasksList = ArrayList(oldTasks)
+        for (task in oldTasks){
+            if (task.done){
+                newTasksList.remove(task)
+                newTasksList.add(task)
+            }
+        }
+        _tasksList.value = newTasksList.filter { it.title.lowercase().contains(searchText.lowercase()) }
     }
 
-    private fun createNote(notes: List<Note>): Note {
-        val idsList = notes.map { it.id }
-        var noteId = 0
+    private fun createTask(tasks: List<Task>): Task {
+        val idsList = tasks.map { it.id }
+        var taskId = 0
         while (true) {
-            if (noteId !in idsList) break
-            noteId++
+            if (taskId !in idsList) break
+            taskId++
         }
-        val currentDate = Date()
-        return Note(noteId, "", "", "", currentDate.time, Color.WHITE)
+        return Task(taskId, "", false, "",  Color.WHITE)
+    }
+
+    fun openTask(
+        task: Task? = null,
+        mainViewModel: MainViewModel,
+        fragmentManager: FragmentManager
+    ) {
+        if (task == null) {
+            val newTask = createTask(_allTasks)
+            mainViewModel.insertTask(newTask) {
+                openTask(
+                    task = it,
+                    mainViewModel = mainViewModel,
+                    fragmentManager = fragmentManager
+                )
+            }
+        } else {
+            val dialogFragment = TaskDialogFragment.newInstance(task, mainViewModel)
+            dialogFragment.show(fragmentManager, "task_dialog")
+        }
+
     }
 
     fun getSpinnerAdapter(context: Context, layoutInflater: LayoutInflater) =
@@ -119,21 +138,19 @@ class NotesFragmentViewModel : ViewModel() {
             colorFilter = parent.getItemAtPosition(position) as Int
         }
 
-        override fun onNothingSelected(parent: AdapterView<*>) {}
+        override fun onNothingSelected(parent: AdapterView<*>) {
+            // Ничего не делаем
+        }
     }
 
-    fun openNote(note: Note? = null, mainViewModel: MainViewModel, context: Context) {
-        if (note == null) {
-            val newNote = createNote(_allNotes)
-            mainViewModel.insertNote(newNote) {
-                openNote(note = it, mainViewModel = mainViewModel, context = context)
-            }
-        } else {
-            val intent = Intent(context, NoteActivity::class.java).apply {
-                putExtra("noteId", note.id)
-            }
-            context.startActivity(intent)
-        }
+    fun getDrawerLayoutParams(
+        context: Context,
+        layoutParams: ViewGroup.LayoutParams
+    ): ViewGroup.LayoutParams {
+        val screenWidth = context.resources.displayMetrics.widthPixels
+        val newWidth = screenWidth * 5 / 6
+        layoutParams.width = newWidth
+        return layoutParams
     }
 
     private fun showEditDialog(
@@ -160,64 +177,51 @@ class NotesFragmentViewModel : ViewModel() {
         }
     }
 
-    fun onClickNote(
-        mainActivity: MainActivity,
+    fun onTaskTextClick(
         mainViewModel: MainViewModel,
-        context: Context
-    ) = { note: Note, long: Boolean ->
-        if (!States.noteEdited) {
-            if (long) {
-                Log.e("test", "selectedNotes: ${_selectedNotes.value}")
-                if (selectedNotes.value?.contains(note) == true) {
-                    Log.e("test", "remove")
-                    _selectedNotes.value = ArrayList(_selectedNotes.value ?: emptyList()).apply {
-                        remove(note)
+        context: Context,
+        fragmentManager: FragmentManager
+    ): (Task, Boolean) -> Unit {
+        return { task: Task, long: Boolean ->
+            if (!States.taskEdited) {
+                if (long) {
+                    AlertDialog.Builder(context).apply {
+                        setTitle(R.string.delete_task)
+                        setPositiveButton(R.string.delete) { _, _ ->
+                            mainViewModel.deleteTask(task)
+                        }
+                        setNegativeButton(R.string.cancel) { _, _ -> }
+                        show()
                     }
                 } else {
-                    Log.e("test", "add")
-                    _selectedNotes.value = ArrayList(_selectedNotes.value ?: emptyList()).apply {
-                        add(note)
-                    }
-                }
-            } else {
-                if (selectedNotes.value?.isEmpty() != false) {
-                    openNote(note = note, mainViewModel = mainViewModel, context = context)
-                } else {
-                    if (selectedNotes.value?.contains(note) == true) {
-                        _selectedNotes.value =
-                            ArrayList(_selectedNotes.value ?: emptyList()).apply {
-                                remove(note)
-                            }
-                    } else {
-                        _selectedNotes.value =
-                            ArrayList(_selectedNotes.value ?: emptyList()).apply {
-                                add(note)
-                            }
-                    }
-                }
-            }
-            if (selectedNotes.value?.isEmpty() == true) {
-                mainActivity.topMenu?.forEach {
-                    it.isVisible = it.itemId != R.id.delete_item
-                }
-
-            } else {
-                mainActivity.topMenu?.forEach {
-                    it.isVisible =
-                        it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                    openTask(
+                        task = task,
+                        mainViewModel = mainViewModel,
+                        fragmentManager = fragmentManager
+                    )
                 }
             }
         }
     }
 
-    fun getDrawerLayoutParams(
+    fun onTaskCheckBoxClick(
         context: Context,
-        layoutParams: ViewGroup.LayoutParams
-    ): ViewGroup.LayoutParams {
-        val screenWidth = context.resources.displayMetrics.widthPixels
-        val newWidth = screenWidth * 5 / 6
-        layoutParams.width = newWidth
-        return layoutParams
+        mainViewModel: MainViewModel
+    ): (Task) -> Unit {
+        return {task: Task ->
+            if (task.done) {
+                AlertDialog.Builder(context).apply {
+                    setTitle(R.string.deselect)
+                    setPositiveButton(R.string.yes) { _, _ ->
+                        mainViewModel.insertTask(task.copy(done = false))
+                    }
+                    setNegativeButton(R.string.no) { _, _ -> }
+                    show()
+                }
+            } else {
+                mainViewModel.insertTask(task.copy(done = true))
+            }
+        }
     }
 
     fun addCategory(context: Context, mainViewModel: MainViewModel) {
@@ -227,8 +231,8 @@ class NotesFragmentViewModel : ViewModel() {
             textCancel = context.resources.getString(R.string.cancel),
             context = context
         ) { name ->
-            mainViewModel.allCategoriesOfNotes.value?.let { allCategories ->
-                if (name !in allCategories.map { it.name }) {
+            mainViewModel.allCategoriesOfTasks.value?.let { allCategories ->
+                if (name !in allCategories.map { it.name })
                     if (name.isEmpty()) {
                         Toast.makeText(
                             context,
@@ -240,17 +244,16 @@ class NotesFragmentViewModel : ViewModel() {
                             Category(
                                 id = 0,
                                 name = name,
-                                type = "notes"
+                                type = "tasks"
                             )
                         )
                     }
-                } else {
+                else
                     Toast.makeText(
                         context,
                         context.resources.getString(R.string.category_exists),
                         Toast.LENGTH_SHORT
                     ).show()
-                }
             }
         }
     }
@@ -275,7 +278,7 @@ class NotesFragmentViewModel : ViewModel() {
                         ) { newName ->
                             val oldName = currentCategory.name
                             if (
-                                mainViewModel.allCategoriesOfNotes.value?.let { allCategories ->
+                                mainViewModel.allCategoriesOfTasks.value?.let { allCategories ->
                                     newName !in allCategories.map { it.name }
                                 } == true
                             ) {
@@ -291,15 +294,15 @@ class NotesFragmentViewModel : ViewModel() {
                                     if (category?.name == oldName) {
                                         category = currentCategory
                                     }
-                                    for (note in _allNotes) {
+                                    for (task in _allTasks) {
                                         val categoriesList =
-                                            ArrayList(note.categories.split(", "))
+                                            ArrayList(task.categories.split(", "))
                                         if (oldName in categoriesList) {
                                             categoriesList.remove(oldName)
                                             categoriesList.add(newName)
-                                            note.categories =
+                                            task.categories =
                                                 categoriesList.joinToString(separator = ", ")
-                                            mainViewModel.insertNote(note)
+                                            mainViewModel.insertTask(task)
                                         }
                                     }
                                 }
@@ -313,19 +316,19 @@ class NotesFragmentViewModel : ViewModel() {
                     setNegativeButton(R.string.delete) { _, _ ->
                         mainViewModel.deleteCategory(currentCategory)
                         val categoryName = currentCategory.name
-                        for (note in _allNotes) {
-                            val categoriesList = ArrayList(note.categories.split(", "))
+                        for (task in _allTasks) {
+                            val categoriesList = ArrayList(task.categories.split(", "))
                             if (categoryName in categoriesList) {
                                 categoriesList.remove(categoryName)
-                                note.categories =
+                                task.categories =
                                     categoriesList.joinToString(separator = ", ")
-                                mainViewModel.insertNote(note)
+                                mainViewModel.insertTask(task)
                             }
                         }
                         if (category == currentCategory) {
                             category = null
                             mainActivity.supportActionBar?.title =
-                                context.resources.getString(R.string.all_notes)
+                                context.resources.getString(R.string.all_tasks)
                         }
                     }
                     show()

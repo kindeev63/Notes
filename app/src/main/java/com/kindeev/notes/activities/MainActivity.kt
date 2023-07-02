@@ -82,7 +82,6 @@ class MainActivity : AppCompatActivity() {
         binding.bNav.setOnItemSelectedListener { bottomMenuItem ->
             if (binding.bNav.selectedItemId == bottomMenuItem.itemId) return@setOnItemSelectedListener true
             supportActionBar?.setDisplayHomeAsUpEnabled(bottomMenuItem.itemId != R.id.bottom_reminder_item)
-            mainViewModel.colorFilter = false
             topMenu?.forEach { topMenuItem ->
                 topMenuItem.isVisible = topMenuItem.itemId != R.id.delete_item
             }
@@ -173,9 +172,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             is TasksFragment -> {
-                supportActionBar?.title =
-                    fragment.currentCategoryName
-                        ?: resources.getString(R.string.all_tasks)
+                supportActionBar?.title = try {
+                    fragment.viewModel.category?.name ?: resources.getString(R.string.all_tasks)
+                } catch (e: Exception) {
+                    resources.getString(R.string.all_tasks)
+                }
                 binding.bNav.selectedItemId = R.id.bottom_task_item
             }
 
@@ -240,7 +241,12 @@ class MainActivity : AppCompatActivity() {
                     is TasksFragment -> fragment.binding.drawerTasks
                     else -> null
                 }
-                drawer?.openDrawer(GravityCompat.START)
+                if (drawer?.isOpen == true) {
+                    drawer.closeDrawer(GravityCompat.START)
+                } else {
+                    drawer?.openDrawer(GravityCompat.START)
+                }
+
             }
 
             R.id.delete_item -> {

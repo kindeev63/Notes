@@ -11,11 +11,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class RemindersAdapter(
-    data: List<Reminder>,
+    private var remindersList: List<Reminder>,
     private val onItemClick: (reminder: Reminder, long: Boolean) -> Unit
 ) :
     RecyclerView.Adapter<RemindersAdapter.RemindersHolder>() {
-    private var remindersList = data
     private var selectedRemindersList = emptyList<Reminder>()
 
     class RemindersHolder(view: View) : RecyclerView.ViewHolder(view) {
