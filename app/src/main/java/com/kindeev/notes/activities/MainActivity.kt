@@ -81,7 +81,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.bNav.setOnItemSelectedListener { bottomMenuItem ->
             if (binding.bNav.selectedItemId == bottomMenuItem.itemId) return@setOnItemSelectedListener true
-            mainViewModel.selectedReminders.clear()
             supportActionBar?.setDisplayHomeAsUpEnabled(bottomMenuItem.itemId != R.id.bottom_reminder_item)
             mainViewModel.colorFilter = false
             topMenu?.forEach { topMenuItem ->
@@ -191,17 +190,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         this.topMenu = menu
-        if (
-//            mainViewModel.selectedNotes.isEmpty() &&
-            mainViewModel.selectedReminders.isEmpty()) {
-            menu?.forEach {
-                it.isVisible = it.itemId != R.id.delete_item
-            }
-        } else {
-            menu?.forEach {
-                it.isVisible =
-                    it.itemId == R.id.delete_item || it.itemId == R.id.action_search
-            }
+        menu?.forEach {
+            it.isVisible = it.itemId != R.id.delete_item
         }
 
 
@@ -271,12 +261,13 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     is RemindersFragment -> {
-                        mainViewModel.selectedReminders.map { it.id }.forEach { reminderId ->
-                            cancelAlarm(reminderId)
+                        fragment.viewModel.selectedReminders.value?.let { selectedReminders ->
+                            selectedReminders.map { it.id }.forEach { reminderId ->
+                                cancelAlarm(reminderId)
+                            }
+                            mainViewModel.deleteReminders(selectedReminders)
+                            fragment.viewModel.clearSelectedReminders()
                         }
-                        mainViewModel.deleteReminders(mainViewModel.selectedReminders.toList())
-                        mainViewModel.selectedReminders.clear()
-                        fragment.remindersAdapter.notifyDataSetChanged()
                     }
                 }
             }
@@ -295,13 +286,13 @@ class MainActivity : AppCompatActivity() {
             }
 
             is RemindersFragment -> {
-                if (mainViewModel.selectedReminders.isNotEmpty()) {
-                    mainViewModel.selectedReminders.clear()
-                    fragment.remindersAdapter.notifyDataSetChanged()
+                if (fragment.viewModel.selectedReminders.value?.isNotEmpty() == true) {
+                    fragment.viewModel.clearSelectedReminders()
                 } else {
                     super.onBackPressed()
                 }
             }
+
             else -> super.onBackPressed()
         }
         topMenu?.findItem(R.id.delete_item)?.isVisible = false

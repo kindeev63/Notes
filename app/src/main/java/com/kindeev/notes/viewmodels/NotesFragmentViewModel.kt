@@ -34,7 +34,7 @@ class NotesFragmentViewModel : ViewModel() {
     private var _allNotes = emptyList<Note>()
     private val _notesList = MutableLiveData<List<Note>>()
     val notesList: LiveData<List<Note>> = _notesList
-    private val _selectedNotes = MutableLiveData<List<Note>>(emptyList())
+    private val _selectedNotes = MutableLiveData<List<Note>>()
     val selectedNotes: LiveData<List<Note>> = _selectedNotes
     var searchText = ""
         set(value) {
@@ -165,8 +165,7 @@ class NotesFragmentViewModel : ViewModel() {
         mainActivity: MainActivity,
         mainViewModel: MainViewModel,
         context: Context
-    ): (Note, Boolean) -> Unit {
-        return { note: Note, long: Boolean ->
+    ) = { note: Note, long: Boolean ->
             if (!States.noteEdited) {
                 if (long) {
                     Log.e("test", "selectedNotes: ${_selectedNotes.value}")
@@ -179,23 +178,6 @@ class NotesFragmentViewModel : ViewModel() {
                         Log.e("test", "add")
                         _selectedNotes.value = ArrayList(_selectedNotes.value ?: emptyList()).apply{
                             add(note)
-                        }
-                    }
-
-                    if (selectedNotes.value?.isEmpty() == true) {
-                        val searchItem = mainActivity.topMenu?.findItem(R.id.action_search)
-                        val searchView = searchItem?.actionView as SearchView
-                        searchView.setQuery("", false)
-                        searchView.isIconified = true
-                        searchItem.collapseActionView()
-                        mainActivity.topMenu?.forEach {
-                            it.isVisible = it.itemId != R.id.delete_item
-                        }
-
-                    } else {
-                        mainActivity.topMenu?.forEach {
-                            it.isVisible =
-                                it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                         }
                     }
                 } else {
@@ -214,9 +196,19 @@ class NotesFragmentViewModel : ViewModel() {
                         }
                     }
                 }
+                if (selectedNotes.value?.isEmpty() == true) {
+                    mainActivity.topMenu?.forEach {
+                        it.isVisible = it.itemId != R.id.delete_item
+                    }
+
+                } else {
+                    mainActivity.topMenu?.forEach {
+                        it.isVisible =
+                            it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                    }
+                }
             }
         }
-    }
 
     fun getDrawerLayoutParams(
         context: Context,

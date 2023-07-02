@@ -18,10 +18,12 @@ class NotesFragment : BaseFragment() {
     lateinit var binding: FragmentNotesBinding
     private lateinit var mainViewModel: MainViewModel
     val viewModel: NotesFragmentViewModel by viewModels()
-    var notesAdapter: NotesAdapter? = null
+    private var notesAdapter: NotesAdapter? = null
     private lateinit var categoriesAdapter: CategoriesAdapter
 
-    override fun onClickNew() = viewModel.openNote(mainViewModel = mainViewModel, context = requireContext())
+    override fun onClickNew() =
+        viewModel.openNote(mainViewModel = mainViewModel, context = requireContext())
+
     override fun search(text: String) {
         viewModel.searchText = text
     }
@@ -32,17 +34,20 @@ class NotesFragment : BaseFragment() {
     ): View {
         binding = FragmentNotesBinding.inflate(inflater, container, false)
         mainViewModel = (activity as MainActivity).getViewModel()
-        notesAdapter = NotesAdapter(viewModel.notesList.value ?: emptyList(), viewModel.onClickNote(
-            mainActivity = activity as MainActivity,
-            mainViewModel = mainViewModel,
-            context = requireContext()
-        ))
+        notesAdapter = NotesAdapter(
+            viewModel.notesList.value ?: emptyList(), viewModel.onClickNote(
+                mainActivity = activity as MainActivity,
+                mainViewModel = mainViewModel,
+                context = requireContext()
+            )
+        )
         mainViewModel.allNotes.observe(requireActivity()) {
             viewModel.setAllNotes(it)
         }
         viewModel.notesList.observe(requireActivity()) {
             notesAdapter?.setData(notes = it)
-            binding.noNotes.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
+            binding.noNotes.visibility =
+                if (it.isEmpty()) View.VISIBLE else View.GONE
         }
         viewModel.selectedNotes.observe(requireActivity()) {
             notesAdapter?.setData(selectedNotes = it)
@@ -72,19 +77,25 @@ class NotesFragment : BaseFragment() {
                     viewModel.colorFilter = null
                 }
             }
-            navNotes.layoutParams = viewModel.getDrawerLayoutParams(requireContext(), navNotes.layoutParams)
+            navNotes.layoutParams =
+                viewModel.getDrawerLayoutParams(requireContext(), navNotes.layoutParams)
             rcNotes.adapter = notesAdapter
             rcNotes.layoutManager = LinearLayoutManager(requireContext())
             allNotesCard.setOnClickListener {
                 viewModel.category = null
                 drawerNotes.closeDrawer(GravityCompat.START)
-                (activity as MainActivity).supportActionBar?.title = resources.getString(R.string.all_notes)
+                (activity as MainActivity).supportActionBar?.title =
+                    resources.getString(R.string.all_notes)
             }
             addCategoryNotes.setOnClickListener {
                 viewModel.addCategory(requireContext(), mainViewModel)
             }
             categoriesAdapter = CategoriesAdapter(
-                viewModel.onClickCategory(requireContext(), mainViewModel, activity as MainActivity) {
+                viewModel.onClickCategory(
+                    requireContext(),
+                    mainViewModel,
+                    activity as MainActivity
+                ) {
                     drawerNotes.closeDrawer(GravityCompat.START)
                 }
             )
