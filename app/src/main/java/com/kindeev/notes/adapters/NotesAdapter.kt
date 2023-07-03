@@ -12,8 +12,9 @@ import com.kindeev.notes.db.Note
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NotesAdapter(private var notesList: List<Note>, private val onItemClick: (note: Note, long: Boolean) -> Unit) :
+class NotesAdapter(private val onItemClick: (note: Note, long: Boolean) -> Unit) :
     RecyclerView.Adapter<NotesAdapter.NotesHolder>() {
+    private var notesList = emptyList<Note>()
     private var selectedNotesList = emptyList<Note>()
 
     class NotesHolder(view: View) : RecyclerView.ViewHolder(view) {

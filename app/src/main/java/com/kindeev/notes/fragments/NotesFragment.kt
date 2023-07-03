@@ -21,49 +21,43 @@ class NotesFragment : BaseFragment() {
     private var categoriesAdapter: CategoriesAdapter? = null
 
 
-    override fun onClickNew() =
-        viewModel.openNote(
-            note = null,
-            mainViewModel = mainViewModel(),
-            context = requireContext()
-        )
+    override fun onClickNew() = viewModel.openNote(
+        note = null, mainViewModel = mainViewModel(), context = requireContext()
+    )
 
     override fun search(text: String) {
         viewModel.searchText = text
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentNotesBinding.inflate(inflater, container, false)
         notesAdapter = NotesAdapter(
-            viewModel.notesList.value ?: emptyList(), viewModel.onClickNote(
+            viewModel.onClickNote(
                 mainActivity = activity as MainActivity,
                 mainViewModel = mainViewModel(),
                 context = requireContext()
             )
         )
-        mainViewModel().allNotes.observe(requireActivity()) {
+        mainViewModel().allNotes.observe(viewLifecycleOwner) {
             viewModel.setAllNotes(it)
         }
-        mainViewModel().allCategoriesOfNotes.observe(requireActivity()) {
+        mainViewModel().allCategoriesOfNotes.observe(viewLifecycleOwner) {
             categoriesAdapter?.setData(categories = it)
         }
-        viewModel.notesList.observe(requireActivity()) {
+        viewModel.notesList.observe(viewLifecycleOwner) {
             notesAdapter?.setData(notes = it)
-            binding.noNotes.visibility =
-                if (it.isEmpty()) View.VISIBLE else View.GONE
+            binding.noNotes.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
         }
-        viewModel.selectedNotes.observe(requireActivity()) {
+        viewModel.selectedNotes.observe(viewLifecycleOwner) {
             notesAdapter?.setData(selectedNotes = it)
         }
         binding.apply {
             colorFilterNotes.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
             colorFilterNotes.onItemSelectedListener = viewModel.spinnerItemSelected()
-            colorFilterNotes.setSelection(
-                viewModel.colorFilter?.let { Colors.colors.indexOf(it) } ?: 0
-            )
+            colorFilterNotes.setSelection(viewModel.colorFilter?.let { Colors.colors.indexOf(it) }
+                ?: 0)
             if (viewModel.colorFilter != null) {
                 colorFilterNotes.visibility = View.VISIBLE
                 chColorNotes.text = ""
@@ -96,15 +90,11 @@ class NotesFragment : BaseFragment() {
             addCategoryNotes.setOnClickListener {
                 viewModel.addCategory(requireContext(), mainViewModel())
             }
-            categoriesAdapter = CategoriesAdapter(
-                viewModel.onClickCategory(
-                    requireContext(),
-                    mainViewModel(),
-                    activity as MainActivity
-                ) {
-                    drawerNotes.closeDrawer(GravityCompat.START)
-                }
-            )
+            categoriesAdapter = CategoriesAdapter(viewModel.onClickCategory(
+                requireContext(), mainViewModel(), activity as MainActivity
+            ) {
+                drawerNotes.closeDrawer(GravityCompat.START)
+            })
             rcCategoriesNotes.adapter = categoriesAdapter
             rcCategoriesNotes.layoutManager = LinearLayoutManager(requireContext())
         }

@@ -10,11 +10,9 @@ import com.kindeev.notes.db.Reminder
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RemindersAdapter(
-    private var remindersList: List<Reminder>,
-    private val onItemClick: (reminder: Reminder, long: Boolean) -> Unit
-) :
+class RemindersAdapter(private val onItemClick: (reminder: Reminder, long: Boolean) -> Unit) :
     RecyclerView.Adapter<RemindersAdapter.RemindersHolder>() {
+    private var remindersList = emptyList<Reminder>()
     private var selectedRemindersList = emptyList<Reminder>()
 
     class RemindersHolder(view: View) : RecyclerView.ViewHolder(view) {

@@ -63,13 +63,14 @@ class TasksFragmentViewModel : ViewModel() {
 
         val oldTasks = newTasks.reversed()
         val newTasksList = ArrayList(oldTasks)
-        for (task in oldTasks){
-            if (task.done){
+        for (task in oldTasks) {
+            if (task.done) {
                 newTasksList.remove(task)
                 newTasksList.add(task)
             }
         }
-        _tasksList.value = newTasksList.filter { it.title.lowercase().contains(searchText.lowercase()) }
+        _tasksList.value =
+            newTasksList.filter { it.title.lowercase().contains(searchText.lowercase()) }
     }
 
     private fun createTask(tasks: List<Task>): Task {
@@ -79,21 +80,17 @@ class TasksFragmentViewModel : ViewModel() {
             if (taskId !in idsList) break
             taskId++
         }
-        return Task(taskId, "", false, "",  Color.WHITE)
+        return Task(taskId, "", false, "", Color.WHITE)
     }
 
     fun openTask(
-        task: Task? = null,
-        mainViewModel: MainViewModel,
-        fragmentManager: FragmentManager
+        task: Task? = null, mainViewModel: MainViewModel, fragmentManager: FragmentManager
     ) {
         if (task == null) {
             val newTask = createTask(_allTasks)
             mainViewModel.insertTask(newTask) {
                 openTask(
-                    task = it,
-                    mainViewModel = mainViewModel,
-                    fragmentManager = fragmentManager
+                    task = it, mainViewModel = mainViewModel, fragmentManager = fragmentManager
                 )
             }
         } else {
@@ -115,9 +112,7 @@ class TasksFragmentViewModel : ViewModel() {
             }
 
             override fun getDropDownView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup
+                position: Int, convertView: View?, parent: ViewGroup
             ): View {
                 val view: View =
                     convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
@@ -130,10 +125,7 @@ class TasksFragmentViewModel : ViewModel() {
 
     fun spinnerItemSelected() = object : AdapterView.OnItemSelectedListener {
         override fun onItemSelected(
-            parent: AdapterView<*>,
-            view: View?,
-            position: Int,
-            id: Long
+            parent: AdapterView<*>, view: View?, position: Int, id: Long
         ) {
             colorFilter = parent.getItemAtPosition(position) as Int
         }
@@ -144,8 +136,7 @@ class TasksFragmentViewModel : ViewModel() {
     }
 
     fun getDrawerLayoutParams(
-        context: Context,
-        layoutParams: ViewGroup.LayoutParams
+        context: Context, layoutParams: ViewGroup.LayoutParams
     ): ViewGroup.LayoutParams {
         val screenWidth = context.resources.displayMetrics.widthPixels
         val newWidth = screenWidth * 5 / 6
@@ -178,9 +169,7 @@ class TasksFragmentViewModel : ViewModel() {
     }
 
     fun onTaskTextClick(
-        mainViewModel: MainViewModel,
-        context: Context,
-        fragmentManager: FragmentManager
+        mainViewModel: MainViewModel, context: Context, fragmentManager: FragmentManager
     ): (Task, Boolean) -> Unit {
         return { task: Task, long: Boolean ->
             if (!States.taskEdited) {
@@ -205,10 +194,9 @@ class TasksFragmentViewModel : ViewModel() {
     }
 
     fun onTaskCheckBoxClick(
-        context: Context,
-        mainViewModel: MainViewModel
+        context: Context, mainViewModel: MainViewModel
     ): (Task) -> Unit {
-        return {task: Task ->
+        return { task: Task ->
             if (task.done) {
                 AlertDialog.Builder(context).apply {
                     setTitle(R.string.deselect)
@@ -232,28 +220,22 @@ class TasksFragmentViewModel : ViewModel() {
             context = context
         ) { name ->
             mainViewModel.allCategoriesOfTasks.value?.let { allCategories ->
-                if (name !in allCategories.map { it.name })
-                    if (name.isEmpty()) {
-                        Toast.makeText(
-                            context,
-                            R.string.category_name_is_empty,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        mainViewModel.insertCategory(
-                            Category(
-                                id = 0,
-                                name = name,
-                                type = "tasks"
-                            )
-                        )
-                    }
-                else
+                if (name !in allCategories.map { it.name }) if (name.isEmpty()) {
                     Toast.makeText(
-                        context,
-                        context.resources.getString(R.string.category_exists),
-                        Toast.LENGTH_SHORT
+                        context, R.string.category_name_is_empty, Toast.LENGTH_SHORT
                     ).show()
+                } else {
+                    mainViewModel.insertCategory(
+                        Category(
+                            id = 0, name = name, type = "tasks"
+                        )
+                    )
+                }
+                else Toast.makeText(
+                    context,
+                    context.resources.getString(R.string.category_exists),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -277,16 +259,12 @@ class TasksFragmentViewModel : ViewModel() {
                             context = context
                         ) { newName ->
                             val oldName = currentCategory.name
-                            if (
-                                mainViewModel.allCategoriesOfTasks.value?.let { allCategories ->
+                            if (mainViewModel.allCategoriesOfTasks.value?.let { allCategories ->
                                     newName !in allCategories.map { it.name }
-                                } == true
-                            ) {
+                                } == true) {
                                 if (newName.isEmpty()) {
                                     Toast.makeText(
-                                        context,
-                                        R.string.category_name_is_empty,
-                                        Toast.LENGTH_SHORT
+                                        context, R.string.category_name_is_empty, Toast.LENGTH_SHORT
                                     ).show()
                                 } else {
                                     currentCategory.name = newName
@@ -295,8 +273,7 @@ class TasksFragmentViewModel : ViewModel() {
                                         category = currentCategory
                                     }
                                     for (task in _allTasks) {
-                                        val categoriesList =
-                                            ArrayList(task.categories.split(", "))
+                                        val categoriesList = ArrayList(task.categories.split(", "))
                                         if (oldName in categoriesList) {
                                             categoriesList.remove(oldName)
                                             categoriesList.add(newName)
@@ -307,9 +284,7 @@ class TasksFragmentViewModel : ViewModel() {
                                     }
                                 }
                             } else if (newName != oldName) Toast.makeText(
-                                context,
-                                R.string.category_exists,
-                                Toast.LENGTH_SHORT
+                                context, R.string.category_exists, Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
@@ -320,8 +295,7 @@ class TasksFragmentViewModel : ViewModel() {
                             val categoriesList = ArrayList(task.categories.split(", "))
                             if (categoryName in categoriesList) {
                                 categoriesList.remove(categoryName)
-                                task.categories =
-                                    categoriesList.joinToString(separator = ", ")
+                                task.categories = categoriesList.joinToString(separator = ", ")
                                 mainViewModel.insertTask(task)
                             }
                         }

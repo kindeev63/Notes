@@ -47,9 +47,7 @@ class RemindersFragmentViewModel : ViewModel() {
     }
 
     fun openReminder(
-        reminder: Reminder? = null,
-        mainViewModel: MainViewModel,
-        fragmentManager: FragmentManager
+        reminder: Reminder? = null, mainViewModel: MainViewModel, fragmentManager: FragmentManager
     ) {
         val idsList = mainViewModel.allReminders.value?.map { it.id } ?: emptyList()
         var reminderId = 0
@@ -66,32 +64,24 @@ class RemindersFragmentViewModel : ViewModel() {
     }
 
     fun createReminder(
-        activity: Activity,
-        mainViewModel: MainViewModel,
-        fragmentManager: FragmentManager
+        activity: Activity, mainViewModel: MainViewModel, fragmentManager: FragmentManager
     ) {
         if (ContextCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.POST_NOTIFICATIONS
+                activity, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             openReminder(
-                mainViewModel = mainViewModel,
-                fragmentManager = fragmentManager
+                mainViewModel = mainViewModel, fragmentManager = fragmentManager
             )
         } else {
             ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                1
+                activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1
             )
         }
     }
 
     fun onClickReminder(
-        mainActivity: MainActivity,
-        mainViewModel: MainViewModel,
-        fragmentManager: FragmentManager
+        mainActivity: MainActivity, mainViewModel: MainViewModel, fragmentManager: FragmentManager
     ) = { reminder: Reminder, long: Boolean ->
         if (!States.reminderEdited) {
             if (long) {
@@ -127,15 +117,14 @@ class RemindersFragmentViewModel : ViewModel() {
                     }
                 }
             }
-            if (selectedReminders.value?.isEmpty() == true) {
+            if (selectedReminders.value?.isNotEmpty() != true) {
                 mainActivity.topMenu?.forEach {
                     it.isVisible = it.itemId != R.id.delete_item
                 }
 
             } else {
                 mainActivity.topMenu?.forEach {
-                    it.isVisible =
-                        it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                    it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                 }
             }
         }

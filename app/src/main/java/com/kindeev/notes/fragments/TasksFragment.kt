@@ -23,9 +23,7 @@ class TasksFragment : BaseFragment() {
 
     override fun onClickNew() {
         viewModel.openTask(
-            task = null,
-            mainViewModel = mainViewModel(),
-            fragmentManager = childFragmentManager
+            task = null, mainViewModel = mainViewModel(), fragmentManager = childFragmentManager
         )
     }
 
@@ -34,39 +32,33 @@ class TasksFragment : BaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentTasksBinding.inflate(inflater, container, false)
-        mainViewModel().allTasks.observe(requireActivity()) {
+        mainViewModel().allTasks.observe(viewLifecycleOwner) {
             viewModel.setAllTasks(it)
         }
-        mainViewModel().allCategoriesOfTasks.observe(requireActivity()) {
+        mainViewModel().allCategoriesOfTasks.observe(viewLifecycleOwner) {
             categoriesAdapter?.setData(categories = it)
         }
-        viewModel.tasksList.observe(requireActivity()) {
+        viewModel.tasksList.observe(viewLifecycleOwner) {
             tasksAdapter?.setData(tasks = it)
-            binding.noTasks.visibility =
-                if (it.isEmpty()) View.VISIBLE else View.GONE
+            binding.noTasks.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
         }
         tasksAdapter = TasksAdapter(
-            tasksList = viewModel.tasksList.value ?: emptyList(),
             onTextClick = viewModel.onTaskTextClick(
                 mainViewModel = mainViewModel(),
                 context = requireContext(),
                 fragmentManager = childFragmentManager
-            ),
-            onCheckBoxClick = viewModel.onTaskCheckBoxClick(
-                context = requireContext(),
-                mainViewModel = mainViewModel()
+            ), onCheckBoxClick = viewModel.onTaskCheckBoxClick(
+                context = requireContext(), mainViewModel = mainViewModel()
             )
         )
         binding.apply {
             colorFilterTasks.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
             colorFilterTasks.onItemSelectedListener = viewModel.spinnerItemSelected()
-            colorFilterTasks.setSelection(
-                viewModel.colorFilter?.let { Colors.colors.indexOf(it) } ?: 0
-            )
+            colorFilterTasks.setSelection(viewModel.colorFilter?.let { Colors.colors.indexOf(it) }
+                ?: 0)
             if (viewModel.colorFilter != null) {
                 colorFilterTasks.visibility = View.VISIBLE
                 chColorTasks.text = ""
@@ -99,15 +91,11 @@ class TasksFragment : BaseFragment() {
             addCategoryTasks.setOnClickListener {
                 viewModel.addCategory(requireContext(), mainViewModel())
             }
-            categoriesAdapter = CategoriesAdapter(
-                viewModel.onClickCategory(
-                    requireContext(),
-                    mainViewModel(),
-                    activity as MainActivity
-                ) {
-                    drawerTasks.closeDrawer(GravityCompat.START)
-                }
-            )
+            categoriesAdapter = CategoriesAdapter(viewModel.onClickCategory(
+                requireContext(), mainViewModel(), activity as MainActivity
+            ) {
+                drawerTasks.closeDrawer(GravityCompat.START)
+            })
             rcCategoriesTasks.adapter = categoriesAdapter
             rcCategoriesTasks.layoutManager = LinearLayoutManager(requireContext())
         }

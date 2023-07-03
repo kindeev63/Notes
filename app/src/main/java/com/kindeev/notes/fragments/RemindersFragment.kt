@@ -28,26 +28,24 @@ class RemindersFragment : BaseFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentRemindersBinding.inflate(inflater, container, false)
         remindersAdapter = RemindersAdapter(
-            viewModel.selectedReminders.value ?: emptyList(), viewModel.onClickReminder(
+            viewModel.onClickReminder(
                 mainActivity = activity as MainActivity,
                 mainViewModel = mainViewModel(),
                 fragmentManager = childFragmentManager
             )
         )
-        viewModel.remindersList.observe(requireActivity()) {
+        viewModel.remindersList.observe(viewLifecycleOwner) {
             remindersAdapter?.setData(reminders = it)
-            binding.noReminders.visibility =
-                if (it.isEmpty()) View.VISIBLE else View.GONE
+            binding.noReminders.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
         }
-        viewModel.selectedReminders.observe(requireActivity()) {
+        viewModel.selectedReminders.observe(viewLifecycleOwner) {
             remindersAdapter?.setData(selecteReminders = it)
         }
-        mainViewModel().allReminders.observe(requireActivity()) {
+        mainViewModel().allReminders.observe(viewLifecycleOwner) {
             viewModel.setAllReminders(it)
         }
         binding.apply {

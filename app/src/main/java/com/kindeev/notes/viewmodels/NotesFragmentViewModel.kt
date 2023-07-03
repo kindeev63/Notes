@@ -96,9 +96,7 @@ class NotesFragmentViewModel : ViewModel() {
             }
 
             override fun getDropDownView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup
+                position: Int, convertView: View?, parent: ViewGroup
             ): View {
                 val view: View =
                     convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
@@ -111,10 +109,7 @@ class NotesFragmentViewModel : ViewModel() {
 
     fun spinnerItemSelected() = object : AdapterView.OnItemSelectedListener {
         override fun onItemSelected(
-            parent: AdapterView<*>,
-            view: View?,
-            position: Int,
-            id: Long
+            parent: AdapterView<*>, view: View?, position: Int, id: Long
         ) {
             colorFilter = parent.getItemAtPosition(position) as Int
         }
@@ -161,9 +156,7 @@ class NotesFragmentViewModel : ViewModel() {
     }
 
     fun onClickNote(
-        mainActivity: MainActivity,
-        mainViewModel: MainViewModel,
-        context: Context
+        mainActivity: MainActivity, mainViewModel: MainViewModel, context: Context
     ) = { note: Note, long: Boolean ->
         if (!States.noteEdited) {
             if (long) {
@@ -196,23 +189,21 @@ class NotesFragmentViewModel : ViewModel() {
                     }
                 }
             }
-            if (selectedNotes.value?.isEmpty() == true) {
+            if (selectedNotes.value?.isNotEmpty() != true) {
                 mainActivity.topMenu?.forEach {
                     it.isVisible = it.itemId != R.id.delete_item
                 }
 
             } else {
                 mainActivity.topMenu?.forEach {
-                    it.isVisible =
-                        it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                    it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                 }
             }
         }
     }
 
     fun getDrawerLayoutParams(
-        context: Context,
-        layoutParams: ViewGroup.LayoutParams
+        context: Context, layoutParams: ViewGroup.LayoutParams
     ): ViewGroup.LayoutParams {
         val screenWidth = context.resources.displayMetrics.widthPixels
         val newWidth = screenWidth * 5 / 6
@@ -231,16 +222,12 @@ class NotesFragmentViewModel : ViewModel() {
                 if (name !in allCategories.map { it.name }) {
                     if (name.isEmpty()) {
                         Toast.makeText(
-                            context,
-                            R.string.category_name_is_empty,
-                            Toast.LENGTH_SHORT
+                            context, R.string.category_name_is_empty, Toast.LENGTH_SHORT
                         ).show()
                     } else {
                         mainViewModel.insertCategory(
                             Category(
-                                id = 0,
-                                name = name,
-                                type = "notes"
+                                id = 0, name = name, type = "notes"
                             )
                         )
                     }
@@ -274,16 +261,12 @@ class NotesFragmentViewModel : ViewModel() {
                             context = context
                         ) { newName ->
                             val oldName = currentCategory.name
-                            if (
-                                mainViewModel.allCategoriesOfNotes.value?.let { allCategories ->
+                            if (mainViewModel.allCategoriesOfNotes.value?.let { allCategories ->
                                     newName !in allCategories.map { it.name }
-                                } == true
-                            ) {
+                                } == true) {
                                 if (newName.isEmpty()) {
                                     Toast.makeText(
-                                        context,
-                                        R.string.category_name_is_empty,
-                                        Toast.LENGTH_SHORT
+                                        context, R.string.category_name_is_empty, Toast.LENGTH_SHORT
                                     ).show()
                                 } else {
                                     currentCategory.name = newName
@@ -292,8 +275,7 @@ class NotesFragmentViewModel : ViewModel() {
                                         category = currentCategory
                                     }
                                     for (note in _allNotes) {
-                                        val categoriesList =
-                                            ArrayList(note.categories.split(", "))
+                                        val categoriesList = ArrayList(note.categories.split(", "))
                                         if (oldName in categoriesList) {
                                             categoriesList.remove(oldName)
                                             categoriesList.add(newName)
@@ -304,9 +286,7 @@ class NotesFragmentViewModel : ViewModel() {
                                     }
                                 }
                             } else if (newName != oldName) Toast.makeText(
-                                context,
-                                R.string.category_exists,
-                                Toast.LENGTH_SHORT
+                                context, R.string.category_exists, Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
@@ -317,8 +297,7 @@ class NotesFragmentViewModel : ViewModel() {
                             val categoriesList = ArrayList(note.categories.split(", "))
                             if (categoryName in categoriesList) {
                                 categoriesList.remove(categoryName)
-                                note.categories =
-                                    categoriesList.joinToString(separator = ", ")
+                                note.categories = categoriesList.joinToString(separator = ", ")
                                 mainViewModel.insertNote(note)
                             }
                         }

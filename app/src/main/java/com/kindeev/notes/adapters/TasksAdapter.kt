@@ -15,11 +15,11 @@ import com.kindeev.notes.databinding.TaskItemBinding
 import com.kindeev.notes.db.Task
 
 class TasksAdapter(
-    private var tasksList: List<Task>,
     private val onTextClick: (task: Task, long: Boolean) -> Unit,
     private val onCheckBoxClick: (task: Task) -> Unit
 ) :
     RecyclerView.Adapter<TasksAdapter.TasksHolder>() {
+    private var tasksList = emptyList<Task>()
     class TasksHolder(view: View) : RecyclerView.ViewHolder(view) {
         val binding = TaskItemBinding.bind(view)
         fun bind(task: Task) = with(binding) {
