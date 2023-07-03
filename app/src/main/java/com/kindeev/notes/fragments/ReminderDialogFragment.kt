@@ -27,7 +27,7 @@ import com.kindeev.notes.receivers.AlarmReceiver
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ReminderDialogFragment() : DialogFragment() {
+class ReminderDialogFragment : DialogFragment() {
     private lateinit var date: Calendar
     private lateinit var binding: FragmentReminderDialogBinding
     private var packageName: String? = null
@@ -75,6 +75,27 @@ class ReminderDialogFragment() : DialogFragment() {
             date[Calendar.DAY_OF_MONTH] = newDate[Calendar.DAY_OF_MONTH]
         }
         binding.apply {
+
+            val screenWidth = resources.displayMetrics.widthPixels
+            val textSize1 = screenWidth * 0.025f
+            val textSize2 = screenWidth * 0.035f
+            val imageSize1 = (screenWidth * 0.1f).toInt()
+            val imageSize2 = (screenWidth * 0.11f).toInt()
+            tDateDialog.textSize = textSize1
+            tTimeDialog.textSize = textSize2
+            imageDateDialog.layoutParams.apply {
+                width = imageSize1
+                height = imageSize1
+            }
+            imageTimeDialog.layoutParams.apply {
+                width = imageSize1
+                height = imageSize1
+            }
+            imageSoundType.layoutParams.apply {
+                width = imageSize2
+                height = imageSize2
+            }
+
             val formatterTime = SimpleDateFormat("HH:mm", Locale.getDefault())
             val formatterDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
             tTimeDialog.text = formatterTime.format(date.timeInMillis)
