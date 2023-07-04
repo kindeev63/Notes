@@ -3,6 +3,7 @@ package com.kindeev.notes.db
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.kindeev.notes.other.Action
 import java.io.Serializable
 
 @Entity(tableName = "table_reminders")
@@ -18,7 +19,9 @@ data class Reminder(
     @ColumnInfo(name = "noteId")
     var noteId: Int?,
     @ColumnInfo(name = "packageName")
-    var packageName: String?,
+    var packageName: String,
     @ColumnInfo(name = "soundType")
-    var sound: Boolean
+    var sound: Boolean,
+    @ColumnInfo(name = "action")
+    var action: Action = Action.OpenApp
 ): Serializable

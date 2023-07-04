@@ -1,107 +1,79 @@
 package com.kindeev.notes.fragments
 
-import android.app.AlarmManager
 import android.app.Dialog
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
-import com.kindeev.notes.viewmodels.MainViewModel
+import androidx.fragment.app.viewModels
 import com.kindeev.notes.R
+import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.databinding.FragmentReminderDialogBinding
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
-import com.kindeev.notes.receivers.AlarmReceiver
-import java.text.SimpleDateFormat
-import java.util.*
+import com.kindeev.notes.other.Action
+import com.kindeev.notes.other.MainApp
+import com.kindeev.notes.viewmodels.MainViewModel
+import com.kindeev.notes.viewmodels.ReminderDialogFragmentViewModel
 
 class ReminderDialogFragment : DialogFragment() {
-    private lateinit var date: Calendar
+    private val viewModel: ReminderDialogFragmentViewModel by viewModels()
     private lateinit var binding: FragmentReminderDialogBinding
-    private var packageName: String? = null
-    private var sound = true
-    private var reminder: Reminder? = null
-    private var reminderId: Int = 0
     private lateinit var mainViewModel: MainViewModel
-    private var noteId: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            if (it.containsKey("reminder")) reminder = it.getSerializable("reminder") as Reminder
-            reminderId = it.getInt("reminderId", 0)
-            mainViewModel = it.getSerializable("noteViewModel") as MainViewModel
-            if (it.containsKey("noteId")) noteId = it.getInt("noteId", 0)
+            val reminder = it.getSerializable("reminder") as Reminder?
+            val noteId = if (it.containsKey("noteId")) it.getInt("noteId", 0) else null
+            mainViewModel = it.getSerializable("mainViewModel") as MainViewModel
+            viewModel.setReminder(
+                newReminder = reminder,
+                noteId = noteId,
+                mainViewModel = mainViewModel,
+                packageName = requireContext().packageName
+            )
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val timePicker = MaterialTimePicker.Builder().setTimeFormat(TimeFormat.CLOCK_24H)
-            .setHour(date[Calendar.HOUR_OF_DAY]).setMinute(date[Calendar.MINUTE])
-            .setTitleText(R.string.select_time).setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-            .build()
-        val datePicker =
-            MaterialDatePicker.Builder.datePicker().setSelection(date.timeInMillis).build()
-        timePicker.addOnPositiveButtonClickListener {
-            val hour = timePicker.hour.toString()
-            val minute =
-                if (timePicker.minute < 10) "0${timePicker.minute}" else timePicker.minute.toString()
-            binding.tTimeDialog.text = "$hour:$minute"
-            date[Calendar.HOUR_OF_DAY] = timePicker.hour
-            date[Calendar.MINUTE] = timePicker.minute
+        val timePicker = viewModel.timePicker { hour, minute ->
+            viewModel.setReminderTime(
+                hour = hour, minute = minute
+            )
+            binding.tTimeDialog.text = viewModel.getStringTime(hour, minute)
         }
-        datePicker.addOnPositiveButtonClickListener {
-            val formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-            binding.tDateDialog.text = formatter.format(it)
-            val newDate = Calendar.getInstance().apply {
-                timeInMillis = it
-            }
-            date[Calendar.YEAR] = newDate[Calendar.YEAR]
-            date[Calendar.MONTH] = newDate[Calendar.MONTH]
-            date[Calendar.DAY_OF_MONTH] = newDate[Calendar.DAY_OF_MONTH]
+        val datePicker = viewModel.datePicker { year, month, day ->
+            viewModel.setReminderTime(
+                year = year, month = month, day = day
+            )
+            binding.tDateDialog.text = viewModel.getStringDate(year, month, day)
         }
-        binding.apply {
 
-            val screenWidth = resources.displayMetrics.widthPixels
-            val textSize1 = screenWidth * 0.025f
-            val textSize2 = screenWidth * 0.035f
-            val imageSize1 = (screenWidth * 0.1f).toInt()
-            val imageSize2 = (screenWidth * 0.11f).toInt()
-            tDateDialog.textSize = textSize1
-            tTimeDialog.textSize = textSize2
-            imageDateDialog.layoutParams.apply {
-                width = imageSize1
-                height = imageSize1
-            }
-            imageTimeDialog.layoutParams.apply {
-                width = imageSize1
-                height = imageSize1
+        binding.apply {
+            tDateDialog.textSize = viewModel.dateTextSize(requireContext())
+            tTimeDialog.textSize = viewModel.timeTextSize(requireContext())
+            for (layoutParams in listOf(imageDateDialog, imageTimeDialog).map { it.layoutParams }) {
+                layoutParams.width = viewModel.smallImageSize(requireContext())
+                layoutParams.height = viewModel.smallImageSize(requireContext())
             }
             imageSoundType.layoutParams.apply {
-                width = imageSize2
-                height = imageSize2
+                width = viewModel.mediumImageSize(requireContext())
+                height = viewModel.mediumImageSize(requireContext())
             }
-
-            val formatterTime = SimpleDateFormat("HH:mm", Locale.getDefault())
-            val formatterDate = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-            tTimeDialog.text = formatterTime.format(date.timeInMillis)
-            tDateDialog.text = formatterDate.format(date.timeInMillis)
-            eTitleDialog.setText(reminder?.title ?: "")
-            eDescriptionDialog.setText(reminder?.description ?: "")
+            tTimeDialog.text = viewModel.getFormattedTime()
+            tDateDialog.text = viewModel.getFormattedDate()
+            eTitleDialog.setText(viewModel.reminder?.title ?: "")
+            eDescriptionDialog.setText(viewModel.reminder?.description ?: "")
             LinearTimeDialog.setOnClickListener {
                 timePicker.show(childFragmentManager, "timePicker")
             }
@@ -111,10 +83,20 @@ class ReminderDialogFragment : DialogFragment() {
             radioGroup.setOnCheckedChangeListener { _, checkedId ->
                 when (checkedId) {
                     R.id.openNoteButton -> {
-                        noteCardDialog.visibility = View.VISIBLE
-                        appCardDialog.visibility = View.GONE
+                        if (mainViewModel.allNotes.value?.isEmpty() != false) {
+                            openAppButton.isChecked = true
+                            Toast.makeText(requireContext(), R.string.no_notes, Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            viewModel.reminder?.action = Action.OpenNote
+                            noteCardDialog.visibility = View.VISIBLE
+                            appCardDialog.visibility = View.GONE
+                        }
+
                     }
+
                     R.id.openAppButton -> {
+                        viewModel.reminder?.action = Action.OpenApp
                         appCardDialog.visibility = View.VISIBLE
                         noteCardDialog.visibility = View.GONE
                     }
@@ -122,164 +104,91 @@ class ReminderDialogFragment : DialogFragment() {
             }
 
             noteContentDialog.setOnClickListener {
-                if (mainViewModel.allNotes.value?.isEmpty() != false) {
-                    Toast.makeText(requireContext(), R.string.no_notes, Toast.LENGTH_SHORT).show()
-                } else {
-                    showListDialog(mainViewModel.allNotes.value ?: emptyList()) {
-                        noteId = it.id
-                        tNoteTitleDialog.text = it.title
-                        noteContentDialog.setBackgroundColor(it.color)
-                    }
+                viewModel.showListDialog(mainViewModel.allNotes.value ?: emptyList(), childFragmentManager) {
+                    viewModel.reminder?.noteId = it.id
+                    tNoteTitleDialog.text = it.title
+                    noteContentDialog.setBackgroundColor(it.color)
                 }
 
             }
             appContentDialog.setOnClickListener {
-                showAppsDialog {
+                viewModel.showAppsDialog(childFragmentManager) {
                     appIconDialog.setImageDrawable(it.loadIcon(requireContext().packageManager))
                     appNameDialog.text = it.loadLabel(requireContext().packageManager)
-                    packageName = it.packageName
+                    viewModel.reminder?.packageName = it.packageName
                 }
             }
             imageSoundType.setOnClickListener {
-                imageSoundType.setImageResource(if (sound) R.drawable.ic_sound_off else R.drawable.ic_sound_on)
-                sound = !sound
+                imageSoundType.setImageResource(if (viewModel.reminder?.sound != false) R.drawable.ic_sound_off else R.drawable.ic_sound_on)
+                viewModel.changeReminderSoundType()
             }
         }
-
         return binding.root
-    }
-
-    private fun showListDialog(notes: List<Note>, listener: (Note) -> Unit) {
-        val dialog = PickNoteFragment.newInstance(notes, listener)
-        dialog.show(childFragmentManager, "pick_notes")
-    }
-
-    private fun showAppsDialog(listener: (ApplicationInfo) -> Unit) {
-        val dialog = PickAppFragment.newInstance(listener)
-        dialog.show(childFragmentManager, "pick_apps")
-    }
-
-
-    override fun onStart() {
-        super.onStart()
-        val dialog = dialog
-        if (dialog != null) {
-            val width = resources.displayMetrics.widthPixels
-            dialog.window?.setLayout((width / 1.2).toInt(), WindowManager.LayoutParams.WRAP_CONTENT)
-        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = FragmentReminderDialogBinding.inflate(layoutInflater)
-        date = Calendar.getInstance().apply {
-            if (reminder != null) {
-                timeInMillis = reminder!!.time
-            }
-        }
         binding.apply {
-            sound = reminder?.sound ?: true
-            imageSoundType.setImageResource(if (sound) R.drawable.ic_sound_on else R.drawable.ic_sound_off)
-            if (reminder?.noteId == null && noteId == null) {
+            imageSoundType.setImageResource(if (viewModel.reminder?.sound != false) R.drawable.ic_sound_on else R.drawable.ic_sound_off)
+            if (viewModel.reminder?.action != Action.OpenNote) {
                 openAppButton.isChecked = true
                 appCardDialog.visibility = View.VISIBLE
                 noteCardDialog.visibility = View.GONE
                 val appInfo = requireContext().packageManager.getApplicationInfo(
-                    reminder?.packageName ?: requireContext().packageName,
+                    viewModel.reminder?.packageName ?: requireContext().packageName,
                     PackageManager.GET_META_DATA
                 )
                 appNameDialog.text = requireContext().packageManager.getApplicationLabel(appInfo)
                 appIconDialog.setImageDrawable(
-                    requireContext().packageManager.getApplicationIcon(
-                        appInfo
-                    )
+                    requireContext().packageManager.getApplicationIcon(appInfo)
                 )
             } else {
                 openNoteButton.isChecked = true
                 noteCardDialog.visibility = View.VISIBLE
                 appCardDialog.visibility = View.GONE
-                mainViewModel.getNoteById(reminder?.noteId ?: noteId!!) {
-                    noteId = it!!.id
-                    binding.tNoteTitleDialog.text = it.title
-                    binding.noteContentDialog.setBackgroundColor(it.color)
+                mainViewModel.getNoteById(viewModel.reminder?.noteId!!) {
+                    binding.tNoteTitleDialog.text = it?.title
+                    binding.noteContentDialog.setBackgroundColor(it?.color ?: Color.WHITE)
                 }
             }
         }
-        val dialog = AlertDialog.Builder(requireContext()).setView(binding.root)
-            .setPositiveButton(R.string.save, null)
-            .setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.cancel()
-            }.create()
-        dialog.setOnShowListener {
-            val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            okButton.setOnClickListener {
-                if (binding.openNoteButton.isChecked && noteId == null) {
-                    Toast.makeText(requireContext(), R.string.pick_note_or_app, Toast.LENGTH_SHORT)
-                        .show()
-                } else {
-                    val newReminder = Reminder(
-                        reminderId,
-                        binding.eTitleDialog.text.toString(),
-                        binding.eDescriptionDialog.text.toString(),
-                        date.timeInMillis,
-                        null,
-                        null,
-                        sound
-                    )
-                    if (binding.openAppButton.isChecked) {
-                        newReminder.packageName = packageName ?: requireContext().packageName
-                    } else {
-                        newReminder.noteId = noteId
-                    }
-                    mainViewModel.insertReminder(newReminder)
-                    setAlarm(newReminder)
-                    Toast.makeText(requireContext(), R.string.saved, Toast.LENGTH_SHORT).show()
-                    dialog.dismiss()
-                }
+        val dialog = viewModel.makeDialog(
+            context = requireContext(), view = binding.root
+        ) {
+            if (viewModel.reminder?.action == Action.OpenNote && viewModel.reminder?.noteId == null) {
+                Toast.makeText(requireContext(), R.string.pick_note_or_app, Toast.LENGTH_SHORT)
+                    .show()
+            } else {
+                viewModel.saveReminder(
+                    title = binding.eTitleDialog.text.toString(),
+                    description = binding.eDescriptionDialog.text.toString(),
+                    mainViewModel = mainViewModel,
+                    context = requireContext()
+                )
+                it.dismiss()
             }
         }
         return dialog
     }
 
-    private fun setAlarm(reminder: Reminder) {
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val i = Intent(requireContext(), AlarmReceiver::class.java).apply {
-            putExtra("reminder", reminder)
-        }
-
-        val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            reminder.id,
-            i,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP, reminder.time, pendingIntent
-        )
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        // Сохраняем состояние фрагмента
-        if (reminder!=null) outState.putSerializable("reminder", reminder)
-        outState.putInt("reminderId", reminderId)
-        outState.putSerializable("noteViewModel", mainViewModel)
-        if (noteId != null) outState.putInt("noteId", noteId!!)
+        outState.putSerializable("reminder", viewModel.reminder)
+        outState.putSerializable("mainViewModel", mainViewModel)
     }
 
     companion object {
         @JvmStatic
         fun newInstance(
-            reminder: Reminder?, reminderId: Int, mainViewModel: MainViewModel, noteId: Int? = null
+            reminder: Reminder?, noteId: Int? = null, mainViewModel: MainViewModel
         ): ReminderDialogFragment {
-            val fragment = ReminderDialogFragment()
-            val args = Bundle()
-            if (reminder != null) args.putSerializable("reminder", reminder)
-            args.putInt("reminderId", reminderId)
-            args.putSerializable("noteViewModel", mainViewModel)
-            if (noteId != null) args.putInt("noteId", noteId)
-            fragment.arguments = args
-            return fragment
+            return ReminderDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable("reminder", reminder)
+                    putSerializable("mainViewModel", mainViewModel)
+                    if (noteId != null) putInt("noteId", noteId)
+                }
+            }
         }
     }
 }

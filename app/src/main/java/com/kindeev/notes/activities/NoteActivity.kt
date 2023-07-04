@@ -99,8 +99,9 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.note_menu, menu)
-        menu?.findItem(R.id.set_category_item)?.isVisible = (mainViewModel.allCategoriesOfNotes.value?.size
-            ?: 0) > 0
+        menu?.findItem(R.id.set_category_item)?.isVisible =
+            (mainViewModel.allCategoriesOfNotes.value?.size
+                ?: 0) > 0
         return true
     }
 
@@ -109,25 +110,14 @@ class NoteActivity : AppCompatActivity() {
             R.id.set_category_item -> createDialog()
             android.R.id.home -> finish()
             R.id.add_reminder_item -> {
-                saveNote {note ->
-                    var reminderId = 0
-                    GlobalScope.launch {
-                        val idsList = withContext(Dispatchers.IO) {
-                            mainViewModel.getAllReminders()
-                        }.map { it.id }
-                        while (true) {
-                            if (reminderId !in idsList) break
-                            reminderId++
-                        }
-                        val dialogFragment =
-                            ReminderDialogFragment.newInstance(
-                                null,
-                                reminderId,
-                                mainViewModel,
-                                note.id
-                            )
-                        dialogFragment.show(supportFragmentManager, "reminder_dialog")
-                    }
+                saveNote { note ->
+                    val dialogFragment =
+                        ReminderDialogFragment.newInstance(
+                            reminder = null,
+                            noteId = note.id,
+                            mainViewModel = mainViewModel
+                        )
+                    dialogFragment.show(supportFragmentManager, "reminder_dialog_tag")
                 }
             }
         }
@@ -186,20 +176,21 @@ class NoteActivity : AppCompatActivity() {
             }
         }
         binding.colorPickerNote.adapter = colorAdapter
-        binding.colorPickerNote.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val newColor = parent.getItemAtPosition(position) as Int
-                color = newColor
-            }
+        binding.colorPickerNote.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val newColor = parent.getItemAtPosition(position) as Int
+                    color = newColor
+                }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // Ничего не делаем
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Ничего не делаем
+                }
             }
-        }
     }
 }

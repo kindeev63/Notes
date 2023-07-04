@@ -2,9 +2,7 @@ package com.kindeev.notes.viewmodels
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
-import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
@@ -14,7 +12,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
-import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.ReminderDialogFragment
 import com.kindeev.notes.other.States
@@ -46,32 +43,26 @@ class RemindersFragmentViewModel : ViewModel() {
             _allReminders.filter { it.title.lowercase().contains(searchText.lowercase()) }
     }
 
-    fun openReminder(
-        reminder: Reminder? = null, mainViewModel: MainViewModel, fragmentManager: FragmentManager
+    private fun openReminder(
+        reminder: Reminder? = null, fragmentManager: FragmentManager, mainViewModel: MainViewModel
     ) {
-        val idsList = mainViewModel.allReminders.value?.map { it.id } ?: emptyList()
-        var reminderId = 0
-        if (reminder == null) {
-            while (true) {
-                if (reminderId !in idsList) break
-                reminderId++
-            }
-        } else {
-            reminderId = reminder.id
-        }
-        val dialogFragment = ReminderDialogFragment.newInstance(reminder, reminderId, mainViewModel)
+        val dialogFragment = ReminderDialogFragment.newInstance(
+            reminder = reminder,
+            mainViewModel = mainViewModel
+        )
         dialogFragment.show(fragmentManager, "reminder_dialog")
     }
 
     fun createReminder(
-        activity: Activity, mainViewModel: MainViewModel, fragmentManager: FragmentManager
+        activity: Activity, fragmentManager: FragmentManager, mainViewModel: MainViewModel
     ) {
         if (ContextCompat.checkSelfPermission(
                 activity, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             openReminder(
-                mainViewModel = mainViewModel, fragmentManager = fragmentManager
+                fragmentManager = fragmentManager,
+                mainViewModel = mainViewModel
             )
         } else {
             ActivityCompat.requestPermissions(
@@ -81,7 +72,7 @@ class RemindersFragmentViewModel : ViewModel() {
     }
 
     fun onClickReminder(
-        mainActivity: MainActivity, mainViewModel: MainViewModel, fragmentManager: FragmentManager
+        mainActivity: MainActivity, fragmentManager: FragmentManager, mainViewModel: MainViewModel
     ) = { reminder: Reminder, long: Boolean ->
         if (!States.reminderEdited) {
             if (long) {
@@ -100,8 +91,8 @@ class RemindersFragmentViewModel : ViewModel() {
                 if (selectedReminders.value?.isEmpty() != false) {
                     openReminder(
                         reminder = reminder,
-                        mainViewModel = mainViewModel,
-                        fragmentManager = fragmentManager
+                        fragmentManager = fragmentManager,
+                        mainViewModel = mainViewModel
                     )
                 } else {
                     if (selectedReminders.value?.contains(reminder) == true) {
