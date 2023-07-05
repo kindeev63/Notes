@@ -13,15 +13,19 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.FragmentTaskDialogBinding
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.other.Colors
 import com.kindeev.notes.viewmodels.MainViewModel
+import com.kindeev.notes.viewmodels.TaskDialogFragmentViewModel
 import java.util.*
 
 
 class TaskDialogFragment : DialogFragment() {
+    private val viewModel: TaskDialogFragmentViewModel by viewModels()
+
     private lateinit var binding: FragmentTaskDialogBinding
     private var categoriesList: ArrayList<String> = arrayListOf()
     private lateinit var task: Task

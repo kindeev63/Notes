@@ -44,25 +44,23 @@ class RemindersFragmentViewModel : ViewModel() {
     }
 
     private fun openReminder(
-        reminder: Reminder? = null, fragmentManager: FragmentManager, mainViewModel: MainViewModel
+        reminder: Reminder? = null, fragmentManager: FragmentManager
     ) {
         val dialogFragment = ReminderDialogFragment.newInstance(
-            reminder = reminder,
-            mainViewModel = mainViewModel
+            reminder = reminder
         )
         dialogFragment.show(fragmentManager, "reminder_dialog")
     }
 
     fun createReminder(
-        activity: Activity, fragmentManager: FragmentManager, mainViewModel: MainViewModel
+        activity: Activity, fragmentManager: FragmentManager
     ) {
         if (ContextCompat.checkSelfPermission(
                 activity, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             openReminder(
-                fragmentManager = fragmentManager,
-                mainViewModel = mainViewModel
+                fragmentManager = fragmentManager
             )
         } else {
             ActivityCompat.requestPermissions(
@@ -72,7 +70,7 @@ class RemindersFragmentViewModel : ViewModel() {
     }
 
     fun onClickReminder(
-        mainActivity: MainActivity, fragmentManager: FragmentManager, mainViewModel: MainViewModel
+        mainActivity: MainActivity, fragmentManager: FragmentManager
     ) = { reminder: Reminder, long: Boolean ->
         if (!States.reminderEdited) {
             if (long) {
@@ -91,8 +89,7 @@ class RemindersFragmentViewModel : ViewModel() {
                 if (selectedReminders.value?.isEmpty() != false) {
                     openReminder(
                         reminder = reminder,
-                        fragmentManager = fragmentManager,
-                        mainViewModel = mainViewModel
+                        fragmentManager = fragmentManager
                     )
                 } else {
                     if (selectedReminders.value?.contains(reminder) == true) {

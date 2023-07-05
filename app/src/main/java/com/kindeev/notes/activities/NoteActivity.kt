@@ -21,10 +21,6 @@ import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.fragments.ReminderDialogFragment
 import com.kindeev.notes.other.Colors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -114,8 +110,7 @@ class NoteActivity : AppCompatActivity() {
                     val dialogFragment =
                         ReminderDialogFragment.newInstance(
                             reminder = null,
-                            noteId = note.id,
-                            mainViewModel = mainViewModel
+                            noteId = note.id
                         )
                     dialogFragment.show(supportFragmentManager, "reminder_dialog_tag")
                 }

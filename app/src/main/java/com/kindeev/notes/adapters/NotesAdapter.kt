@@ -4,9 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.R
-import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.NoteItemBinding
 import com.kindeev.notes.db.Note
 import java.text.SimpleDateFormat

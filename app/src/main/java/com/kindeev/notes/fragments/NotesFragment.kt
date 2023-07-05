@@ -11,7 +11,6 @@ import com.kindeev.notes.adapters.CategoriesAdapter
 import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.other.Colors
-import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.viewmodels.NotesFragmentViewModel
 
 class NotesFragment : BaseFragment() {

@@ -1,43 +1,35 @@
 package com.kindeev.notes.fragments
 
 import android.app.Dialog
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import com.kindeev.notes.R
-import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.databinding.FragmentReminderDialogBinding
-import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.other.Action
 import com.kindeev.notes.other.MainApp
-import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.viewmodels.ReminderDialogFragmentViewModel
 
 class ReminderDialogFragment : DialogFragment() {
     private val viewModel: ReminderDialogFragmentViewModel by viewModels()
     private lateinit var binding: FragmentReminderDialogBinding
-    private lateinit var mainViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             val reminder = it.getSerializable("reminder") as Reminder?
             val noteId = if (it.containsKey("noteId")) it.getInt("noteId", 0) else null
-            mainViewModel = it.getSerializable("mainViewModel") as MainViewModel
             viewModel.setReminder(
                 newReminder = reminder,
                 noteId = noteId,
-                mainViewModel = mainViewModel,
+                mainViewModel = mainViewModel(),
                 packageName = requireContext().packageName
             )
         }
@@ -83,7 +75,7 @@ class ReminderDialogFragment : DialogFragment() {
             radioGroup.setOnCheckedChangeListener { _, checkedId ->
                 when (checkedId) {
                     R.id.openNoteButton -> {
-                        if (mainViewModel.allNotes.value?.isEmpty() != false) {
+                        if (mainViewModel().allNotes.value?.isEmpty() != false) {
                             openAppButton.isChecked = true
                             Toast.makeText(requireContext(), R.string.no_notes, Toast.LENGTH_SHORT)
                                 .show()
@@ -104,7 +96,7 @@ class ReminderDialogFragment : DialogFragment() {
             }
 
             noteContentDialog.setOnClickListener {
-                viewModel.showListDialog(mainViewModel.allNotes.value ?: emptyList(), childFragmentManager) {
+                viewModel.showListDialog(mainViewModel().allNotes.value ?: emptyList(), childFragmentManager) {
                     viewModel.reminder?.noteId = it.id
                     tNoteTitleDialog.text = it.title
                     noteContentDialog.setBackgroundColor(it.color)
@@ -146,7 +138,7 @@ class ReminderDialogFragment : DialogFragment() {
                 openNoteButton.isChecked = true
                 noteCardDialog.visibility = View.VISIBLE
                 appCardDialog.visibility = View.GONE
-                mainViewModel.getNoteById(viewModel.reminder?.noteId!!) {
+                mainViewModel().getNoteById(viewModel.reminder?.noteId!!) {
                     binding.tNoteTitleDialog.text = it?.title
                     binding.noteContentDialog.setBackgroundColor(it?.color ?: Color.WHITE)
                 }
@@ -162,7 +154,7 @@ class ReminderDialogFragment : DialogFragment() {
                 viewModel.saveReminder(
                     title = binding.eTitleDialog.text.toString(),
                     description = binding.eDescriptionDialog.text.toString(),
-                    mainViewModel = mainViewModel,
+                    mainViewModel = mainViewModel(),
                     context = requireContext()
                 )
                 it.dismiss()
@@ -174,18 +166,18 @@ class ReminderDialogFragment : DialogFragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putSerializable("reminder", viewModel.reminder)
-        outState.putSerializable("mainViewModel", mainViewModel)
     }
+
+    private fun mainViewModel() = (requireContext().applicationContext as MainApp).mainViewModel
 
     companion object {
         @JvmStatic
         fun newInstance(
-            reminder: Reminder?, noteId: Int? = null, mainViewModel: MainViewModel
+            reminder: Reminder?, noteId: Int? = null
         ): ReminderDialogFragment {
             return ReminderDialogFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable("reminder", reminder)
-                    putSerializable("mainViewModel", mainViewModel)
                     if (noteId != null) putInt("noteId", noteId)
                 }
             }

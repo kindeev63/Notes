@@ -2,7 +2,6 @@ package com.kindeev.notes.fragments
 
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,7 +11,6 @@ import com.kindeev.notes.adapters.CategoriesAdapter
 import com.kindeev.notes.adapters.TasksAdapter
 import com.kindeev.notes.databinding.FragmentTasksBinding
 import com.kindeev.notes.other.Colors
-import com.kindeev.notes.viewmodels.MainViewModel
 import com.kindeev.notes.viewmodels.TasksFragmentViewModel
 
 class TasksFragment : BaseFragment() {

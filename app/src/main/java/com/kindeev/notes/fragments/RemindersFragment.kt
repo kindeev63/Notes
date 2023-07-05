@@ -18,8 +18,7 @@ class RemindersFragment : BaseFragment() {
 
     override fun onClickNew() = viewModel.createReminder(
         activity = requireActivity(),
-        fragmentManager = childFragmentManager,
-        mainViewModel = mainViewModel()
+        fragmentManager = childFragmentManager
     )
 
     override fun search(text: String) {
@@ -33,8 +32,7 @@ class RemindersFragment : BaseFragment() {
         remindersAdapter = RemindersAdapter(
             viewModel.onClickReminder(
                 mainActivity = activity as MainActivity,
-                fragmentManager = childFragmentManager,
-                mainViewModel = mainViewModel()
+                fragmentManager = childFragmentManager
             )
         )
         viewModel.remindersList.observe(viewLifecycleOwner) {

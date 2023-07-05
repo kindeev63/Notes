@@ -16,7 +16,6 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -259,7 +258,12 @@ class MainActivity : AppCompatActivity() {
                                         reminder.noteId == note.id
                                     }
                                 }
-                            remindersForDelete?.let { mainViewModel.deleteReminders(it) }
+                            remindersForDelete?.let { remindersList ->
+                                remindersList.map { it.id }.forEach {reminderId ->
+                                    cancelAlarm(reminderId)
+                                }
+                                mainViewModel.deleteReminders(remindersList)
+                            }
                             mainViewModel.deleteNotes(selectedNotes)
                             fragment.viewModel.clearSelectedNotes()
                         }
