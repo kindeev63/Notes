@@ -11,13 +11,13 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.R
-import com.kindeev.notes.adapters.PickNotesAdapter
+import com.kindeev.notes.adapters.PickNoteAdapter
 import com.kindeev.notes.databinding.FragmentPickNoteBinding
 import com.kindeev.notes.db.Note
 
 class PickNoteFragment(private val allNotes: List<Note>, private val listener: (Note) -> Unit) : DialogFragment() {
     private lateinit var binding: FragmentPickNoteBinding
-    private lateinit var adapter: PickNotesAdapter
+    private lateinit var adapter: PickNoteAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -27,7 +27,7 @@ class PickNoteFragment(private val allNotes: List<Note>, private val listener: (
             listener(it)
             dialog?.dismiss()
         }
-            adapter = PickNotesAdapter(thisListener).apply {
+            adapter = PickNoteAdapter(thisListener).apply {
                 setData(allNotes)
             }
             rcPickNote.adapter = adapter

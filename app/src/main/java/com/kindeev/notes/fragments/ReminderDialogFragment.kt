@@ -105,8 +105,8 @@ class ReminderDialogFragment : DialogFragment() {
             }
             appContentDialog.setOnClickListener {
                 viewModel.showAppsDialog(childFragmentManager) {
-                    appIconDialog.setImageDrawable(it.loadIcon(requireContext().packageManager))
-                    appNameDialog.text = it.loadLabel(requireContext().packageManager)
+                    appNameDialog.text = it.name
+                    appIconDialog.setImageDrawable(it.icon)
                     viewModel.reminder?.packageName = it.packageName
                 }
             }

@@ -19,6 +19,7 @@ import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.PickAppFragment
 import com.kindeev.notes.fragments.PickNoteFragment
 import com.kindeev.notes.other.Action
+import com.kindeev.notes.other.ApplicationData
 import com.kindeev.notes.receivers.AlarmReceiver
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -179,7 +180,7 @@ class ReminderDialogFragmentViewModel : ViewModel() {
         dialog.show(fragmentManager, "pick_notes")
     }
 
-    fun showAppsDialog(fragmentManager: FragmentManager, listener: (ApplicationInfo) -> Unit) {
+    fun showAppsDialog(fragmentManager: FragmentManager, listener: (ApplicationData) -> Unit) {
         val dialog = PickAppFragment.newInstance(listener)
         dialog.show(fragmentManager, "pick_apps")
     }
