@@ -96,7 +96,7 @@ class ReminderDialogFragment : DialogFragment() {
             }
 
             noteContentDialog.setOnClickListener {
-                viewModel.showListDialog(mainViewModel().allNotes.value ?: emptyList(), childFragmentManager) {
+                viewModel.showListDialog(childFragmentManager) {
                     viewModel.reminder?.noteId = it.id
                     tNoteTitleDialog.text = it.title
                     noteContentDialog.setBackgroundColor(it.color)
