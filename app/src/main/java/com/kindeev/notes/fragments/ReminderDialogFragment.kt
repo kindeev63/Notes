@@ -144,9 +144,7 @@ class ReminderDialogFragment : DialogFragment() {
                 }
             }
         }
-        val dialog = viewModel.makeDialog(
-            context = requireContext(), view = binding.root
-        ) {
+        return viewModel.makeDialog(requireContext(), binding.root) {
             if (viewModel.reminder?.action == Action.OpenNote && viewModel.reminder?.noteId == null) {
                 Toast.makeText(requireContext(), R.string.pick_note_or_app, Toast.LENGTH_SHORT)
                     .show()
@@ -160,7 +158,6 @@ class ReminderDialogFragment : DialogFragment() {
                 it.dismiss()
             }
         }
-        return dialog
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

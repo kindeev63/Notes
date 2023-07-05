@@ -94,7 +94,7 @@ class TasksFragmentViewModel : ViewModel() {
                 )
             }
         } else {
-            val dialogFragment = TaskDialogFragment.newInstance(task, mainViewModel)
+            val dialogFragment = TaskDialogFragment.newInstance(task)
             dialogFragment.show(fragmentManager, "task_dialog")
         }
 
