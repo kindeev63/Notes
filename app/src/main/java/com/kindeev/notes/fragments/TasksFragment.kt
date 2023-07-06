@@ -11,6 +11,7 @@ import com.kindeev.notes.adapters.CategoriesAdapter
 import com.kindeev.notes.adapters.TasksAdapter
 import com.kindeev.notes.databinding.FragmentTasksBinding
 import com.kindeev.notes.other.Colors
+import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.viewmodels.TasksFragmentViewModel
 
 class TasksFragment : BaseFragment() {
@@ -21,7 +22,7 @@ class TasksFragment : BaseFragment() {
 
     override fun onClickNew() {
         viewModel.openTask(
-            task = null, mainViewModel = mainViewModel(), fragmentManager = childFragmentManager
+            task = null, mainAppViewModel = mainAppViewModel(), fragmentManager = childFragmentManager
         )
     }
 
@@ -33,10 +34,10 @@ class TasksFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentTasksBinding.inflate(inflater, container, false)
-        mainViewModel().allTasks.observe(viewLifecycleOwner) {
+        mainAppViewModel().allTasks.observe(viewLifecycleOwner) {
             viewModel.setAllTasks(it)
         }
-        mainViewModel().allCategoriesOfTasks.observe(viewLifecycleOwner) {
+        mainAppViewModel().allCategoriesOfTasks.observe(viewLifecycleOwner) {
             categoriesAdapter?.setData(categories = it)
         }
         viewModel.tasksList.observe(viewLifecycleOwner) {
@@ -45,11 +46,11 @@ class TasksFragment : BaseFragment() {
         }
         tasksAdapter = TasksAdapter(
             onTextClick = viewModel.onTaskTextClick(
-                mainViewModel = mainViewModel(),
+                mainAppViewModel = mainAppViewModel(),
                 context = requireContext(),
                 fragmentManager = childFragmentManager
             ), onCheckBoxClick = viewModel.onTaskCheckBoxClick(
-                context = requireContext(), mainViewModel = mainViewModel()
+                context = requireContext(), mainAppViewModel = mainAppViewModel()
             )
         )
         binding.apply {
@@ -87,10 +88,10 @@ class TasksFragment : BaseFragment() {
                     resources.getString(R.string.all_tasks)
             }
             addCategoryTasks.setOnClickListener {
-                viewModel.addCategory(requireContext(), mainViewModel())
+                viewModel.addCategory(requireContext(), mainAppViewModel())
             }
             categoriesAdapter = CategoriesAdapter(viewModel.onClickCategory(
-                requireContext(), mainViewModel(), activity as MainActivity
+                requireContext(), mainAppViewModel(), activity as MainActivity
             ) {
                 drawerTasks.closeDrawer(GravityCompat.START)
             })
@@ -100,7 +101,7 @@ class TasksFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun mainViewModel() = (activity as MainActivity).getViewModel()
+    private fun mainAppViewModel() = (requireContext().applicationContext as MainApp).mainAppViewModel
 
     companion object {
         @JvmStatic

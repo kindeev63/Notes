@@ -1,6 +1,7 @@
 package com.kindeev.notes.viewmodels
 
 import android.app.Application
+import android.view.Menu
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
@@ -10,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.Serializable
 
-open class MainViewModel(application: Application) : AndroidViewModel(application), Serializable {
+open class MainAppViewModel(application: Application) : AndroidViewModel(application), Serializable {
     private val repository: NoteRepository
     val allNotes: LiveData<List<Note>>
     val allTasks: LiveData<List<Task>>

@@ -48,19 +48,19 @@ class TaskDialogFragment : DialogFragment() {
         binding.colorPickerTask.onItemSelectedListener = viewModel.spinnerItemSelected()
         binding.apply {
             categoriesPickerTask.visibility =
-                if (mainViewModel().allCategoriesOfTasks.value?.isEmpty() != false) {
+                if (mainAppViewModel().allCategoriesOfTasks.value?.isEmpty() != false) {
                     View.GONE
                 } else {
                     View.VISIBLE
                 }
             categoriesPickerTask.setOnClickListener {
-                viewModel.showCategoriesPickerDialog(mainViewModel(), requireContext())
+                viewModel.showCategoriesPickerDialog(mainAppViewModel(), requireContext())
             }
             eTaskTitle.setText(viewModel.task?.title)
             binding.colorPickerTask.setSelection(Colors.colors.indexOf(viewModel.task?.color ?: Color.WHITE))
 
             return viewModel.makeDialog(requireContext(), binding.root){
-                viewModel.saveTask(binding.eTaskTitle.text.toString(), mainViewModel())
+                viewModel.saveTask(binding.eTaskTitle.text.toString(), mainAppViewModel())
                 it.dismiss()
             }
         }
@@ -72,7 +72,7 @@ class TaskDialogFragment : DialogFragment() {
         outState.putSerializable("task", viewModel.task)
     }
 
-    private fun mainViewModel() = (requireContext().applicationContext as MainApp).mainViewModel
+    private fun mainAppViewModel() = (requireContext().applicationContext as MainApp).mainAppViewModel
 
     companion object {
         @JvmStatic

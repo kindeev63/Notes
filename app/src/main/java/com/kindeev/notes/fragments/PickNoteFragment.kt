@@ -23,7 +23,7 @@ class PickNoteFragment(private val listener: (Note) -> Unit) : DialogFragment() 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        (requireContext().applicationContext as MainApp).mainViewModel.allNotes.observe(viewLifecycleOwner) {
+        (requireContext().applicationContext as MainApp).mainAppViewModel.allNotes.observe(viewLifecycleOwner) {
             viewModel.setAllNotes(it)
         }
         val adapter = PickNoteAdapter {

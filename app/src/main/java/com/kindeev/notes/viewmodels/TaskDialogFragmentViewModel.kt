@@ -24,9 +24,9 @@ class TaskDialogFragmentViewModel: ViewModel() {
         }
     var categoriesList = arrayListOf<String>()
 
-    fun showCategoriesPickerDialog(mainViewModel: MainViewModel, context: Context) {
+    fun showCategoriesPickerDialog(mainAppViewModel: MainAppViewModel, context: Context) {
         val categoriesNames: Array<String> =
-            (mainViewModel.allCategoriesOfTasks.value ?: emptyList()).toList().map { it.name }
+            (mainAppViewModel.allCategoriesOfTasks.value ?: emptyList()).toList().map { it.name }
                 .toTypedArray()
         val checkedCategories =
             categoriesNames.map { it in categoriesList }.toBooleanArray()
@@ -68,9 +68,9 @@ class TaskDialogFragmentViewModel: ViewModel() {
         return dialog
     }
 
-    fun saveTask(title: String, mainViewModel: MainViewModel) {
+    fun saveTask(title: String, mainAppViewModel: MainAppViewModel) {
         task?.let {
-            mainViewModel.insertTask(
+            mainAppViewModel.insertTask(
                 it.copy(
                     title = title,
                     categories = categoriesList.joinToString(separator = ", "),

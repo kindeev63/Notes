@@ -26,9 +26,9 @@ class NoteActivityViewModel : ViewModel() {
         }
     var categoriesList = arrayListOf<String>()
 
-    fun getNoteById(noteId: Int, mainViewModel: MainViewModel, function: () -> Unit) {
-        mainViewModel.getNoteById(noteId) { oldNote ->
-            note = oldNote ?: createNote(mainViewModel.allNotes.value ?: emptyList())
+    fun getNoteById(noteId: Int, mainAppViewModel: MainAppViewModel, function: () -> Unit) {
+        mainAppViewModel.getNoteById(noteId) { oldNote ->
+            note = oldNote ?: createNote(mainAppViewModel.allNotes.value ?: emptyList())
             function()
         }
     }
@@ -78,9 +78,9 @@ class NoteActivityViewModel : ViewModel() {
         override fun onNothingSelected(parent: AdapterView<*>) {}
     }
 
-    fun showCategoriesPickerDialog(mainViewModel: MainViewModel, context: Context) {
+    fun showCategoriesPickerDialog(mainAppViewModel: MainAppViewModel, context: Context) {
         val categoriesNames: Array<String> =
-            (mainViewModel.allCategoriesOfNotes.value ?: emptyList()).toList().map { it.name }
+            (mainAppViewModel.allCategoriesOfNotes.value ?: emptyList()).toList().map { it.name }
                 .toTypedArray()
         val checkedCategories = categoriesNames.map { it in categoriesList }.toBooleanArray()
 
@@ -106,10 +106,10 @@ class NoteActivityViewModel : ViewModel() {
     }
 
     fun saveNote(
-        mainViewModel: MainViewModel, title: String, text: String, function: (Note) -> Unit = {}
+        mainAppViewModel: MainAppViewModel, title: String, text: String, function: (Note) -> Unit = {}
     ) {
         note?.let { note ->
-            mainViewModel.insertNote(
+            mainAppViewModel.insertNote(
                 note = note.copy(
                     title = title, text = text, time = Calendar.getInstance().timeInMillis
                 ), function = function

@@ -35,7 +35,7 @@ class AlarmReceiver: BroadcastReceiver() {
         )
         if (reminder.sound) playNotificationSound(context)
         wakeLock.acquire(5000)
-        val noteViewModel = (context.applicationContext as MainApp).mainViewModel
+        val noteViewModel = (context.applicationContext as MainApp).mainAppViewModel
         noteViewModel.deleteReminders(listOf(reminder))
     }
 

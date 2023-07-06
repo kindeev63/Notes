@@ -30,7 +30,7 @@ class NoteActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val noteId = intent.getIntExtra("noteId", 0)
         viewModel.getNoteById(
-            noteId = noteId, mainViewModel = mainViewModel()
+            noteId = noteId, mainAppViewModel = mainAppViewModel()
         ) {
             binding.apply {
                 eNoteTitle.setText(viewModel.note?.title)
@@ -50,17 +50,17 @@ class NoteActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.note_menu, menu)
         menu?.findItem(R.id.set_category_item)?.isVisible =
-            (mainViewModel().allCategoriesOfNotes.value?.size ?: 0) > 0
+            (mainAppViewModel().allCategoriesOfNotes.value?.size ?: 0) > 0
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.set_category_item -> viewModel.showCategoriesPickerDialog(mainViewModel(), this)
+            R.id.set_category_item -> viewModel.showCategoriesPickerDialog(mainAppViewModel(), this)
             android.R.id.home -> finish()
             R.id.add_reminder_item -> {
                 viewModel.saveNote(
-                    mainViewModel = mainViewModel(),
+                    mainAppViewModel = mainAppViewModel(),
                     title = binding.eNoteTitle.text.toString(),
                     text = binding.eNoteText.text.toString()
                 ) { note ->
@@ -78,12 +78,12 @@ class NoteActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         viewModel.saveNote(
-            mainViewModel = mainViewModel(),
+            mainAppViewModel = mainAppViewModel(),
             title = binding.eNoteTitle.text.toString(),
             text = binding.eNoteText.text.toString()
         )
         States.noteEdited = false
     }
 
-    fun mainViewModel() = (application as MainApp).mainViewModel
+    private fun mainAppViewModel() = (application as MainApp).mainAppViewModel
 }

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.adapters.RemindersAdapter
 import com.kindeev.notes.databinding.FragmentRemindersBinding
+import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.viewmodels.RemindersFragmentViewModel
 
 class RemindersFragment : BaseFragment() {
@@ -31,7 +32,7 @@ class RemindersFragment : BaseFragment() {
         binding = FragmentRemindersBinding.inflate(inflater, container, false)
         remindersAdapter = RemindersAdapter(
             viewModel.onClickReminder(
-                mainActivity = activity as MainActivity,
+                topMenu = (activity as MainActivity).getTopMenu(),
                 fragmentManager = childFragmentManager
             )
         )
@@ -42,7 +43,7 @@ class RemindersFragment : BaseFragment() {
         viewModel.selectedReminders.observe(viewLifecycleOwner) {
             remindersAdapter?.setData(selecteReminders = it)
         }
-        mainViewModel().allReminders.observe(viewLifecycleOwner) {
+        mainAppViewModel().allReminders.observe(viewLifecycleOwner) {
             viewModel.setAllReminders(it)
         }
         binding.apply {
@@ -52,7 +53,7 @@ class RemindersFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun mainViewModel() = (activity as MainActivity).getViewModel()
+    private fun mainAppViewModel() = (requireContext().applicationContext as MainApp).mainAppViewModel
 
     companion object {
         @JvmStatic

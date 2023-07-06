@@ -12,7 +12,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,7 +24,6 @@ import com.kindeev.notes.fragments.TaskDialogFragment
 import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.States
 import java.util.ArrayList
-import java.util.Date
 
 class TasksFragmentViewModel : ViewModel() {
     private var _allTasks = emptyList<Task>()
@@ -84,13 +82,13 @@ class TasksFragmentViewModel : ViewModel() {
     }
 
     fun openTask(
-        task: Task? = null, mainViewModel: MainViewModel, fragmentManager: FragmentManager
+        task: Task? = null, mainAppViewModel: MainAppViewModel, fragmentManager: FragmentManager
     ) {
         if (task == null) {
             val newTask = createTask(_allTasks)
-            mainViewModel.insertTask(newTask) {
+            mainAppViewModel.insertTask(newTask) {
                 openTask(
-                    task = it, mainViewModel = mainViewModel, fragmentManager = fragmentManager
+                    task = it, mainAppViewModel = mainAppViewModel, fragmentManager = fragmentManager
                 )
             }
         } else {
@@ -169,7 +167,7 @@ class TasksFragmentViewModel : ViewModel() {
     }
 
     fun onTaskTextClick(
-        mainViewModel: MainViewModel, context: Context, fragmentManager: FragmentManager
+        mainAppViewModel: MainAppViewModel, context: Context, fragmentManager: FragmentManager
     ): (Task, Boolean) -> Unit {
         return { task: Task, long: Boolean ->
             if (!States.taskEdited) {
@@ -177,7 +175,7 @@ class TasksFragmentViewModel : ViewModel() {
                     AlertDialog.Builder(context).apply {
                         setTitle(R.string.delete_task)
                         setPositiveButton(R.string.delete) { _, _ ->
-                            mainViewModel.deleteTask(task)
+                            mainAppViewModel.deleteTask(task)
                         }
                         setNegativeButton(R.string.cancel) { _, _ -> }
                         show()
@@ -185,7 +183,7 @@ class TasksFragmentViewModel : ViewModel() {
                 } else {
                     openTask(
                         task = task,
-                        mainViewModel = mainViewModel,
+                        mainAppViewModel = mainAppViewModel,
                         fragmentManager = fragmentManager
                     )
                 }
@@ -194,38 +192,38 @@ class TasksFragmentViewModel : ViewModel() {
     }
 
     fun onTaskCheckBoxClick(
-        context: Context, mainViewModel: MainViewModel
+        context: Context, mainAppViewModel: MainAppViewModel
     ): (Task) -> Unit {
         return { task: Task ->
             if (task.done) {
                 AlertDialog.Builder(context).apply {
                     setTitle(R.string.deselect)
                     setPositiveButton(R.string.yes) { _, _ ->
-                        mainViewModel.insertTask(task.copy(done = false))
+                        mainAppViewModel.insertTask(task.copy(done = false))
                     }
                     setNegativeButton(R.string.no) { _, _ -> }
                     show()
                 }
             } else {
-                mainViewModel.insertTask(task.copy(done = true))
+                mainAppViewModel.insertTask(task.copy(done = true))
             }
         }
     }
 
-    fun addCategory(context: Context, mainViewModel: MainViewModel) {
+    fun addCategory(context: Context, mainAppViewModel: MainAppViewModel) {
         showEditDialog(
             title = context.resources.getString(R.string.add_category),
             textOk = context.resources.getString(R.string.add),
             textCancel = context.resources.getString(R.string.cancel),
             context = context
         ) { name ->
-            mainViewModel.allCategoriesOfTasks.value?.let { allCategories ->
+            mainAppViewModel.allCategoriesOfTasks.value?.let { allCategories ->
                 if (name !in allCategories.map { it.name }) if (name.isEmpty()) {
                     Toast.makeText(
                         context, R.string.category_name_is_empty, Toast.LENGTH_SHORT
                     ).show()
                 } else {
-                    mainViewModel.insertCategory(
+                    mainAppViewModel.insertCategory(
                         Category(
                             id = 0, name = name, type = "tasks"
                         )
@@ -242,7 +240,7 @@ class TasksFragmentViewModel : ViewModel() {
 
     fun onClickCategory(
         context: Context,
-        mainViewModel: MainViewModel,
+        mainAppViewModel: MainAppViewModel,
         mainActivity: MainActivity,
         afterSelectCategory: () -> Unit
     ): (Category, Boolean) -> Unit {
@@ -259,7 +257,7 @@ class TasksFragmentViewModel : ViewModel() {
                             context = context
                         ) { newName ->
                             val oldName = currentCategory.name
-                            if (mainViewModel.allCategoriesOfTasks.value?.let { allCategories ->
+                            if (mainAppViewModel.allCategoriesOfTasks.value?.let { allCategories ->
                                     newName !in allCategories.map { it.name }
                                 } == true) {
                                 if (newName.isEmpty()) {
@@ -268,7 +266,7 @@ class TasksFragmentViewModel : ViewModel() {
                                     ).show()
                                 } else {
                                     currentCategory.name = newName
-                                    mainViewModel.insertCategory(currentCategory)
+                                    mainAppViewModel.insertCategory(currentCategory)
                                     if (category?.name == oldName) {
                                         category = currentCategory
                                     }
@@ -279,7 +277,7 @@ class TasksFragmentViewModel : ViewModel() {
                                             categoriesList.add(newName)
                                             task.categories =
                                                 categoriesList.joinToString(separator = ", ")
-                                            mainViewModel.insertTask(task)
+                                            mainAppViewModel.insertTask(task)
                                         }
                                     }
                                 }
@@ -289,14 +287,14 @@ class TasksFragmentViewModel : ViewModel() {
                         }
                     }
                     setNegativeButton(R.string.delete) { _, _ ->
-                        mainViewModel.deleteCategory(currentCategory)
+                        mainAppViewModel.deleteCategory(currentCategory)
                         val categoryName = currentCategory.name
                         for (task in _allTasks) {
                             val categoriesList = ArrayList(task.categories.split(", "))
                             if (categoryName in categoriesList) {
                                 categoriesList.remove(categoryName)
                                 task.categories = categoriesList.joinToString(separator = ", ")
-                                mainViewModel.insertTask(task)
+                                mainAppViewModel.insertTask(task)
                             }
                         }
                         if (category == currentCategory) {

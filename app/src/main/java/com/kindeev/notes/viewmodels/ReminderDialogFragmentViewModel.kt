@@ -29,14 +29,14 @@ class ReminderDialogFragmentViewModel : ViewModel() {
     fun setReminder(
         newReminder: Reminder?,
         noteId: Int? = null,
-        mainViewModel: MainViewModel,
+        mainAppViewModel: MainAppViewModel,
         packageName: String
     ) {
         newReminder?.let {
             reminder = it
             return@let
         }
-        val idsList = mainViewModel.allReminders.value?.map { it.id } ?: emptyList()
+        val idsList = mainAppViewModel.allReminders.value?.map { it.id } ?: emptyList()
         var reminderId = 0
         while (reminderId in idsList) {
             reminderId++
@@ -146,11 +146,11 @@ class ReminderDialogFragmentViewModel : ViewModel() {
         }
         return dialog
     }
-    fun saveReminder(title: String, description: String, mainViewModel: MainViewModel, context: Context) {
+    fun saveReminder(title: String, description: String, mainAppViewModel: MainAppViewModel, context: Context) {
         reminder?.let {
             it.title = title
             it.description = description
-            mainViewModel.insertReminder(it)
+            mainAppViewModel.insertReminder(it)
             setAlarm(it, context)
             Toast.makeText(context, R.string.saved, Toast.LENGTH_SHORT).show()
         }

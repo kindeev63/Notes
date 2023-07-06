@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -14,8 +15,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SearchView
-import androidx.core.view.GravityCompat
 import androidx.core.view.forEach
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -117,11 +116,11 @@ class NotesFragmentViewModel : ViewModel() {
         override fun onNothingSelected(parent: AdapterView<*>) {}
     }
 
-    fun openNote(note: Note? = null, mainViewModel: MainViewModel, context: Context) {
+    fun openNote(note: Note? = null, mainAppViewModel: MainAppViewModel, context: Context) {
         if (note == null) {
             val newNote = createNote(_allNotes)
-            mainViewModel.insertNote(newNote) {
-                openNote(note = it, mainViewModel = mainViewModel, context = context)
+            mainAppViewModel.insertNote(newNote) {
+                openNote(note = it, mainAppViewModel = mainAppViewModel, context = context)
             }
         } else {
             val intent = Intent(context, NoteActivity::class.java).apply {
@@ -156,7 +155,7 @@ class NotesFragmentViewModel : ViewModel() {
     }
 
     fun onClickNote(
-        mainActivity: MainActivity, mainViewModel: MainViewModel, context: Context
+        mainAppViewModel: MainAppViewModel, context: Context, topMenu: Menu?
     ) = { note: Note, long: Boolean ->
         if (!States.noteEdited) {
             if (long) {
@@ -174,7 +173,7 @@ class NotesFragmentViewModel : ViewModel() {
                 }
             } else {
                 if (selectedNotes.value?.isEmpty() != false) {
-                    openNote(note = note, mainViewModel = mainViewModel, context = context)
+                    openNote(note = note, mainAppViewModel = mainAppViewModel, context = context)
                 } else {
                     if (selectedNotes.value?.contains(note) == true) {
                         _selectedNotes.value =
@@ -190,12 +189,12 @@ class NotesFragmentViewModel : ViewModel() {
                 }
             }
             if (selectedNotes.value?.isNotEmpty() != true) {
-                mainActivity.topMenu?.forEach {
+                topMenu?.forEach {
                     it.isVisible = it.itemId != R.id.delete_item
                 }
 
             } else {
-                mainActivity.topMenu?.forEach {
+                topMenu?.forEach {
                     it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                 }
             }
@@ -211,21 +210,21 @@ class NotesFragmentViewModel : ViewModel() {
         return layoutParams
     }
 
-    fun addCategory(context: Context, mainViewModel: MainViewModel) {
+    fun addCategory(context: Context, mainAppViewModel: MainAppViewModel) {
         showEditDialog(
             title = context.resources.getString(R.string.add_category),
             textOk = context.resources.getString(R.string.add),
             textCancel = context.resources.getString(R.string.cancel),
             context = context
         ) { name ->
-            mainViewModel.allCategoriesOfNotes.value?.let { allCategories ->
+            mainAppViewModel.allCategoriesOfNotes.value?.let { allCategories ->
                 if (name !in allCategories.map { it.name }) {
                     if (name.isEmpty()) {
                         Toast.makeText(
                             context, R.string.category_name_is_empty, Toast.LENGTH_SHORT
                         ).show()
                     } else {
-                        mainViewModel.insertCategory(
+                        mainAppViewModel.insertCategory(
                             Category(
                                 id = 0, name = name, type = "notes"
                             )
@@ -244,7 +243,7 @@ class NotesFragmentViewModel : ViewModel() {
 
     fun onClickCategory(
         context: Context,
-        mainViewModel: MainViewModel,
+        mainAppViewModel: MainAppViewModel,
         mainActivity: MainActivity,
         afterSelectCategory: () -> Unit
     ): (Category, Boolean) -> Unit {
@@ -261,7 +260,7 @@ class NotesFragmentViewModel : ViewModel() {
                             context = context
                         ) { newName ->
                             val oldName = currentCategory.name
-                            if (mainViewModel.allCategoriesOfNotes.value?.let { allCategories ->
+                            if (mainAppViewModel.allCategoriesOfNotes.value?.let { allCategories ->
                                     newName !in allCategories.map { it.name }
                                 } == true) {
                                 if (newName.isEmpty()) {
@@ -270,7 +269,7 @@ class NotesFragmentViewModel : ViewModel() {
                                     ).show()
                                 } else {
                                     currentCategory.name = newName
-                                    mainViewModel.insertCategory(currentCategory)
+                                    mainAppViewModel.insertCategory(currentCategory)
                                     if (category?.name == oldName) {
                                         category = currentCategory
                                     }
@@ -281,7 +280,7 @@ class NotesFragmentViewModel : ViewModel() {
                                             categoriesList.add(newName)
                                             note.categories =
                                                 categoriesList.joinToString(separator = ", ")
-                                            mainViewModel.insertNote(note)
+                                            mainAppViewModel.insertNote(note)
                                         }
                                     }
                                 }
@@ -291,14 +290,14 @@ class NotesFragmentViewModel : ViewModel() {
                         }
                     }
                     setNegativeButton(R.string.delete) { _, _ ->
-                        mainViewModel.deleteCategory(currentCategory)
+                        mainAppViewModel.deleteCategory(currentCategory)
                         val categoryName = currentCategory.name
                         for (note in _allNotes) {
                             val categoriesList = ArrayList(note.categories.split(", "))
                             if (categoryName in categoriesList) {
                                 categoriesList.remove(categoryName)
                                 note.categories = categoriesList.joinToString(separator = ", ")
-                                mainViewModel.insertNote(note)
+                                mainAppViewModel.insertNote(note)
                             }
                         }
                         if (category == currentCategory) {

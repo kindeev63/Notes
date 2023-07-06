@@ -11,6 +11,7 @@ import com.kindeev.notes.adapters.CategoriesAdapter
 import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.other.Colors
+import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.viewmodels.NotesFragmentViewModel
 
 class NotesFragment : BaseFragment() {
@@ -21,7 +22,7 @@ class NotesFragment : BaseFragment() {
 
 
     override fun onClickNew() = viewModel.openNote(
-        note = null, mainViewModel = mainViewModel(), context = requireContext()
+        note = null, mainAppViewModel = mainAppViewModel(), context = requireContext()
     )
 
     override fun search(text: String) {
@@ -34,15 +35,15 @@ class NotesFragment : BaseFragment() {
         binding = FragmentNotesBinding.inflate(inflater, container, false)
         notesAdapter = NotesAdapter(
             viewModel.onClickNote(
-                mainActivity = activity as MainActivity,
-                mainViewModel = mainViewModel(),
+                topMenu = (activity as MainActivity).getTopMenu(),
+                mainAppViewModel = mainAppViewModel(),
                 context = requireContext()
             )
         )
-        mainViewModel().allNotes.observe(viewLifecycleOwner) {
+        mainAppViewModel().allNotes.observe(viewLifecycleOwner) {
             viewModel.setAllNotes(it)
         }
-        mainViewModel().allCategoriesOfNotes.observe(viewLifecycleOwner) {
+        mainAppViewModel().allCategoriesOfNotes.observe(viewLifecycleOwner) {
             categoriesAdapter?.setData(categories = it)
         }
         viewModel.notesList.observe(viewLifecycleOwner) {
@@ -87,10 +88,10 @@ class NotesFragment : BaseFragment() {
                     resources.getString(R.string.all_notes)
             }
             addCategoryNotes.setOnClickListener {
-                viewModel.addCategory(requireContext(), mainViewModel())
+                viewModel.addCategory(requireContext(), mainAppViewModel())
             }
             categoriesAdapter = CategoriesAdapter(viewModel.onClickCategory(
-                requireContext(), mainViewModel(), activity as MainActivity
+                requireContext(), mainAppViewModel(), activity as MainActivity
             ) {
                 drawerNotes.closeDrawer(GravityCompat.START)
             })
@@ -100,7 +101,8 @@ class NotesFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun mainViewModel() = (activity as MainActivity).getViewModel()
+    private fun mainAppViewModel() =
+        (requireContext().applicationContext as MainApp).mainAppViewModel
 
 
     companion object {

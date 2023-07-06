@@ -2,16 +2,16 @@ package com.kindeev.notes.other
 
 import android.app.Application
 import androidx.lifecycle.ViewModelProvider
-import com.kindeev.notes.viewmodels.MainViewModel
+import com.kindeev.notes.viewmodels.MainAppViewModel
 
 class MainApp : Application() {
-    val mainViewModel: MainViewModel by lazy {
+    val mainAppViewModel: MainAppViewModel by lazy {
         ViewModelProvider.AndroidViewModelFactory.getInstance(this)
-            .create(MainViewModel::class.java)
+            .create(MainAppViewModel::class.java)
     }
 
     override fun onCreate() {
         super.onCreate()
-        mainViewModel
+        mainAppViewModel
     }
 }
