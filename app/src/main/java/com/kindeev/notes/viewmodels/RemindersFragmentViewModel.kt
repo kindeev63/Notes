@@ -12,10 +12,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.notes.R
-import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.ReminderDialogFragment
-import com.kindeev.notes.other.States
 import java.util.ArrayList
 
 class RemindersFragmentViewModel : ViewModel() {
@@ -72,9 +70,25 @@ class RemindersFragmentViewModel : ViewModel() {
 
     fun onClickReminder(
         fragmentManager: FragmentManager, topMenu: Menu?
-    ) = { reminder: Reminder, long: Boolean ->
-        if (!States.reminderEdited) {
-            if (long) {
+    ): (Reminder, Boolean) -> Unit = { reminder: Reminder, long: Boolean ->
+        if (long) {
+            if (selectedReminders.value?.contains(reminder) == true) {
+                _selectedReminders.value =
+                    ArrayList(_selectedReminders.value ?: emptyList()).apply {
+                        remove(reminder)
+                    }
+            } else {
+                _selectedReminders.value =
+                    ArrayList(_selectedReminders.value ?: emptyList()).apply {
+                        add(reminder)
+                    }
+            }
+        } else {
+            if (selectedReminders.value?.isEmpty() != false) {
+                openReminder(
+                    reminder = reminder, fragmentManager = fragmentManager
+                )
+            } else {
                 if (selectedReminders.value?.contains(reminder) == true) {
                     _selectedReminders.value =
                         ArrayList(_selectedReminders.value ?: emptyList()).apply {
@@ -86,34 +100,16 @@ class RemindersFragmentViewModel : ViewModel() {
                             add(reminder)
                         }
                 }
-            } else {
-                if (selectedReminders.value?.isEmpty() != false) {
-                    openReminder(
-                        reminder = reminder, fragmentManager = fragmentManager
-                    )
-                } else {
-                    if (selectedReminders.value?.contains(reminder) == true) {
-                        _selectedReminders.value =
-                            ArrayList(_selectedReminders.value ?: emptyList()).apply {
-                                remove(reminder)
-                            }
-                    } else {
-                        _selectedReminders.value =
-                            ArrayList(_selectedReminders.value ?: emptyList()).apply {
-                                add(reminder)
-                            }
-                    }
-                }
             }
-            if (selectedReminders.value?.isNotEmpty() != true) {
-                topMenu?.forEach {
-                    it.isVisible = it.itemId != R.id.delete_item
-                }
+        }
+        if (selectedReminders.value?.isNotEmpty() != true) {
+            topMenu?.forEach {
+                it.isVisible = it.itemId != R.id.delete_item
+            }
 
-            } else {
-                topMenu?.forEach {
-                    it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
-                }
+        } else {
+            topMenu?.forEach {
+                it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
             }
         }
     }

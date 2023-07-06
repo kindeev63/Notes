@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.kindeev.notes.databinding.ActivityMainBinding
 import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.R
-import com.kindeev.notes.fragments.*
 import com.kindeev.notes.viewmodels.MainActivityViewModel
 
 class MainActivity : AppCompatActivity() {

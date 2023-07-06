@@ -55,9 +55,9 @@ class RemindersAdapter(private val onItemClick: (reminder: Reminder, long: Boole
         }
     }
 
-    fun setData(reminders: List<Reminder>? = null, selecteReminders: List<Reminder>? = null) {
+    fun setData(reminders: List<Reminder>? = null, selectedReminders: List<Reminder>? = null) {
         reminders?.let { remindersList = reminders.sortedBy { it.time }.reversed() }
-        selecteReminders?.let { selectedRemindersList = it }
+        selectedReminders?.let { selectedRemindersList = it }
         notifyDataSetChanged()
     }
 }

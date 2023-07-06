@@ -22,7 +22,6 @@ import com.kindeev.notes.db.Category
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.fragments.TaskDialogFragment
 import com.kindeev.notes.other.Colors
-import com.kindeev.notes.other.States
 import java.util.ArrayList
 
 class TasksFragmentViewModel : ViewModel() {
@@ -88,7 +87,9 @@ class TasksFragmentViewModel : ViewModel() {
             val newTask = createTask(_allTasks)
             mainAppViewModel.insertTask(newTask) {
                 openTask(
-                    task = it, mainAppViewModel = mainAppViewModel, fragmentManager = fragmentManager
+                    task = it,
+                    mainAppViewModel = mainAppViewModel,
+                    fragmentManager = fragmentManager
                 )
             }
         } else {
@@ -128,9 +129,7 @@ class TasksFragmentViewModel : ViewModel() {
             colorFilter = parent.getItemAtPosition(position) as Int
         }
 
-        override fun onNothingSelected(parent: AdapterView<*>) {
-            // Ничего не делаем
-        }
+        override fun onNothingSelected(parent: AdapterView<*>) {}
     }
 
     fun getDrawerLayoutParams(
@@ -170,23 +169,21 @@ class TasksFragmentViewModel : ViewModel() {
         mainAppViewModel: MainAppViewModel, context: Context, fragmentManager: FragmentManager
     ): (Task, Boolean) -> Unit {
         return { task: Task, long: Boolean ->
-            if (!States.taskEdited) {
-                if (long) {
-                    AlertDialog.Builder(context).apply {
-                        setTitle(R.string.delete_task)
-                        setPositiveButton(R.string.delete) { _, _ ->
-                            mainAppViewModel.deleteTask(task)
-                        }
-                        setNegativeButton(R.string.cancel) { _, _ -> }
-                        show()
+            if (long) {
+                AlertDialog.Builder(context).apply {
+                    setTitle(R.string.delete_task)
+                    setPositiveButton(R.string.delete) { _, _ ->
+                        mainAppViewModel.deleteTask(task)
                     }
-                } else {
-                    openTask(
-                        task = task,
-                        mainAppViewModel = mainAppViewModel,
-                        fragmentManager = fragmentManager
-                    )
+                    setNegativeButton(R.string.cancel) { _, _ -> }
+                    show()
                 }
+            } else {
+                openTask(
+                    task = task,
+                    mainAppViewModel = mainAppViewModel,
+                    fragmentManager = fragmentManager
+                )
             }
         }
     }

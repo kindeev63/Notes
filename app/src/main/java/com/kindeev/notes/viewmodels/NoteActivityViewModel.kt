@@ -24,7 +24,7 @@ class NoteActivityViewModel : ViewModel() {
                 categoriesList = ArrayList(it.split(", "))
             }
         }
-    var categoriesList = arrayListOf<String>()
+    private var categoriesList = arrayListOf<String>()
 
     fun getNoteById(noteId: Int, mainAppViewModel: MainAppViewModel, function: () -> Unit) {
         mainAppViewModel.getNoteById(noteId) { oldNote ->

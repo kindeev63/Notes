@@ -1,7 +1,6 @@
 package com.kindeev.notes.viewmodels
 
 import android.app.Application
-import android.view.Menu
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope

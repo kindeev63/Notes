@@ -22,7 +22,7 @@ class TaskDialogFragmentViewModel: ViewModel() {
                 categoriesList = ArrayList(it.split(", "))
             }
         }
-    var categoriesList = arrayListOf<String>()
+    private var categoriesList = arrayListOf<String>()
 
     fun showCategoriesPickerDialog(mainAppViewModel: MainAppViewModel, context: Context) {
         val categoriesNames: Array<String> =
