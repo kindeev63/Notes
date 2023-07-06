@@ -1,4 +1,4 @@
-package com.kindeev.notes.other
+package com.kindeev.notes.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -10,16 +10,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.Serializable
 
-open class NoteViewModel(application: Application) : AndroidViewModel(application), Serializable {
+open class MainAppViewModel(application: Application) : AndroidViewModel(application), Serializable {
     private val repository: NoteRepository
     val allNotes: LiveData<List<Note>>
     val allTasks: LiveData<List<Task>>
     val allCategoriesOfNotes: LiveData<List<Category>>
     val allCategoriesOfTasks: LiveData<List<Category>>
     val allReminders: LiveData<List<Reminder>>
-    var selectedNotes = arrayListOf<Note>()
-    var selectedReminders = arrayListOf<Reminder>()
-    var colorFilter = false
 
     init {
         val noteDao = NoteDataBase.getDataBase(application).getDao()
@@ -41,6 +38,11 @@ open class NoteViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun insertTask(task: Task) = viewModelScope.launch {
         repository.insertTask(task)
+    }
+
+    fun insertTask(task: Task, function: (Task) -> Unit) = viewModelScope.launch {
+        repository.insertTask(task)
+        function(task)
     }
 
     fun insertCategory(category: Category) = viewModelScope.launch {

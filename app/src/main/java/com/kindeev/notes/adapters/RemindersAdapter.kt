@@ -4,32 +4,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.kindeev.notes.other.NoteViewModel
 import com.kindeev.notes.R
-import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.ReminderItemBinding
 import com.kindeev.notes.db.Reminder
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RemindersAdapter(private val noteViewModel: NoteViewModel, private val onItemClick: (reminder: Reminder, open: Boolean) -> Unit) :
+class RemindersAdapter(private val onItemClick: (reminder: Reminder, long: Boolean) -> Unit) :
     RecyclerView.Adapter<RemindersAdapter.RemindersHolder>() {
     private var remindersList = emptyList<Reminder>()
+    private var selectedRemindersList = emptyList<Reminder>()
+
     class RemindersHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = ReminderItemBinding.bind(view)
-        fun bind(reminder: Reminder, choosingNotes: Boolean, reminderSelected: Boolean) = with(binding) {
-            tReminderTitle.text = reminder.title
-            val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
-            val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-            tReminderTime.text = timeFormat.format(reminder.time)
-            tReminderDate.text = dateFormat.format(reminder.time)
-            chDeleteReminder.visibility =
-            if (choosingNotes){
-                View.VISIBLE
-            } else View.GONE
-            chDeleteReminder.isChecked = reminderSelected
+        fun bind(reminder: Reminder, selectedReminders: List<Reminder>) =
+            with(binding) {
+                tReminderTitle.text = reminder.title
+                val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                tReminderTime.text = timeFormat.format(reminder.time)
+                tReminderDate.text = dateFormat.format(reminder.time)
+                chDeleteReminder.visibility =
+                    if (selectedReminders.isEmpty()) {
+                        View.GONE
+                    } else {
+                        chDeleteReminder.isChecked = reminder in selectedReminders
+                        View.VISIBLE
+                    }
 
-        }
+            }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = RemindersHolder(
@@ -39,35 +42,22 @@ class RemindersAdapter(private val noteViewModel: NoteViewModel, private val onI
     override fun getItemCount() = remindersList.size
 
     override fun onBindViewHolder(holder: RemindersHolder, position: Int) {
-        holder.bind(remindersList[position], noteViewModel.selectedReminders.size > 0, remindersList[position] in noteViewModel.selectedReminders)
+        holder.bind(
+            remindersList[position],
+            selectedRemindersList
+        )
         holder.itemView.setOnClickListener {
-            if (!States.reminderEdited) {
-                val open = noteViewModel.selectedReminders.size == 0
-                if (noteViewModel.selectedReminders.size > 0){
-                    val reminder = remindersList[position]
-                    if (reminder in noteViewModel.selectedReminders) noteViewModel.selectedReminders.remove(reminder)
-                    else noteViewModel.selectedReminders.add(reminder)
-                    notifyDataSetChanged()
-                }
-                onItemClick(remindersList[position], open)
-            }
-
+            onItemClick(remindersList[position], false)
         }
         holder.itemView.setOnLongClickListener {
-            if (!States.reminderEdited){
-                val reminder = remindersList[position]
-                if (reminder in noteViewModel.selectedReminders) noteViewModel.selectedReminders.remove(reminder)
-                else noteViewModel.selectedReminders.add(reminder)
-                notifyDataSetChanged()
-                onItemClick(reminder, false)
-
-            }
+            onItemClick(remindersList[position], true)
             return@setOnLongClickListener true
         }
     }
 
-    fun setData(reminders: List<Reminder>? = null) {
-        remindersList = reminders ?: remindersList
+    fun setData(reminders: List<Reminder>? = null, selectedReminders: List<Reminder>? = null) {
+        reminders?.let { remindersList = reminders.sortedBy { it.time }.reversed() }
+        selectedReminders?.let { selectedRemindersList = it }
         notifyDataSetChanged()
     }
 }

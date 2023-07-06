@@ -10,7 +10,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.*
-import com.kindeev.notes.other.NoteViewModel
+import com.kindeev.notes.viewmodels.MainAppViewModel
 import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
 import com.kindeev.notes.db.Reminder
@@ -19,15 +19,15 @@ import kotlinx.coroutines.*
 import java.util.*
 
 class UpdateService : Service() {
-    private lateinit var noteViewModel: NoteViewModel
+    private lateinit var mainAppViewModel: MainAppViewModel
     private lateinit var alarmManager: AlarmManager
     private val scope = CoroutineScope(Dispatchers.Main)
 
     @SuppressLint("MissingPermission")
     override fun onCreate() {
         super.onCreate()
-        noteViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-            .create(NoteViewModel::class.java)
+        mainAppViewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+            .create(MainAppViewModel::class.java)
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     }
@@ -41,7 +41,7 @@ class UpdateService : Service() {
         startForeground(111, notification)
         GlobalScope.launch {
             val allReminders = withContext(Dispatchers.IO) {
-                noteViewModel.getAllReminders()
+                mainAppViewModel.getAllReminders()
             }
             scope.launch {
                 Log.e("test", "All reminders = $allReminders")

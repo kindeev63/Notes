@@ -11,7 +11,6 @@
     <string name="edit_category">Edit category</string>
     <string name="select_categories">Select Categories</string>
     <string name="category_exists">This category already exists</string>
-    <string name="delete_note">Delete note</string>
     <string name="delete">Delete</string>
     <string name="search">Search</string>
     <string name="note">Note</string>
@@ -21,7 +20,6 @@
     <string name="notifi_channel_description">Reminders for notes</string>
     <string name="enter_title">Enter title</string>
     <string name="pick_note">Pick note</string>
-    <string name="note_not_exist">This note does not exist</string>
     <string name="select_time">Select time</string>
     <string name="description">Description</string>
     <string name="no_notes">No notes</string>

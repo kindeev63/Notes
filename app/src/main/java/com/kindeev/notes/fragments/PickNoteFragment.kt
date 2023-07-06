@@ -6,50 +6,41 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.kindeev.notes.R
-import com.kindeev.notes.adapters.PickNotesAdapter
+import com.kindeev.notes.adapters.PickNoteAdapter
 import com.kindeev.notes.databinding.FragmentPickNoteBinding
 import com.kindeev.notes.db.Note
+import com.kindeev.notes.other.MainApp
+import com.kindeev.notes.viewmodels.PickNoteFragmentViewModel
 
-class PickNoteFragment(private val allNotes: List<Note>, private val listener: (Note) -> Unit) : DialogFragment() {
+class PickNoteFragment(private val listener: (Note) -> Unit) : DialogFragment() {
+    private val viewModel: PickNoteFragmentViewModel by viewModels()
     private lateinit var binding: FragmentPickNoteBinding
-    private lateinit var adapter: PickNotesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding.apply {
-        val thisListener: (Note) -> Unit = {
+        (requireContext().applicationContext as MainApp).mainAppViewModel.allNotes.observe(viewLifecycleOwner) {
+            viewModel.setAllNotes(it)
+        }
+        val adapter = PickNoteAdapter {
             listener(it)
             dialog?.dismiss()
         }
-            adapter = PickNotesAdapter(thisListener).apply {
-                setData(allNotes)
-            }
+        viewModel.notesList.observe(viewLifecycleOwner) {
+            adapter.setData(it)
+        }
+        binding.apply {
             rcPickNote.adapter = adapter
             rcPickNote.layoutManager = LinearLayoutManager(requireContext())
-
             ePickNoteSearch.addTextChangedListener {
-                search(it.toString())
+                viewModel.search(it.toString())
             }
         }
         return binding.root
-    }
-
-    fun search(text: String) {
-        val notes = filterNotes(allNotes, text)
-        adapter.setData(notes)
-    }
-
-    private fun filterNotes(
-        notes: List<Note>,
-        searchText: String
-    ): List<Note> {
-        return notes.filter { it.title.contains(searchText) }
     }
 
 
@@ -64,16 +55,11 @@ class PickNoteFragment(private val allNotes: List<Note>, private val listener: (
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = FragmentPickNoteBinding.inflate(layoutInflater)
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(binding.root)
-            .setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.cancel()
-            }.create()
-        return dialog
+        return viewModel.makeDialog(requireContext(), binding.root)
     }
 
     companion object {
         @JvmStatic
-        fun newInstance(notes: List<Note>, listener: (Note) -> Unit) = PickNoteFragment(notes, listener)
+        fun newInstance(listener: (Note) -> Unit) = PickNoteFragment(listener)
     }
 }

@@ -13,7 +13,6 @@
     <string name="edit_category">Изменить категорию</string>
     <string name="select_categories">Выберите категории</string>
     <string name="category_exists">Эта категория уже существует</string>
-    <string name="delete_note">Удалить заметку</string>
     <string name="delete">Удалить</string>
     <string name="search">Поиск</string>
     <string name="empty">Пусто</string>
@@ -22,7 +21,6 @@
     <string name="notifi_channel_description">Напоминания для заметок</string>
     <string name="enter_title">Введите название</string>
     <string name="pick_note">Выберите заметку</string>
-    <string name="note_not_exist">Этой заметки не существует</string>
     <string name="select_time">Выберите время</string>
     <string name="description">Описание</string>
     <string name="no_notes">Нет заметок</string>

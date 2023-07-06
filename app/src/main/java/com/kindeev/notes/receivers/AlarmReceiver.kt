@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.PowerManager
-import android.os.Vibrator
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.kindeev.notes.other.MainApp
@@ -15,6 +14,7 @@ import com.kindeev.notes.other.Notifications
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.NoteActivity
 import com.kindeev.notes.db.Reminder
+import com.kindeev.notes.other.Action
 
 class AlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -25,7 +25,8 @@ class AlarmReceiver: BroadcastReceiver() {
             reminder.description,
             reminder.id,
             reminder.noteId,
-            reminder.packageName
+            reminder.packageName,
+            reminder.action
         )
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         val wakeLock = powerManager.newWakeLock(
@@ -34,7 +35,7 @@ class AlarmReceiver: BroadcastReceiver() {
         )
         if (reminder.sound) playNotificationSound(context)
         wakeLock.acquire(5000)
-        val noteViewModel = (context.applicationContext as MainApp).noteViewModel
+        val noteViewModel = (context.applicationContext as MainApp).mainAppViewModel
         noteViewModel.deleteReminders(listOf(reminder))
     }
 
@@ -44,8 +45,8 @@ class AlarmReceiver: BroadcastReceiver() {
         notificationSound.play()
     }
     @SuppressLint("MissingPermission")
-    private fun createNotification(context:Context, title: String, description: String, reminderId:Int, noteId: Int?, packageName: String?){
-        val notificationIntent = if (noteId==null) context.packageManager.getLaunchIntentForPackage(packageName!!) else Intent(context, NoteActivity::class.java).apply {
+    private fun createNotification(context:Context, title: String, description: String, reminderId:Int, noteId: Int?, packageName: String, action: Action){
+        val notificationIntent = if (action == Action.OpenApp) context.packageManager.getLaunchIntentForPackage(packageName) else Intent(context, NoteActivity::class.java).apply {
             putExtra("noteId", noteId)
         }
         notificationIntent?.flags = Intent.FLAG_ACTIVITY_NEW_TASK

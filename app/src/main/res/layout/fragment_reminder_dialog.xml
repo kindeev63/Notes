@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_gravity="center"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="10dp">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -42,6 +43,7 @@
                     android:textSize="34sp" />
 
                 <ImageView
+                    android:id="@+id/imageTimeDialog"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:src="@drawable/ic_clock" />
@@ -70,11 +72,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:text="20.08.227"
+                android:text="20.08.2007"
                 android:textColor="@color/black"
                 android:textSize="24sp" />
 
             <ImageView
+                android:id="@+id/imageDateDialog"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_calendar" />

@@ -10,9 +10,10 @@ import com.kindeev.notes.db.Note
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PickNotesAdapter(private val onItemClick: (note: Note) -> Unit) :
-    RecyclerView.Adapter<PickNotesAdapter.PickNotesHolder>() {
+class PickNoteAdapter(private val onItemClick: (note: Note) -> Unit) :
+    RecyclerView.Adapter<PickNoteAdapter.PickNotesHolder>() {
     private var notesList = emptyList<Note>()
+
     class PickNotesHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = NoteItemBinding.bind(view)
         fun bind(note: Note) = with(binding) {
@@ -34,11 +35,12 @@ class PickNotesAdapter(private val onItemClick: (note: Note) -> Unit) :
     override fun onBindViewHolder(holder: PickNotesHolder, position: Int) {
         holder.bind(notesList[position])
         holder.itemView.setOnClickListener {
-                onItemClick(notesList[position])
+            onItemClick(notesList[position])
         }
     }
-    fun setData(notes: List<Note>? = null) {
-        notesList = notes?.sortedBy{ it.time }?.reversed() ?: notesList
+
+    fun setData(notes: List<Note>) {
+        notesList = notes
         notifyDataSetChanged()
     }
 }

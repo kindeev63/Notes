@@ -7,42 +7,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import com.kindeev.notes.R
+import androidx.fragment.app.viewModels
 import com.kindeev.notes.databinding.FragmentTaskDialogBinding
-import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.other.Colors
-import com.kindeev.notes.other.NoteViewModel
-import java.text.SimpleDateFormat
-import java.util.*
+import com.kindeev.notes.other.MainApp
+import com.kindeev.notes.viewmodels.TaskDialogFragmentViewModel
 
+class TaskDialogFragment : DialogFragment() {
+    private val viewModel: TaskDialogFragmentViewModel by viewModels()
 
-class TaskDialogFragment() : DialogFragment() {
     private lateinit var binding: FragmentTaskDialogBinding
-    private var color: Int = -1
-    private var categoriesList: ArrayList<String> = arrayListOf()
-    private var task: Task? = null
-    private var taskId: Int = 0
-    private lateinit var noteViewModel: NoteViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            if (it.containsKey("task")) task = it.getSerializable("task") as Task
-            taskId = it.getInt("taskId", 0)
-            noteViewModel = it.getSerializable("noteViewModel") as NoteViewModel
+            viewModel.task = it.getSerializable("task") as Task
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         return binding.root
     }
 
@@ -57,144 +44,42 @@ class TaskDialogFragment() : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = FragmentTaskDialogBinding.inflate(layoutInflater)
-        setSpinnerAdapter()
+        binding.colorPickerTask.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
+        binding.colorPickerTask.onItemSelectedListener = viewModel.spinnerItemSelected()
         binding.apply {
-            categoriesPickerTask.visibility = if (noteViewModel.allCategoriesOfTasks.value?.isEmpty() != false) {
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
-            categoriesPickerTask.setOnClickListener{
-                createDialog()
-            }
-            if (task != null) {
-                eTaskTitle.setText(task!!.title)
-                if (task!!.categories.isNotEmpty()) {
-                    categoriesList = ArrayList(task!!.categories.split(", "))
+            categoriesPickerTask.visibility =
+                if (mainAppViewModel().allCategoriesOfTasks.value?.isEmpty() != false) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
                 }
-                color = task!!.color
-                binding.colorPickerTask.setSelection(Colors.colors.indexOf(color))
+            categoriesPickerTask.setOnClickListener {
+                viewModel.showCategoriesPickerDialog(mainAppViewModel(), requireContext())
             }
-            val dialog = AlertDialog.Builder(requireContext()).setView(binding.root)
-                .setPositiveButton(R.string.save, null)
-                .setNegativeButton(R.string.cancel) { dialog, _ ->
-                    dialog.cancel()
-                }.create()
-            dialog.setOnShowListener {
-                val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                okButton.setOnClickListener {
-                    if (binding.eTaskTitle.text?.isEmpty() != false) {
-                        Toast.makeText(
-                            requireContext(),
-                            R.string.enter_name_of_task,
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    } else {
-                        val newTask = Task(
-                            taskId,
-                            binding.eTaskTitle.text.toString(),
-                            task?.done?: false,
-                            categoriesList.joinToString(separator = ", "),
-                            Calendar.getInstance().timeInMillis,
-                            color
-                        )
-                        noteViewModel.insertTask(newTask)
-                        dialog.dismiss()
-                    }
-                }
-            }
-            return dialog
-        }
-    }
+            eTaskTitle.setText(viewModel.task?.title)
+            binding.colorPickerTask.setSelection(Colors.colors.indexOf(viewModel.task?.color ?: Color.WHITE))
 
-    private fun createDialog() {
-        val categoriesNames: Array<String> =
-            (noteViewModel.allCategoriesOfTasks.value ?: emptyList()).toList().map { it.name }
-                .toTypedArray()
-        val checkedCategories =
-            categoriesNames.map { it in categoriesList }.toBooleanArray()
-
-
-        val builder = AlertDialog.Builder(requireContext())
-        val chosenCategories = ArrayList(categoriesList)
-        builder.setTitle(resources.getString(R.string.select_categories))
-        builder.setMultiChoiceItems(
-            categoriesNames,
-            checkedCategories
-        ) { _, index, isChecked ->
-            checkedCategories[index] = isChecked
-            if (checkedCategories[index]) {
-                if (categoriesNames[index] !in chosenCategories) chosenCategories.add(
-                    categoriesNames[index]
-                )
-            } else chosenCategories.remove(categoriesNames[index])
-        }
-        builder.setPositiveButton(resources.getString(R.string.save)) { _, _ ->
-            categoriesList = chosenCategories
-        }
-        builder.setNegativeButton(resources.getString(R.string.cancel)) { d, _ -> d.cancel() }
-        builder.create().show()
-    }
-
-    private fun setSpinnerAdapter() {
-        val colorAdapter = object : ArrayAdapter<Int>(requireContext(), R.layout.spinner_item, Colors.colors) {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view: View =
-                    convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
-                val colorItem = view.findViewById<LinearLayout>(R.id.colorItem)
-                val color = getItem(position)
-                colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
-                return view
-            }
-
-            override fun getDropDownView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup
-            ): View {
-                val view: View =
-                    convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
-                val colorItem = view.findViewById<LinearLayout>(R.id.colorItem)
-                val color = getItem(position)
-                colorItem.setBackgroundColor(color ?: Color.TRANSPARENT)
-                return view
-            }
-        }
-        binding.colorPickerTask.adapter = colorAdapter
-        binding.colorPickerTask.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val newColor = parent.getItemAtPosition(position) as Int
-                color = newColor
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // Ничего не делаем
+            return viewModel.makeDialog(requireContext(), binding.root){
+                viewModel.saveTask(binding.eTaskTitle.text.toString(), mainAppViewModel())
+                it.dismiss()
             }
         }
     }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        // Сохраняем состояние фрагмента
-        if (task!=null) outState.putSerializable("task", task)
-        outState.putInt("taskId", taskId)
-        outState.putSerializable("noteViewModel", noteViewModel)
+        outState.putSerializable("task", viewModel.task)
     }
+
+    private fun mainAppViewModel() = (requireContext().applicationContext as MainApp).mainAppViewModel
 
     companion object {
         @JvmStatic
-        fun newInstance(task: Task?, taskId: Int, noteViewModel: NoteViewModel): TaskDialogFragment {
+        fun newInstance(task: Task): TaskDialogFragment {
             val fragment = TaskDialogFragment()
             val args = Bundle()
-            if (task != null) args.putSerializable("task", task)
-            args.putInt("taskId", taskId)
-            args.putSerializable("noteViewModel", noteViewModel)
+            args.putSerializable("task", task)
             fragment.arguments = args
             return fragment
         }
