@@ -115,7 +115,7 @@ class MainActivityViewModel : ViewModel() {
                 }
             }
 
-            else -> {
+            0 -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     val builder = AlertDialog.Builder(context)
                     builder.setTitle(R.string.warning)
@@ -133,6 +133,10 @@ class MainActivityViewModel : ViewModel() {
                     val dialog = builder.create()
                     dialog.show()
                 }
+            }
+
+            else -> {
+
             }
         }
     }

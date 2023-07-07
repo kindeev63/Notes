@@ -2,7 +2,6 @@ package com.kindeev.notes.fragments
 
 import android.app.Dialog
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -99,7 +98,7 @@ class ReminderDialogFragment : DialogFragment() {
             }
 
             noteCardDialog.setOnClickListener {
-                viewModel.showListDialog(childFragmentManager) {
+                viewModel.showNotesDialog(childFragmentManager) {
                     viewModel.reminder?.noteId = it.id
                     noteTitleDialog.text = it.title
                     noteTimeDialog.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(it.time)

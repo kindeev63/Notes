@@ -174,7 +174,7 @@ class ReminderDialogFragmentViewModel : ViewModel() {
         )
     }
 
-    fun showListDialog(fragmentManager: FragmentManager, listener: (Note) -> Unit) {
+    fun showNotesDialog(fragmentManager: FragmentManager, listener: (Note) -> Unit) {
         val dialog = PickNoteFragment.newInstance(listener)
         dialog.show(fragmentManager, "pick_notes")
     }
