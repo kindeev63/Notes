@@ -4,7 +4,6 @@ import android.graphics.Color
 
 object Colors {
     val colors = listOf(
-        ItemColor(Color.parseColor("#FFFFFF"), Color.parseColor("#000000")),
         ItemColor(Color.parseColor("#0DB632"), Color.parseColor("#0A691F")),
         ItemColor(Color.parseColor("#CD0A0A"), Color.parseColor("#2E0505")),
         ItemColor(Color.parseColor("#05E8A1"), Color.parseColor("#045038")),
