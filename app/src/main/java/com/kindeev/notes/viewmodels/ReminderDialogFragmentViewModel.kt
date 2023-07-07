@@ -32,9 +32,9 @@ class ReminderDialogFragmentViewModel : ViewModel() {
         mainAppViewModel: MainAppViewModel,
         packageName: String
     ) {
-        newReminder?.let {
-            reminder = it
-            return@let
+        if (newReminder!=null) {
+            reminder = newReminder
+            return
         }
         val idsList = mainAppViewModel.allReminders.value?.map { it.id } ?: emptyList()
         var reminderId = 0

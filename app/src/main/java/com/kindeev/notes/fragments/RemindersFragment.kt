@@ -32,7 +32,7 @@ class RemindersFragment : BaseFragment() {
         binding = FragmentRemindersBinding.inflate(inflater, container, false)
         remindersAdapter = RemindersAdapter(
             viewModel.onClickReminder(
-                topMenu = (activity as MainActivity).getTopMenu(),
+                mainActivity = (activity as MainActivity),
                 fragmentManager = childFragmentManager
             )
         )

@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -155,7 +154,7 @@ class NotesFragmentViewModel : ViewModel() {
     }
 
     fun onClickNote(
-        mainAppViewModel: MainAppViewModel, context: Context, topMenu: Menu?
+        mainAppViewModel: MainAppViewModel, context: Context, mainActivity: MainActivity
     ) = { note: Note, long: Boolean ->
         if (!States.noteEdited) {
             if (long) {
@@ -189,12 +188,12 @@ class NotesFragmentViewModel : ViewModel() {
                 }
             }
             if (selectedNotes.value?.isNotEmpty() != true) {
-                topMenu?.forEach {
+                mainActivity.getTopMenu()?.forEach {
                     it.isVisible = it.itemId != R.id.delete_item
                 }
 
             } else {
-                topMenu?.forEach {
+                mainActivity.getTopMenu()?.forEach {
                     it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
                 }
             }

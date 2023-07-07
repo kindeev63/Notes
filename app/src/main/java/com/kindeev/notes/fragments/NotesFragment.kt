@@ -35,7 +35,7 @@ class NotesFragment : BaseFragment() {
         binding = FragmentNotesBinding.inflate(inflater, container, false)
         notesAdapter = NotesAdapter(
             viewModel.onClickNote(
-                topMenu = (activity as MainActivity).getTopMenu(),
+                mainActivity = (activity as MainActivity),
                 mainAppViewModel = mainAppViewModel(),
                 context = requireContext()
             )

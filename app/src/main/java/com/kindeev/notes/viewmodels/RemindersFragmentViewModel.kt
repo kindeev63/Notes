@@ -3,7 +3,6 @@ package com.kindeev.notes.viewmodels
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.view.Menu
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
@@ -12,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.kindeev.notes.R
+import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.ReminderDialogFragment
 import java.util.ArrayList
@@ -69,7 +69,7 @@ class RemindersFragmentViewModel : ViewModel() {
     }
 
     fun onClickReminder(
-        fragmentManager: FragmentManager, topMenu: Menu?
+        fragmentManager: FragmentManager, mainActivity: MainActivity
     ): (Reminder, Boolean) -> Unit = { reminder: Reminder, long: Boolean ->
         if (long) {
             if (selectedReminders.value?.contains(reminder) == true) {
@@ -103,12 +103,12 @@ class RemindersFragmentViewModel : ViewModel() {
             }
         }
         if (selectedReminders.value?.isNotEmpty() != true) {
-            topMenu?.forEach {
+            mainActivity.getTopMenu()?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item
             }
 
         } else {
-            topMenu?.forEach {
+            mainActivity.getTopMenu()?.forEach {
                 it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
             }
         }

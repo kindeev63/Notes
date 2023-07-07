@@ -177,8 +177,6 @@ class MainActivityViewModel : ViewModel() {
         topMenu?.forEach {
             it.isVisible = it.itemId != R.id.delete_item
         }
-
-
         val searchItem = topMenu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
         searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
