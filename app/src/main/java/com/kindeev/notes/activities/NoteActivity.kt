@@ -1,6 +1,5 @@
 package com.kindeev.notes.activities
 
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -12,7 +11,6 @@ import com.kindeev.notes.R
 import com.kindeev.notes.other.States
 import com.kindeev.notes.databinding.ActivityNoteBinding
 import com.kindeev.notes.fragments.ReminderDialogFragment
-import com.kindeev.notes.other.Colors
 import com.kindeev.notes.viewmodels.NoteActivityViewModel
 
 class NoteActivity : AppCompatActivity() {
@@ -38,11 +36,7 @@ class NoteActivity : AppCompatActivity() {
                 binding.colorPickerNote.adapter =
                     viewModel.getSpinnerAdapter(this@NoteActivity, layoutInflater)
                 binding.colorPickerNote.onItemSelectedListener = viewModel.spinnerItemSelected()
-                binding.colorPickerNote.setSelection(
-                    Colors.colors.indexOf(
-                        viewModel.note?.color ?: Color.WHITE
-                    )
-                )
+                binding.colorPickerNote.setSelection(viewModel.note?.colorIndex ?: 0)
             }
         }
     }

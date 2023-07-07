@@ -56,7 +56,7 @@ class TasksFragment : BaseFragment() {
         binding.apply {
             colorFilterTasks.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
             colorFilterTasks.onItemSelectedListener = viewModel.spinnerItemSelected()
-            colorFilterTasks.setSelection(viewModel.colorFilter?.let { Colors.colors.indexOf(it) }
+            colorFilterTasks.setSelection(viewModel.colorFilter?.let { Colors.colors.map {color -> color.primary}.indexOf(it) }
                 ?: 0)
             if (viewModel.colorFilter != null) {
                 colorFilterTasks.visibility = View.VISIBLE
@@ -70,7 +70,7 @@ class TasksFragment : BaseFragment() {
                 if (chColorTasks.isChecked) {
                     colorFilterTasks.visibility = View.VISIBLE
                     chColorTasks.text = ""
-                    viewModel.colorFilter = Colors.colors[0]
+                    viewModel.colorFilter = Colors.colors[0].primary
                 } else {
                     colorFilterTasks.visibility = View.GONE
                     chColorTasks.text = resources.getString(R.string.color)

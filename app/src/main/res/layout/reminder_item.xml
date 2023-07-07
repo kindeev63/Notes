@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:id="@+id/noteContent"
+            android:id="@+id/reminderContent"
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:orientation="horizontal">

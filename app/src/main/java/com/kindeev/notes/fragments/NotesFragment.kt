@@ -56,7 +56,7 @@ class NotesFragment : BaseFragment() {
         binding.apply {
             colorFilterNotes.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
             colorFilterNotes.onItemSelectedListener = viewModel.spinnerItemSelected()
-            colorFilterNotes.setSelection(viewModel.colorFilter?.let { Colors.colors.indexOf(it) }
+            colorFilterNotes.setSelection(viewModel.colorFilter?.let { Colors.colors.map{ color -> color.primary}.indexOf(it) }
                 ?: 0)
             if (viewModel.colorFilter != null) {
                 colorFilterNotes.visibility = View.VISIBLE
@@ -70,7 +70,7 @@ class NotesFragment : BaseFragment() {
                 if (chColorNotes.isChecked) {
                     colorFilterNotes.visibility = View.VISIBLE
                     chColorNotes.text = ""
-                    viewModel.colorFilter = Colors.colors[0]
+                    viewModel.colorFilter = Colors.colors[0].primary
                 } else {
                     colorFilterNotes.visibility = View.GONE
                     chColorNotes.text = resources.getString(R.string.color)

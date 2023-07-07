@@ -1,5 +1,6 @@
 package com.kindeev.notes.adapters
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.NoteItemBinding
 import com.kindeev.notes.db.Note
+import com.kindeev.notes.other.Colors
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,17 +20,15 @@ class NotesAdapter(private val onItemClick: (note: Note, long: Boolean) -> Unit)
     class NotesHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = NoteItemBinding.bind(view)
         fun bind(note: Note, selectedNotes: List<Note>) = with(binding) {
-            tTitle.text = note.title
-            val formatter = SimpleDateFormat("dd.MM.yyyy  HH:mm", Locale.getDefault())
-            val formattedDateTime = formatter.format(note.time)
-            tTime.text = formattedDateTime
-            noteContent.setBackgroundColor(note.color)
-            chDeleteNote.visibility =
-                if (selectedNotes.isEmpty()) {
-                    View.GONE
+            noteTitle.text = note.title
+            noteTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(note.time)
+            noteDate.text = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(note.time)
+            noteColorView.setBackgroundColor(Colors.colors[note.colorIndex].primary)
+            noteColorSeparatorView.setBackgroundColor(Colors.colors[note.colorIndex].secondary)
+                if (note in selectedNotes) {
+                    pickingView.setBackgroundColor(Color.BLACK)
                 } else {
-                    chDeleteNote.isChecked = note in selectedNotes
-                    View.VISIBLE
+                    pickingView.setBackgroundColor(Color.TRANSPARENT)
                 }
         }
     }

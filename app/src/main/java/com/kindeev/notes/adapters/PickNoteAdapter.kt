@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.NoteItemBinding
 import com.kindeev.notes.db.Note
+import com.kindeev.notes.other.Colors
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,12 +18,11 @@ class PickNoteAdapter(private val onItemClick: (note: Note) -> Unit) :
     class PickNotesHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = NoteItemBinding.bind(view)
         fun bind(note: Note) = with(binding) {
-            tTitle.text = note.title
-            val formatter = SimpleDateFormat("dd.MM.yyyy  HH:mm", Locale.getDefault())
-            val formattedDateTime = formatter.format(note.time)
-            tTime.text = formattedDateTime
-            noteContent.setBackgroundColor(note.color)
-            chDeleteNote.visibility = View.GONE
+            noteTitle.text = note.title
+            noteTime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(note.time)
+            noteDate.text = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(note.time)
+            noteColorView.setBackgroundColor(Colors.colors[note.colorIndex].primary)
+            noteColorSeparatorView.setBackgroundColor(Colors.colors[note.colorIndex].secondary)
         }
     }
 

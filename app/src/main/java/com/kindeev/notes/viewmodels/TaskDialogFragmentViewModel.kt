@@ -80,7 +80,7 @@ class TaskDialogFragmentViewModel: ViewModel() {
     }
 
     fun getSpinnerAdapter(context: Context, layoutInflater: LayoutInflater) =
-        object : ArrayAdapter<Int>(context, R.layout.spinner_item, Colors.colors) {
+        object : ArrayAdapter<Int>(context, R.layout.spinner_item, Colors.colors.map {it.primary}) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view: View =
                     convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
@@ -113,7 +113,7 @@ class TaskDialogFragmentViewModel: ViewModel() {
                 id: Long
             ) {
                 task?.let {
-                    it.color = parent.getItemAtPosition(position) as Int
+                    it.colorIndex = position
                 }
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}

@@ -41,11 +41,11 @@ class NoteActivityViewModel : ViewModel() {
             noteId++
         }
         val currentDate = Date()
-        return Note(noteId, "", "", "", currentDate.time, Color.WHITE)
+        return Note(noteId, "", "", "", currentDate.time, 0)
     }
 
     fun getSpinnerAdapter(context: Context, layoutInflater: LayoutInflater) =
-        object : ArrayAdapter<Int>(context, R.layout.spinner_item, Colors.colors) {
+        object : ArrayAdapter<Int>(context, R.layout.spinner_item, Colors.colors.map {it.primary}) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view: View =
                     convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
@@ -71,8 +71,7 @@ class NoteActivityViewModel : ViewModel() {
         override fun onItemSelected(
             parent: AdapterView<*>, view: View?, position: Int, id: Long
         ) {
-            val color = parent.getItemAtPosition(position) as Int
-            note?.color = color
+            note?.colorIndex = position
         }
 
         override fun onNothingSelected(parent: AdapterView<*>) {}

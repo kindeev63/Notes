@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.TaskItemBinding
 import com.kindeev.notes.db.Task
+import com.kindeev.notes.other.Colors
 
 class TasksAdapter(
     private val onTextClick: (task: Task, long: Boolean) -> Unit,
@@ -27,7 +28,7 @@ class TasksAdapter(
                 taskTitle.setTextColor(Color.BLACK)
                 taskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             }
-            taskContent.setBackgroundColor(task.color)
+            taskContent.setBackgroundColor(Colors.colors[task.colorIndex].primary)
             taskDone.isChecked = task.done
 
         }

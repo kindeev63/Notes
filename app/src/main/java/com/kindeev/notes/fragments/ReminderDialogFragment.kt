@@ -14,8 +14,11 @@ import com.kindeev.notes.R
 import com.kindeev.notes.databinding.FragmentReminderDialogBinding
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.other.Action
+import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.viewmodels.ReminderDialogFragmentViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ReminderDialogFragment : DialogFragment() {
     private val viewModel: ReminderDialogFragmentViewModel by viewModels()
@@ -95,15 +98,18 @@ class ReminderDialogFragment : DialogFragment() {
                 }
             }
 
-            noteContentDialog.setOnClickListener {
+            noteCardDialog.setOnClickListener {
                 viewModel.showListDialog(childFragmentManager) {
                     viewModel.reminder?.noteId = it.id
-                    tNoteTitleDialog.text = it.title
-                    noteContentDialog.setBackgroundColor(it.color)
+                    noteTitleDialog.text = it.title
+                    noteTimeDialog.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(it.time)
+                    noteDateDialog.text = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(it.time)
+                    noteColorViewDialog.setBackgroundColor(Colors.colors[it.colorIndex].primary)
+                    noteColorSeparatorViewDialog.setBackgroundColor(Colors.colors[it.colorIndex].secondary)
                 }
 
             }
-            appContentDialog.setOnClickListener {
+            appCardDialog.setOnClickListener {
                 viewModel.showAppsDialog(childFragmentManager) {
                     appNameDialog.text = it.name
                     appIconDialog.setImageDrawable(it.icon)
@@ -139,8 +145,11 @@ class ReminderDialogFragment : DialogFragment() {
                 noteCardDialog.visibility = View.VISIBLE
                 appCardDialog.visibility = View.GONE
                 mainAppViewModel().getNoteById(viewModel.reminder?.noteId!!) {
-                    binding.tNoteTitleDialog.text = it?.title
-                    binding.noteContentDialog.setBackgroundColor(it?.color ?: Color.WHITE)
+                    binding.noteTitleDialog.text = it?.title
+                    binding.noteTimeDialog.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(it?.time)
+                    binding.noteDateDialog.text = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(it?.time)
+                    binding.noteColorViewDialog.setBackgroundColor(Colors.colors[it?.colorIndex?: 0].primary)
+                    binding.noteColorSeparatorViewDialog.setBackgroundColor(Colors.colors[it?.colorIndex?: 0].secondary)
                 }
             }
         }

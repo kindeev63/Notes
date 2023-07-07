@@ -55,7 +55,7 @@ class TasksFragmentViewModel : ViewModel() {
             newTasks = newTasks.filter { category.name in it.categories.split(", ") }
         }
         colorFilter?.let { color ->
-            newTasks = newTasks.filter { it.color == color }
+            newTasks = newTasks.filter { Colors.colors[it.colorIndex].primary == color }
         }
 
         val oldTasks = newTasks.reversed()
@@ -77,7 +77,7 @@ class TasksFragmentViewModel : ViewModel() {
             if (taskId !in idsList) break
             taskId++
         }
-        return Task(taskId, "", false, "", Color.WHITE)
+        return Task(taskId, "", false, "", 0)
     }
 
     fun openTask(
@@ -100,7 +100,7 @@ class TasksFragmentViewModel : ViewModel() {
     }
 
     fun getSpinnerAdapter(context: Context, layoutInflater: LayoutInflater) =
-        object : ArrayAdapter<Int>(context, R.layout.spinner_item, Colors.colors) {
+        object : ArrayAdapter<Int>(context, R.layout.spinner_item, Colors.colors.map {it.primary}) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view: View =
                     convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)

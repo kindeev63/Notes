@@ -57,7 +57,7 @@ class TaskDialogFragment : DialogFragment() {
                 viewModel.showCategoriesPickerDialog(mainAppViewModel(), requireContext())
             }
             eTaskTitle.setText(viewModel.task?.title)
-            binding.colorPickerTask.setSelection(Colors.colors.indexOf(viewModel.task?.color ?: Color.WHITE))
+            binding.colorPickerTask.setSelection(viewModel.task?.colorIndex ?: 0)
 
             return viewModel.makeDialog(requireContext(), binding.root){
                 viewModel.saveTask(binding.eTaskTitle.text.toString(), mainAppViewModel())

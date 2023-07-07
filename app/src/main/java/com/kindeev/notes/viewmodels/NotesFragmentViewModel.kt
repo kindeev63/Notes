@@ -65,7 +65,7 @@ class NotesFragmentViewModel : ViewModel() {
             newNotes = newNotes.filter { category.name in it.categories.split(", ") }
         }
         colorFilter?.let { color ->
-            newNotes = newNotes.filter { it.color == color }
+            newNotes = newNotes.filter { Colors.colors[it.colorIndex].primary == color }
         }
         _notesList.value = newNotes.filter { it.title.lowercase().contains(searchText.lowercase()) }
             .sortedBy { it.time }.reversed()
@@ -79,11 +79,11 @@ class NotesFragmentViewModel : ViewModel() {
             noteId++
         }
         val currentDate = Date()
-        return Note(noteId, "", "", "", currentDate.time, Color.WHITE)
+        return Note(noteId, "", "", "", currentDate.time, 0)
     }
 
     fun getSpinnerAdapter(context: Context, layoutInflater: LayoutInflater) =
-        object : ArrayAdapter<Int>(context, R.layout.spinner_item, Colors.colors) {
+        object : ArrayAdapter<Int>(context, R.layout.spinner_item, Colors.colors.map {it.primary}) {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view: View =
                     convertView ?: layoutInflater.inflate(R.layout.spinner_item, parent, false)
