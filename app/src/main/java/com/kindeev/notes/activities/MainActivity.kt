@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding?.root)
         viewModel.requestPermission(this)
 
-        val color = Color.argb(255, 255, 255, 255)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         viewModel.createNotificationChannel(this)
 
@@ -32,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding?.apply {
-            fab.drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
             fab.setOnClickListener {
                 viewModel.onFabClick()
             }

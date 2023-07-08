@@ -42,4 +42,6 @@
     <string name="deselect">Снять выделение</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
+    <string name="no_tasks">Нет задач</string>
+    <string name="no_reminders">Нет напоминаний</string>
 </resources>

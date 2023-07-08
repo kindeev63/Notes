@@ -41,4 +41,6 @@
     <string name="deselect">Deselect</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="no_tasks">No tasks</string>
+    <string name="no_reminders">No reminders</string>
 </resources>
