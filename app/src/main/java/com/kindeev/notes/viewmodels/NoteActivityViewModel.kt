@@ -18,13 +18,6 @@ import java.util.Date
 
 class NoteActivityViewModel : ViewModel() {
     var note: Note? = null
-        set(value) {
-            field = value
-            value?.categories?.let {
-                categoriesList = ArrayList(it.split(", "))
-            }
-        }
-    private var categoriesList = arrayListOf<String>()
 
     fun getNoteById(noteId: Int, mainAppViewModel: MainAppViewModel, function: () -> Unit) {
         mainAppViewModel.getNoteById(noteId) { oldNote ->
@@ -81,11 +74,11 @@ class NoteActivityViewModel : ViewModel() {
         val categoriesNames: Array<String> =
             (mainAppViewModel.allCategoriesOfNotes.value ?: emptyList()).toList().map { it.name }
                 .toTypedArray()
-        val checkedCategories = categoriesNames.map { it in categoriesList }.toBooleanArray()
+        val checkedCategories = categoriesNames.map { it in (note?.categories?.split(", ") ?: emptyList()) }.toBooleanArray()
 
 
         val builder = AlertDialog.Builder(context)
-        val chosenCategories = ArrayList(categoriesList)
+        val chosenCategories = ArrayList(note?.categories?.split(", ") ?: emptyList())
         builder.setTitle(R.string.select_categories)
         builder.setMultiChoiceItems(
             categoriesNames, checkedCategories
@@ -98,7 +91,7 @@ class NoteActivityViewModel : ViewModel() {
             } else chosenCategories.remove(categoriesNames[index])
         }
         builder.setPositiveButton(R.string.save) { _, _ ->
-            categoriesList = chosenCategories
+            note?.categories = chosenCategories.joinToString(separator = ", ")
         }
         builder.setNegativeButton(R.string.cancel) { d, _ -> d.cancel() }
         builder.create().show()

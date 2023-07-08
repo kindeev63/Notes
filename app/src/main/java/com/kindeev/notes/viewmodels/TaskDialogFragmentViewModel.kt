@@ -16,24 +16,17 @@ import com.kindeev.notes.other.Colors
 
 class TaskDialogFragmentViewModel: ViewModel() {
     var task: Task? = null
-        set(value) {
-            field = value
-            value?.categories?.let {
-                categoriesList = ArrayList(it.split(", "))
-            }
-        }
-    private var categoriesList = arrayListOf<String>()
 
     fun showCategoriesPickerDialog(mainAppViewModel: MainAppViewModel, context: Context) {
         val categoriesNames: Array<String> =
             (mainAppViewModel.allCategoriesOfTasks.value ?: emptyList()).toList().map { it.name }
                 .toTypedArray()
         val checkedCategories =
-            categoriesNames.map { it in categoriesList }.toBooleanArray()
+            categoriesNames.map { it in (task?.categories?.split(", ") ?: emptyList()) }.toBooleanArray()
 
 
         val builder = AlertDialog.Builder(context)
-        val chosenCategories = ArrayList(categoriesList)
+        val chosenCategories = ArrayList(task?.categories?.split(", ") ?: emptyList())
         builder.setTitle(context.resources.getString(R.string.select_categories))
         builder.setMultiChoiceItems(
             categoriesNames,
@@ -47,7 +40,7 @@ class TaskDialogFragmentViewModel: ViewModel() {
             } else chosenCategories.remove(categoriesNames[index])
         }
         builder.setPositiveButton(R.string.save) { _, _ ->
-            categoriesList = chosenCategories
+            task?.categories = chosenCategories.joinToString(separator = ", ")
         }
         builder.setNegativeButton(R.string.cancel) { d, _ -> d.cancel() }
         builder.create().show()
@@ -73,7 +66,6 @@ class TaskDialogFragmentViewModel: ViewModel() {
             mainAppViewModel.insertTask(
                 it.copy(
                     title = title,
-                    categories = categoriesList.joinToString(separator = ", "),
                 ))
         }
 
