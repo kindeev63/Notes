@@ -18,8 +18,13 @@ import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.ReminderDialogFragment
+import com.kindeev.notes.other.Action
+import com.kindeev.notes.other.ReminderToShow
 import com.kindeev.notes.receivers.AlarmReceiver
+import java.text.SimpleDateFormat
 import java.util.ArrayList
+import java.util.Calendar
+import java.util.Locale
 
 class RemindersFragmentViewModel : ViewModel() {
     private var _allReminders = emptyList<Reminder>()
@@ -133,8 +138,48 @@ class RemindersFragmentViewModel : ViewModel() {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val i = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
-            context, reminderId, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+            context,
+            reminderId,
+            i,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
         )
         alarmManager.cancel(pendingIntent)
     }
+
+    fun toRemindersToShow(reminders: List<Reminder>, context: Context): List<ReminderToShow> {
+        val remindersToShow = arrayListOf<ReminderToShow>()
+        for (reminder in reminders) {
+            remindersToShow.add(
+                ReminderToShow(
+                    title = reminder.title,
+                    description = reminder.description,
+                    actionIcon = if (reminder.action == Action.OpenNote) {
+                        context.resources.getDrawable(R.drawable.ic_bottom_notes)
+                    } else {
+                        val appInfo = context.packageManager.getApplicationInfo(
+                            reminder.packageName, PackageManager.GET_META_DATA
+                        )
+                        context.packageManager.getApplicationIcon(appInfo)
+                    },
+                    time = getFormattedTime(reminder),
+                    date = getFormattedDate(reminder),
+                    soundIcon = if (reminder.sound) {
+                        context.resources.getDrawable(R.drawable.ic_sound_on)
+                    } else {
+                        context.resources.getDrawable(R.drawable.ic_sound_off)
+                    },
+                    reminder = reminder
+                )
+            )
+        }
+        return remindersToShow
+    }
+
+    private fun getFormattedTime(reminder: Reminder): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+        reminder.time
+    )
+
+    private fun getFormattedDate(reminder: Reminder): String = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(
+        reminder.time
+    )
 }

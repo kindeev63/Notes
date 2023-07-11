@@ -41,7 +41,7 @@ class RemindersFragment : BaseFragment() {
             )
         )
         viewModel.remindersList.observe(viewLifecycleOwner) {
-            remindersAdapter?.setData(reminders = it)
+            remindersAdapter?.setData(reminders = viewModel.toRemindersToShow(it, requireContext()))
             binding.noReminders.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
         }
         viewModel.selectedReminders.observe(viewLifecycleOwner) {

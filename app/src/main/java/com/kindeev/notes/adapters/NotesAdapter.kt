@@ -26,9 +26,9 @@ class NotesAdapter(private val onItemClick: (note: Note, long: Boolean) -> Unit)
             noteColorView.setBackgroundColor(Colors.colors[note.colorIndex].primary)
             noteColorSeparatorView.setBackgroundColor(Colors.colors[note.colorIndex].secondary)
                 if (note in selectedNotes) {
-                    pickingView.setBackgroundColor(Color.BLACK)
+                    notePickingView.setBackgroundColor(Color.BLACK)
                 } else {
-                    pickingView.setBackgroundColor(Color.TRANSPARENT)
+                    notePickingView.setBackgroundColor(Color.TRANSPARENT)
                 }
         }
     }

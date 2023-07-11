@@ -1,68 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="3dp">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:cardBackgroundColor="#00FFFFFF"
+        app:cardElevation="0dp">
 
-        <LinearLayout
-            android:id="@+id/reminderContent"
+        <FrameLayout
+            android:id="@+id/reminderPickingView"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:padding="2dp">
 
-            <TextView
-                android:id="@+id/tReminderTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="Название напоминания"
-                android:textColor="@color/black"
-                android:textSize="18sp" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="70dp">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="5dp"
-                android:gravity="center"
-                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:background="#65CF12" >
 
-                <TextView
-                    android:id="@+id/tReminderTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="10:24"
-                    android:textColor="@color/black"
-                    android:textSize="24sp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="8dp"
+                        android:paddingTop="8dp">
 
-                <TextView
-                    android:id="@+id/tReminderDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="08.05.2023"
-                    android:textColor="@color/black" />
-            </LinearLayout>
+                        <TextView
+                            android:id="@+id/reminderTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Это пример напоминания"
+                            android:textColor="#1E1E1E"
+                            android:textSize="20sp" />
 
-            <CheckBox
-                android:id="@+id/chDeleteReminder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="false"
-                android:focusable="false"
-                android:visibility="visible" />
-        </LinearLayout>
+                        <TextView
+                            android:id="@+id/reminderDescription"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginTop="4dp"
+                            android:text="Это описание напоминания"
+                            android:textColor="#1E1E1E" />
+                    </LinearLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:id="@+id/reminderAction"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            app:layout_constraintBottom_toTopOf="@+id/reminderTime"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:srcCompat="@drawable/ic_bottom_notes" />
+
+                        <TextView
+                            android:id="@+id/reminderTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="8:30"
+                            android:textColor="#1E1E1E"
+                            android:textSize="14sp"
+                            app:layout_constraintBottom_toTopOf="@+id/reminderDate"
+                            app:layout_constraintEnd_toEndOf="@+id/reminderDate"
+                            app:layout_constraintStart_toStartOf="@+id/reminderDate" />
+
+                        <TextView
+                            android:id="@+id/reminderDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="20.08.2007"
+                            android:textColor="#1E1E1E"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/reminderSound"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            app:layout_constraintBottom_toBottomOf="@+id/reminderTime"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/reminderTime"
+                            app:layout_constraintTop_toTopOf="@+id/reminderTime"
+                            app:srcCompat="@drawable/ic_sound_on" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+        </FrameLayout>
+
     </androidx.cardview.widget.CardView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

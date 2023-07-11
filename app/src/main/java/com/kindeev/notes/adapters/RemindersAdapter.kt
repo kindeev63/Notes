@@ -1,5 +1,6 @@
 package com.kindeev.notes.adapters
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,31 +8,28 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.ReminderItemBinding
 import com.kindeev.notes.db.Reminder
-import java.text.SimpleDateFormat
-import java.util.*
+import com.kindeev.notes.other.ReminderToShow
 
 class RemindersAdapter(private val onItemClick: (reminder: Reminder, long: Boolean) -> Unit) :
     RecyclerView.Adapter<RemindersAdapter.RemindersHolder>() {
-    private var remindersList = emptyList<Reminder>()
+    private var remindersList = emptyList<ReminderToShow>()
     private var selectedRemindersList = emptyList<Reminder>()
 
     class RemindersHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val binding = ReminderItemBinding.bind(view)
-        fun bind(reminder: Reminder, selectedReminders: List<Reminder>) =
+        fun bind(reminderToShow: ReminderToShow, selectedReminders: List<Reminder>) =
             with(binding) {
-                tReminderTitle.text = reminder.title
-                val dateFormat = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
-                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-                tReminderTime.text = timeFormat.format(reminder.time)
-                tReminderDate.text = dateFormat.format(reminder.time)
-                chDeleteReminder.visibility =
-                    if (selectedReminders.isEmpty()) {
-                        View.GONE
-                    } else {
-                        chDeleteReminder.isChecked = reminder in selectedReminders
-                        View.VISIBLE
-                    }
-
+                reminderTitle.text = reminderToShow.title
+                reminderDescription.text = reminderToShow.description
+                reminderTime.text = reminderToShow.time
+                reminderDate.text = reminderToShow.date
+                reminderAction.setImageDrawable(reminderToShow.actionIcon)
+                reminderSound.setImageDrawable(reminderToShow.soundIcon)
+                if (reminderToShow.reminder in selectedReminders) {
+                    reminderPickingView.setBackgroundColor(Color.BLACK)
+                } else {
+                    reminderPickingView.setBackgroundColor(Color.TRANSPARENT)
+                }
             }
     }
 
@@ -47,15 +45,15 @@ class RemindersAdapter(private val onItemClick: (reminder: Reminder, long: Boole
             selectedRemindersList
         )
         holder.itemView.setOnClickListener {
-            onItemClick(remindersList[position], false)
+            onItemClick(remindersList[position].reminder, false)
         }
         holder.itemView.setOnLongClickListener {
-            onItemClick(remindersList[position], true)
+            onItemClick(remindersList[position].reminder, true)
             return@setOnLongClickListener true
         }
     }
 
-    fun setData(reminders: List<Reminder>? = null, selectedReminders: List<Reminder>? = null) {
+    fun setData(reminders: List<ReminderToShow>? = null, selectedReminders: List<Reminder>? = null) {
         reminders?.let { remindersList = reminders.sortedBy { it.time }.reversed() }
         selectedReminders?.let { selectedRemindersList = it }
         notifyDataSetChanged()
