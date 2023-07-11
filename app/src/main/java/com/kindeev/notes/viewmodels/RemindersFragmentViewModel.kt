@@ -152,7 +152,6 @@ class RemindersFragmentViewModel : ViewModel() {
             remindersToShow.add(
                 ReminderToShow(
                     title = reminder.title,
-                    description = reminder.description,
                     actionIcon = if (reminder.action == Action.OpenNote) {
                         context.resources.getDrawable(R.drawable.ic_bottom_notes)
                     } else {

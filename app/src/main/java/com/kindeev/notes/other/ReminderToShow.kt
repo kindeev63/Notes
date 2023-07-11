@@ -5,7 +5,6 @@ import com.kindeev.notes.db.Reminder
 
 data class ReminderToShow(
     val title: String,
-    val description: String,
     val actionIcon: Drawable,
     val time: String,
     val date: String,

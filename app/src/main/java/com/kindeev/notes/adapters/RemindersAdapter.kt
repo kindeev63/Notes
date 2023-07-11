@@ -20,7 +20,6 @@ class RemindersAdapter(private val onItemClick: (reminder: Reminder, long: Boole
         fun bind(reminderToShow: ReminderToShow, selectedReminders: List<Reminder>) =
             with(binding) {
                 reminderTitle.text = reminderToShow.title
-                reminderDescription.text = reminderToShow.description
                 reminderTime.text = reminderToShow.time
                 reminderDate.text = reminderToShow.date
                 reminderAction.setImageDrawable(reminderToShow.actionIcon)

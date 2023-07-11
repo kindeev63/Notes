@@ -34,39 +34,31 @@
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:paddingStart="8dp"
-                        android:paddingTop="8dp">
+                        android:paddingStart="8dp">
 
                         <TextView
                             android:id="@+id/reminderTitle"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Это пример напоминания"
-                            android:textColor="#1E1E1E"
-                            android:textSize="20sp" />
+                            android:layout_height="50dp"
+                            android:layout_marginTop="15dp"
+                            android:text="Купить продукты"
+                            android:textColor="#1C1B1B"
+                            android:textSize="18sp" />
 
-                        <TextView
-                            android:id="@+id/reminderDescription"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginTop="4dp"
-                            android:text="Это описание напоминания"
-                            android:textColor="#1E1E1E" />
                     </LinearLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="5dp">
 
                         <ImageView
                             android:id="@+id/reminderAction"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
                             app:layout_constraintBottom_toTopOf="@+id/reminderTime"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/reminderTime"
+                            app:layout_constraintStart_toStartOf="@+id/reminderTime"
                             app:srcCompat="@drawable/ic_bottom_notes" />
 
                         <TextView
@@ -84,6 +76,7 @@
                             android:id="@+id/reminderDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
                             android:text="20.08.2007"
                             android:textColor="#1E1E1E"
                             android:textSize="12sp"
