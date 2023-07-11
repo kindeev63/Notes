@@ -2,6 +2,10 @@ package com.kindeev.notes.viewmodels
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -14,6 +18,7 @@ import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.db.Reminder
 import com.kindeev.notes.fragments.ReminderDialogFragment
+import com.kindeev.notes.receivers.AlarmReceiver
 import java.util.ArrayList
 
 class RemindersFragmentViewModel : ViewModel() {
@@ -112,5 +117,24 @@ class RemindersFragmentViewModel : ViewModel() {
                 it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
             }
         }
+    }
+
+    fun deleteReminders(mainAppViewModel: MainAppViewModel, context: Context) {
+        selectedReminders.value?.let { selectedReminders ->
+            selectedReminders.map { it.id }.forEach { reminderId ->
+                cancelAlarm(reminderId, context)
+            }
+            mainAppViewModel.deleteReminders(selectedReminders)
+            clearSelectedReminders()
+        }
+    }
+
+    private fun cancelAlarm(reminderId: Int, context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val i = Intent(context, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, reminderId, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+        )
+        alarmManager.cancel(pendingIntent)
     }
 }

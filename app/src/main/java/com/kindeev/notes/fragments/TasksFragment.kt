@@ -30,6 +30,8 @@ class TasksFragment : BaseFragment() {
         viewModel.searchText = text
     }
 
+    override fun onClickDelete() {}
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {

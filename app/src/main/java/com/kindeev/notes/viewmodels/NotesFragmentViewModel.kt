@@ -1,5 +1,7 @@
 package com.kindeev.notes.viewmodels
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -25,6 +27,7 @@ import com.kindeev.notes.db.Category
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.States
+import com.kindeev.notes.receivers.AlarmReceiver
 import java.util.ArrayList
 import java.util.Date
 
@@ -313,5 +316,32 @@ class NotesFragmentViewModel : ViewModel() {
                 afterSelectCategory()
             }
         }
+    }
+
+    fun deleteNotes(mainAppViewModel: MainAppViewModel, context: Context) {
+        selectedNotes.value?.let { selectedNotes ->
+            val remindersForDelete =
+                mainAppViewModel.allReminders.value?.filter { reminder ->
+                    selectedNotes.any { note ->
+                        reminder.noteId == note.id
+                    }
+                }
+            remindersForDelete?.let { remindersList ->
+                remindersList.map { it.id }.forEach { reminderId ->
+                    cancelAlarm(reminderId, context)
+                }
+                mainAppViewModel.deleteReminders(remindersList)
+            }
+            mainAppViewModel.deleteNotes(selectedNotes)
+            clearSelectedNotes()
+        }
+    }
+    private fun cancelAlarm(reminderId: Int, context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val i = Intent(context, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, reminderId, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+        )
+        alarmManager.cancel(pendingIntent)
     }
 }

@@ -26,6 +26,10 @@ class RemindersFragment : BaseFragment() {
         viewModel.searchText = text
     }
 
+    override fun onClickDelete() {
+        viewModel.deleteReminders(mainAppViewModel(), requireContext())
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {

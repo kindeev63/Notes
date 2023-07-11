@@ -232,49 +232,8 @@ class MainActivityViewModel : ViewModel() {
 
             }
 
-            R.id.delete_item -> {
-                when (val fragment = currentFrag) {
-                    is NotesFragment -> {
-                        fragment.viewModel.selectedNotes.value?.let { selectedNotes ->
-                            val remindersForDelete =
-                                mainAppViewModel.allReminders.value?.filter { reminder ->
-                                    selectedNotes.any { note ->
-                                        reminder.noteId == note.id
-                                    }
-                                }
-                            remindersForDelete?.let { remindersList ->
-                                remindersList.map { it.id }.forEach { reminderId ->
-                                    cancelAlarm(reminderId, context)
-                                }
-                                mainAppViewModel.deleteReminders(remindersList)
-                            }
-                            mainAppViewModel.deleteNotes(selectedNotes)
-                            fragment.viewModel.clearSelectedNotes()
-                        }
-
-                    }
-
-                    is RemindersFragment -> {
-                        fragment.viewModel.selectedReminders.value?.let { selectedReminders ->
-                            selectedReminders.map { it.id }.forEach { reminderId ->
-                                cancelAlarm(reminderId, context)
-                            }
-                            mainAppViewModel.deleteReminders(selectedReminders)
-                            fragment.viewModel.clearSelectedReminders()
-                        }
-                    }
-                }
-            }
+            R.id.delete_item -> currentFrag?.onClickDelete()
         }
-    }
-
-    private fun cancelAlarm(reminderId: Int, context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val i = Intent(context, AlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context, reminderId, i, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
-        )
-        alarmManager.cancel(pendingIntent)
     }
 
     fun activityOnBackPressed(activity: AppCompatActivity) {
