@@ -22,7 +22,7 @@ class TaskDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            viewModel.task = it.getSerializable("task") as Task
+            viewModel.task = (it.getSerializable("task") as Task).copy()
         }
     }
 

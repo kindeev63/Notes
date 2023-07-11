@@ -29,7 +29,7 @@ class ReminderDialogFragment : DialogFragment() {
             val reminder = it.getSerializable("reminder") as Reminder?
             val noteId = if (it.containsKey("noteId")) it.getInt("noteId", 0) else null
             viewModel.setReminder(
-                newReminder = reminder,
+                newReminder = reminder?.copy(),
                 noteId = noteId,
                 mainAppViewModel = mainAppViewModel(),
                 packageName = requireContext().packageName

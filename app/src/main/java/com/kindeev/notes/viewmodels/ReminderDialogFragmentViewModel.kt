@@ -32,7 +32,7 @@ class ReminderDialogFragmentViewModel : ViewModel() {
         mainAppViewModel: MainAppViewModel,
         packageName: String
     ) {
-        if (newReminder!=null) {
+        if (newReminder != null) {
             reminder = newReminder
             return
         }
@@ -49,7 +49,7 @@ class ReminderDialogFragmentViewModel : ViewModel() {
             noteId = noteId,
             packageName = packageName,
             sound = true,
-            action = if (noteId==null) Action.OpenApp else Action.OpenNote
+            action = if (noteId == null) Action.OpenApp else Action.OpenNote
         )
     }
 
@@ -99,9 +99,7 @@ class ReminderDialogFragmentViewModel : ViewModel() {
                 this.timeInMillis = timeInMillis
             }
             onPick(
-                calendar[Calendar.YEAR],
-                calendar[Calendar.MONTH],
-                calendar[Calendar.DAY_OF_MONTH]
+                calendar[Calendar.YEAR], calendar[Calendar.MONTH], calendar[Calendar.DAY_OF_MONTH]
             )
         }
         return datePicker
@@ -132,12 +130,14 @@ class ReminderDialogFragmentViewModel : ViewModel() {
         reminder?.sound = !(reminder?.sound ?: true)
     }
 
-    fun makeDialog(context: Context, view: View, onPositiveButtonClickListener: (AlertDialog) -> Unit): AlertDialog {
-        val dialog = AlertDialog.Builder(context).setView(view)
-            .setPositiveButton(R.string.save, null)
-            .setNegativeButton(R.string.cancel) { dialog, _ ->
-                dialog.cancel()
-            }.create()
+    fun makeDialog(
+        context: Context, view: View, onPositiveButtonClickListener: (AlertDialog) -> Unit
+    ): AlertDialog {
+        val dialog =
+            AlertDialog.Builder(context).setView(view).setPositiveButton(R.string.save, null)
+                .setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.cancel()
+                }.create()
         dialog.setOnShowListener {
             val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             okButton.setOnClickListener {
@@ -146,10 +146,18 @@ class ReminderDialogFragmentViewModel : ViewModel() {
         }
         return dialog
     }
-    fun saveReminder(title: String, description: String, mainAppViewModel: MainAppViewModel, context: Context) {
+
+    fun saveReminder(
+        title: String, description: String, mainAppViewModel: MainAppViewModel, context: Context
+    ) {
         reminder?.let {
             it.title = title
             it.description = description
+            if (it.action == Action.OpenNote) {
+                it.packageName = context.packageName
+            } else {
+                it.noteId = null
+            }
             mainAppViewModel.insertReminder(it)
             setAlarm(it, context)
             Toast.makeText(context, R.string.saved, Toast.LENGTH_SHORT).show()
