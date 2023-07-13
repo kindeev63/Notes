@@ -7,7 +7,6 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatDelegate
 import com.kindeev.notes.databinding.ActivityMainBinding
-import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.R
 import com.kindeev.notes.viewmodels.MainActivityViewModel
 
@@ -62,15 +61,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.activityOnOptionsItemSelected(item, mainAppViewModel(), this)
+        viewModel.activityOnOptionsItemSelected(item)
         return true
     }
 
     override fun onBackPressed() {
         viewModel.activityOnBackPressed(this)
     }
-
-    private fun mainAppViewModel() = (application as MainApp).mainAppViewModel
 
     fun getTopMenu() = viewModel.topMenu
 }

@@ -1,9 +1,5 @@
 package com.kindeev.notes.fragments
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.GravityCompat
@@ -16,7 +12,6 @@ import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.MainApp
-import com.kindeev.notes.receivers.AlarmReceiver
 import com.kindeev.notes.viewmodels.NotesFragmentViewModel
 
 class NotesFragment : BaseFragment() {

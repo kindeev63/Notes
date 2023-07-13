@@ -1,10 +1,8 @@
 package com.kindeev.notes.viewmodels
 
 import android.Manifest
-import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -32,7 +30,6 @@ import com.kindeev.notes.fragments.NotesFragment
 import com.kindeev.notes.fragments.RemindersFragment
 import com.kindeev.notes.fragments.TasksFragment
 import com.kindeev.notes.other.Notifications
-import com.kindeev.notes.receivers.AlarmReceiver
 import java.lang.Exception
 
 class MainActivityViewModel : ViewModel() {
@@ -206,7 +203,7 @@ class MainActivityViewModel : ViewModel() {
         })
     }
 
-    fun activityOnOptionsItemSelected(item: MenuItem, mainAppViewModel: MainAppViewModel, context: Context) {
+    fun activityOnOptionsItemSelected(item: MenuItem) {
         if (item.itemId == R.id.delete_item) {
             topMenu?.forEach {
                 it.isVisible = it.itemId != R.id.delete_item

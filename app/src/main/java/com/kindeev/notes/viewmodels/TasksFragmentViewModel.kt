@@ -3,7 +3,6 @@ package com.kindeev.notes.viewmodels
 import android.content.Context
 import android.graphics.Color
 import android.text.InputType
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +20,6 @@ import androidx.lifecycle.ViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.db.Category
-import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.fragments.TaskDialogFragment
 import com.kindeev.notes.other.Colors
@@ -342,7 +340,7 @@ class TasksFragmentViewModel : ViewModel() {
         }
     }
 
-    fun deleteTasks(mainAppViewModel: MainAppViewModel, context: Context) {
+    fun deleteTasks(mainAppViewModel: MainAppViewModel) {
         selectedTasks.value?.let { selectedTasks ->
             mainAppViewModel.deleteTasks(selectedTasks)
             clearSelectedTasks()

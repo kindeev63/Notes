@@ -23,7 +23,6 @@ import com.kindeev.notes.other.ReminderToShow
 import com.kindeev.notes.receivers.AlarmReceiver
 import java.text.SimpleDateFormat
 import java.util.ArrayList
-import java.util.Calendar
 import java.util.Locale
 
 class RemindersFragmentViewModel : ViewModel() {

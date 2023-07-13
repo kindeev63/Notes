@@ -31,7 +31,7 @@ class TasksFragment : BaseFragment() {
     }
 
     override fun onClickDelete() {
-        viewModel.deleteTasks(mainAppViewModel(), requireContext())
+        viewModel.deleteTasks(mainAppViewModel())
     }
 
     override fun onCreateView(

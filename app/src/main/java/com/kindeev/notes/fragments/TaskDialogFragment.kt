@@ -1,7 +1,6 @@
 package com.kindeev.notes.fragments
 
 import android.app.Dialog
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import com.kindeev.notes.databinding.FragmentTaskDialogBinding
 import com.kindeev.notes.db.Task
-import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.MainApp
 import com.kindeev.notes.viewmodels.TaskDialogFragmentViewModel
 

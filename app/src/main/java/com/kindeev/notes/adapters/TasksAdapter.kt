@@ -1,7 +1,6 @@
 package com.kindeev.notes.adapters
 
 import android.graphics.Color
-import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -12,7 +11,6 @@ import androidx.core.widget.CompoundButtonCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.kindeev.notes.R
 import com.kindeev.notes.databinding.TaskItemBinding
-import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.other.Colors
 
