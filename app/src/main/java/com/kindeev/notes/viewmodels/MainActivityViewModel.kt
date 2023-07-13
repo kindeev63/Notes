@@ -254,6 +254,14 @@ class MainActivityViewModel : ViewModel() {
                 }
             }
 
+            is TasksFragment -> {
+                if (fragment.viewModel.selectedTasks.value?.isNotEmpty() == true) {
+                    fragment.viewModel.clearSelectedTasks()
+                } else {
+                    activity.finish()
+                }
+            }
+
             else -> activity.finish()
         }
         topMenu?.findItem(R.id.delete_item)?.isVisible = false

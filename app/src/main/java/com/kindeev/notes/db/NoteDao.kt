@@ -36,7 +36,7 @@ interface NoteDao {
     suspend fun deleteNotes(notes: List<Note>)
 
     @Delete(Task::class)
-    suspend fun deleteTask(task: Task)
+    suspend fun deleteTasks(tasks: List<Task>)
 
     @Delete(Category::class)
     suspend fun deleteCategory(category: Category)

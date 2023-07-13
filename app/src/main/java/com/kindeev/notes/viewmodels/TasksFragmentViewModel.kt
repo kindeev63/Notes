@@ -3,6 +3,7 @@ package com.kindeev.notes.viewmodels
 import android.content.Context
 import android.graphics.Color
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.forEach
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.db.Category
+import com.kindeev.notes.db.Note
 import com.kindeev.notes.db.Task
 import com.kindeev.notes.fragments.TaskDialogFragment
 import com.kindeev.notes.other.Colors
@@ -28,6 +31,8 @@ class TasksFragmentViewModel : ViewModel() {
     private var _allTasks = emptyList<Task>()
     private val _tasksList = MutableLiveData<List<Task>>()
     val tasksList: LiveData<List<Task>> = _tasksList
+    private val _selectedTasks = MutableLiveData<List<Task>>()
+    val selectedTasks: LiveData<List<Task>> = _selectedTasks
     var searchText = ""
         set(value) {
             field = value
@@ -47,6 +52,10 @@ class TasksFragmentViewModel : ViewModel() {
     fun setAllTasks(tasks: List<Task>) {
         _allTasks = tasks
         filterTasks()
+    }
+
+    fun clearSelectedTasks() {
+        _selectedTasks.value = emptyList()
     }
 
     private fun filterTasks() {
@@ -166,24 +175,47 @@ class TasksFragmentViewModel : ViewModel() {
     }
 
     fun onTaskTextClick(
-        mainAppViewModel: MainAppViewModel, context: Context, fragmentManager: FragmentManager
+        mainAppViewModel: MainAppViewModel, fragmentManager: FragmentManager, mainActivity: MainActivity
     ): (Task, Boolean) -> Unit {
         return { task: Task, long: Boolean ->
             if (long) {
-                AlertDialog.Builder(context).apply {
-                    setTitle(R.string.delete_task)
-                    setPositiveButton(R.string.delete) { _, _ ->
-                        mainAppViewModel.deleteTask(task)
+                if (selectedTasks.value?.contains(task) == true) {
+                    _selectedTasks.value = ArrayList(_selectedTasks.value ?: emptyList()).apply {
+                        remove(task)
                     }
-                    setNegativeButton(R.string.cancel) { _, _ -> }
-                    show()
+                } else {
+                    _selectedTasks.value = ArrayList(_selectedTasks.value ?: emptyList()).apply {
+                        add(task)
+                    }
                 }
             } else {
-                openTask(
-                    task = task,
-                    mainAppViewModel = mainAppViewModel,
-                    fragmentManager = fragmentManager
-                )
+                if (selectedTasks.value?.isEmpty() != false) {
+                    openTask(
+                        task = task,
+                        mainAppViewModel = mainAppViewModel,
+                        fragmentManager = fragmentManager
+                    )
+                } else {
+                    if (selectedTasks.value?.contains(task) == true) {
+                        _selectedTasks.value = ArrayList(_selectedTasks.value ?: emptyList()).apply {
+                            remove(task)
+                        }
+                    } else {
+                        _selectedTasks.value = ArrayList(_selectedTasks.value ?: emptyList()).apply {
+                            add(task)
+                        }
+                    }
+                }
+            }
+            if (selectedTasks.value?.isNotEmpty() != true) {
+                mainActivity.getTopMenu()?.forEach {
+                    it.isVisible = it.itemId != R.id.delete_item
+                }
+
+            } else {
+                mainActivity.getTopMenu()?.forEach {
+                    it.isVisible = it.itemId == R.id.delete_item || it.itemId == R.id.action_search
+                }
             }
         }
     }
@@ -307,6 +339,13 @@ class TasksFragmentViewModel : ViewModel() {
                 mainActivity.supportActionBar?.title = currentCategory.name
                 afterSelectCategory()
             }
+        }
+    }
+
+    fun deleteTasks(mainAppViewModel: MainAppViewModel, context: Context) {
+        selectedTasks.value?.let { selectedTasks ->
+            mainAppViewModel.deleteTasks(selectedTasks)
+            clearSelectedTasks()
         }
     }
 }

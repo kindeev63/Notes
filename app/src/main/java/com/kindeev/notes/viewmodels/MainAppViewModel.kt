@@ -57,8 +57,8 @@ open class MainAppViewModel(application: Application) : AndroidViewModel(applica
         repository.deleteNotes(notes)
     }
 
-    fun deleteTask(task: Task) = viewModelScope.launch {
-        repository.deleteTask(task)
+    fun deleteTasks(tasks: List<Task>) = viewModelScope.launch {
+        repository.deleteTasks(tasks)
     }
 
     fun deleteCategory(category: Category) = viewModelScope.launch {

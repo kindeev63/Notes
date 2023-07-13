@@ -30,7 +30,9 @@ class TasksFragment : BaseFragment() {
         viewModel.searchText = text
     }
 
-    override fun onClickDelete() {}
+    override fun onClickDelete() {
+        viewModel.deleteTasks(mainAppViewModel(), requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -46,10 +48,13 @@ class TasksFragment : BaseFragment() {
             tasksAdapter?.setData(tasks = it)
             binding.noTasks.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
         }
+        viewModel.selectedTasks.observe(viewLifecycleOwner) {
+            tasksAdapter?.setData(selectedTasks = it)
+        }
         tasksAdapter = TasksAdapter(
             onTextClick = viewModel.onTaskTextClick(
                 mainAppViewModel = mainAppViewModel(),
-                context = requireContext(),
+                mainActivity = (activity as MainActivity),
                 fragmentManager = childFragmentManager
             ), onCheckBoxClick = viewModel.onTaskCheckBoxClick(
                 context = requireContext(), mainAppViewModel = mainAppViewModel()

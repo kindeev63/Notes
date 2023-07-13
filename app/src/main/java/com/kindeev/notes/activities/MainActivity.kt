@@ -1,7 +1,5 @@
 package com.kindeev.notes.activities
 
-import android.graphics.Color
-import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
