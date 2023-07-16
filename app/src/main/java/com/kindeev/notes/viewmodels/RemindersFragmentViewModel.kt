@@ -72,7 +72,7 @@ class RemindersFragmentViewModel : ViewModel() {
             )
         } else {
             ActivityCompat.requestPermissions(
-                activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1
+                activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 0
             )
         }
     }

@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
+import android.preference.PreferenceManager
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
@@ -91,50 +92,45 @@ class MainActivityViewModel : ViewModel() {
         currentFrag = fragment
     }
 
-    fun requestPermission(activity: AppCompatActivity) {
+    fun requestPermissions(activity: AppCompatActivity) {
         if (ContextCompat.checkSelfPermission(
                 activity, Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 0
+                activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1
             )
+        }
+        val sharedPreferences = activity.applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        if (sharedPreferences.getBoolean("first_run", true)) {
+            val builder = AlertDialog.Builder(activity)
+            builder.setTitle(R.string.warning)
+            builder.setMessage(R.string.warning_text)
+            builder.setPositiveButton(R.string.go_to_settings) { dialog, _ ->
+                val editor = sharedPreferences.edit()
+                editor.putBoolean("first_run", false)
+                editor.apply()
+                val intent = Intent()
+                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                intent.data = Uri.fromParts("package", activity.packageName, null)
+                activity.startActivity(intent)
+                dialog.dismiss()
+            }
+            val dialog = builder.create()
+            dialog.show()
         }
     }
 
     fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray, context: Context) {
         when (requestCode) {
-            1 -> {
+            0 -> {
                 if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     Toast.makeText(
                         context, R.string.must_grant_notifications_permission, Toast.LENGTH_SHORT
                     ).show()
                 }
             }
-
-            0 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    val builder = AlertDialog.Builder(context)
-                    builder.setTitle(R.string.warning)
-                    builder.setMessage(R.string.warning_text)
-                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    builder.setNegativeButton(R.string.go_to_settings) { dialog, _ ->
-                        val intent = Intent()
-                        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        intent.data = Uri.fromParts("package", context.packageName, null)
-                        context.startActivity(intent)
-                        dialog.dismiss()
-                    }
-                    val dialog = builder.create()
-                    dialog.show()
-                }
-            }
-
-            else -> {
-
-            }
+            else -> {}
         }
     }
 
