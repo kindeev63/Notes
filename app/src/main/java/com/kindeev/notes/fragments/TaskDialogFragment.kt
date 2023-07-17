@@ -31,15 +31,6 @@ class TaskDialogFragment : DialogFragment() {
         return binding.root
     }
 
-    override fun onStart() {
-        super.onStart()
-        val dialog = dialog
-        if (dialog != null) {
-            val width = resources.displayMetrics.widthPixels
-            dialog.window?.setLayout((width / 1.2).toInt(), WindowManager.LayoutParams.WRAP_CONTENT)
-        }
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = FragmentTaskDialogBinding.inflate(layoutInflater)
         binding.colorPickerTask.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
