@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -109,14 +110,33 @@ class ReminderDialogFragmentViewModel : ViewModel() {
         "${if (day < 10) "0${day}" else day}.${if (month < 10) "0${month}" else month}.$year"
 
     fun smallImageSize(context: Context) =
-        (context.resources.displayMetrics.widthPixels * 0.1f).toInt()
+        if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            (context.resources.displayMetrics.widthPixels * 0.1f).toInt()
+        } else {
+            (context.resources.displayMetrics.heightPixels * 0.1f).toInt()
+        }
+
 
     fun mediumImageSize(context: Context) =
-        (context.resources.displayMetrics.widthPixels * 0.11f).toInt()
+        if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            (context.resources.displayMetrics.widthPixels * 0.11f).toInt()
+        } else {
+            (context.resources.displayMetrics.heightPixels * 0.11f).toInt()
+        }
 
-    fun timeTextSize(context: Context) = context.resources.displayMetrics.widthPixels * 0.035f
+    fun timeTextSize(context: Context) =
+        if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            context.resources.displayMetrics.widthPixels * 0.035f
+        } else {
+            context.resources.displayMetrics.heightPixels * 0.035f
+        }
 
-    fun dateTextSize(context: Context) = context.resources.displayMetrics.widthPixels * 0.025f
+    fun dateTextSize(context: Context) =
+        if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            context.resources.displayMetrics.widthPixels * 0.025f
+        } else {
+            context.resources.displayMetrics.heightPixels * 0.025f
+        }
 
     fun getFormattedTime(): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(
         reminder?.time ?: Calendar.getInstance().timeInMillis
