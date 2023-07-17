@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
-import android.preference.PreferenceManager
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
@@ -31,7 +30,6 @@ import com.kindeev.notes.fragments.NotesFragment
 import com.kindeev.notes.fragments.RemindersFragment
 import com.kindeev.notes.fragments.TasksFragment
 import com.kindeev.notes.other.Notifications
-import java.lang.Exception
 
 class MainActivityViewModel : ViewModel() {
     private var currentFrag: BaseFragment? = null
@@ -139,10 +137,6 @@ class MainActivityViewModel : ViewModel() {
             currentFrag ?: NotesFragment.newInstance(), activity
         )
         when (val fragment = currentFrag) {
-            null -> {
-                activity.supportActionBar?.title = activity.resources.getString(R.string.all_notes)
-                bottomNavigationView?.selectedItemId = R.id.bottom_notes_item
-            }
 
             is NotesFragment -> {
                 activity.supportActionBar?.title = try {
@@ -171,9 +165,7 @@ class MainActivityViewModel : ViewModel() {
 
     fun activityOnCreateOptionsMenu(menu: Menu?) {
         topMenu = menu
-        topMenu?.forEach {
-            it.isVisible = it.itemId != R.id.delete_item
-        }
+        topMenu?.findItem(R.id.delete_item)?.isVisible = currentFrag?.itemsSelected() ?: false
         val searchItem = topMenu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
         searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)

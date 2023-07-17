@@ -20,7 +20,7 @@ class NotesFragment : BaseFragment() {
     private var notesAdapter: NotesAdapter? = null
     private var categoriesAdapter: CategoriesAdapter? = null
 
-
+    override fun itemsSelected() = viewModel.selectedNotes.value?.isNotEmpty() == true
     override fun onClickNew() = viewModel.openNote(
         note = null, mainAppViewModel = mainAppViewModel(), context = requireContext()
     )
@@ -60,8 +60,9 @@ class NotesFragment : BaseFragment() {
         binding.apply {
             colorFilterNotes.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
             colorFilterNotes.onItemSelectedListener = viewModel.spinnerItemSelected()
-            colorFilterNotes.setSelection(viewModel.colorFilter?.let { Colors.colors.map{ color -> color.primary}.indexOf(it) }
-                ?: 0)
+            colorFilterNotes.setSelection(viewModel.colorFilter?.let {
+                Colors.colors.map { color -> color.primary }.indexOf(it)
+            } ?: 0)
             if (viewModel.colorFilter != null) {
                 colorFilterNotes.visibility = View.VISIBLE
                 chColorNotes.text = ""

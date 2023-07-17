@@ -17,9 +17,9 @@ class RemindersFragment : BaseFragment() {
     val viewModel: RemindersFragmentViewModel by viewModels()
     private var remindersAdapter: RemindersAdapter? = null
 
+    override fun itemsSelected() = viewModel.selectedReminders.value?.isNotEmpty() == true
     override fun onClickNew() = viewModel.createReminder(
-        activity = requireActivity(),
-        fragmentManager = childFragmentManager
+        activity = requireActivity(), fragmentManager = childFragmentManager
     )
 
     override fun search(text: String) {
@@ -36,8 +36,7 @@ class RemindersFragment : BaseFragment() {
         binding = FragmentRemindersBinding.inflate(inflater, container, false)
         remindersAdapter = RemindersAdapter(
             viewModel.onClickReminder(
-                mainActivity = (activity as MainActivity),
-                fragmentManager = childFragmentManager
+                mainActivity = (activity as MainActivity), fragmentManager = childFragmentManager
             )
         )
         viewModel.remindersList.observe(viewLifecycleOwner) {
@@ -57,7 +56,8 @@ class RemindersFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun mainAppViewModel() = (requireContext().applicationContext as MainApp).mainAppViewModel
+    private fun mainAppViewModel() =
+        (requireContext().applicationContext as MainApp).mainAppViewModel
 
     companion object {
         @JvmStatic

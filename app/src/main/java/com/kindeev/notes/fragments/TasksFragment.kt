@@ -20,9 +20,12 @@ class TasksFragment : BaseFragment() {
     private var tasksAdapter: TasksAdapter? = null
     private var categoriesAdapter: CategoriesAdapter? = null
 
+    override fun itemsSelected() = viewModel.selectedTasks.value?.isNotEmpty() == true
     override fun onClickNew() {
         viewModel.openTask(
-            task = null, mainAppViewModel = mainAppViewModel(), fragmentManager = childFragmentManager
+            task = null,
+            mainAppViewModel = mainAppViewModel(),
+            fragmentManager = childFragmentManager
         )
     }
 
@@ -63,8 +66,9 @@ class TasksFragment : BaseFragment() {
         binding.apply {
             colorFilterTasks.adapter = viewModel.getSpinnerAdapter(requireContext(), layoutInflater)
             colorFilterTasks.onItemSelectedListener = viewModel.spinnerItemSelected()
-            colorFilterTasks.setSelection(viewModel.colorFilter?.let { Colors.colors.map {color -> color.primary}.indexOf(it) }
-                ?: 0)
+            colorFilterTasks.setSelection(viewModel.colorFilter?.let {
+                Colors.colors.map { color -> color.primary }.indexOf(it)
+            } ?: 0)
             if (viewModel.colorFilter != null) {
                 colorFilterTasks.visibility = View.VISIBLE
                 chColorTasks.text = ""
@@ -108,7 +112,8 @@ class TasksFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun mainAppViewModel() = (requireContext().applicationContext as MainApp).mainAppViewModel
+    private fun mainAppViewModel() =
+        (requireContext().applicationContext as MainApp).mainAppViewModel
 
     companion object {
         @JvmStatic
