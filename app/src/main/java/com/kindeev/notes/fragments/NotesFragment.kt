@@ -12,6 +12,7 @@ import com.kindeev.notes.adapters.NotesAdapter
 import com.kindeev.notes.databinding.FragmentNotesBinding
 import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.MainApp
+import com.kindeev.notes.other.States
 import com.kindeev.notes.viewmodels.NotesFragmentViewModel
 
 class NotesFragment : BaseFragment() {
@@ -36,6 +37,7 @@ class NotesFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        States.fragmentSwitch = false
         binding = FragmentNotesBinding.inflate(inflater, container, false)
         notesAdapter = NotesAdapter(
             viewModel.onClickNote(

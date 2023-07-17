@@ -30,6 +30,7 @@ import com.kindeev.notes.fragments.NotesFragment
 import com.kindeev.notes.fragments.RemindersFragment
 import com.kindeev.notes.fragments.TasksFragment
 import com.kindeev.notes.other.Notifications
+import com.kindeev.notes.other.States
 
 class MainActivityViewModel : ViewModel() {
     private var currentFrag: BaseFragment? = null
@@ -253,6 +254,6 @@ class MainActivityViewModel : ViewModel() {
     }
 
     fun onFabClick() {
-        currentFrag?.onClickNew()
+        if (!(States.fragmentSwitch)) currentFrag?.onClickNew()
     }
 }

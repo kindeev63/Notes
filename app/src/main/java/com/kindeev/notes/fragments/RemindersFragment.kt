@@ -10,6 +10,7 @@ import com.kindeev.notes.activities.MainActivity
 import com.kindeev.notes.adapters.RemindersAdapter
 import com.kindeev.notes.databinding.FragmentRemindersBinding
 import com.kindeev.notes.other.MainApp
+import com.kindeev.notes.other.States
 import com.kindeev.notes.viewmodels.RemindersFragmentViewModel
 
 class RemindersFragment : BaseFragment() {
@@ -33,6 +34,7 @@ class RemindersFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        States.fragmentSwitch = false
         binding = FragmentRemindersBinding.inflate(inflater, container, false)
         remindersAdapter = RemindersAdapter(
             viewModel.onClickReminder(

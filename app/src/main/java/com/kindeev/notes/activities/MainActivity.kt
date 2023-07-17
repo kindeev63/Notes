@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatDelegate
 import com.kindeev.notes.databinding.ActivityMainBinding
 import com.kindeev.notes.R
+import com.kindeev.notes.other.States
 import com.kindeev.notes.viewmodels.MainActivityViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
             }
             bNav.setOnItemSelectedListener { bottomMenuItem ->
                 if (bNav.selectedItemId == bottomMenuItem.itemId) return@setOnItemSelectedListener true
+                States.fragmentSwitch = true
                 viewModel.bottomMenuItemSelected(bottomMenuItem, this@MainActivity)
                 return@setOnItemSelectedListener true
             }

@@ -12,6 +12,7 @@ import com.kindeev.notes.adapters.TasksAdapter
 import com.kindeev.notes.databinding.FragmentTasksBinding
 import com.kindeev.notes.other.Colors
 import com.kindeev.notes.other.MainApp
+import com.kindeev.notes.other.States
 import com.kindeev.notes.viewmodels.TasksFragmentViewModel
 
 class TasksFragment : BaseFragment() {
@@ -40,6 +41,7 @@ class TasksFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        States.fragmentSwitch = false
         binding = FragmentTasksBinding.inflate(inflater, container, false)
         mainAppViewModel().allTasks.observe(viewLifecycleOwner) {
             viewModel.setAllTasks(it)
