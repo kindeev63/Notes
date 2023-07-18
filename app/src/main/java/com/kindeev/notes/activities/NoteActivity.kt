@@ -1,9 +1,14 @@
 package com.kindeev.notes.activities
 
+import android.animation.ValueAnimator
+import android.graphics.Color
+import android.graphics.drawable.TransitionDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
 import androidx.activity.viewModels
@@ -21,7 +26,6 @@ import com.kindeev.notes.viewmodels.NoteActivityViewModel
 class NoteActivity : AppCompatActivity() {
     private val viewModel: NoteActivityViewModel by viewModels()
     private lateinit var binding: ActivityNoteBinding
-    private var changeState = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +42,7 @@ class NoteActivity : AppCompatActivity() {
         viewModel.getNoteById(
             noteId = noteId, mainAppViewModel = mainAppViewModel()
         ) {
-            changeState = true
+            viewModel.changeState = true
             binding.apply {
                 eNoteTitle.setText(viewModel.note?.title)
                 eNoteText.setText(viewModel.note?.text)
@@ -47,20 +51,18 @@ class NoteActivity : AppCompatActivity() {
                 binding.colorPickerNote.onItemSelectedListener =
                     viewModel.spinnerItemSelected { position ->
                         viewModel.note?.colorIndex = position
-                        if (!changeState) {
+                        if (!viewModel.changeState) {
                             viewModel.addNoteState(
                                 NoteState(
                                     title = EdittextState(
                                         text = binding.eNoteTitle.text.toString(),
                                         selectionStart = binding.eNoteTitle.selectionStart,
                                         selectionEnd = binding.eNoteTitle.selectionEnd
-                                    ),
-                                    text = EdittextState(
+                                    ), text = EdittextState(
                                         text = binding.eNoteText.text.toString(),
                                         selectionStart = binding.eNoteText.selectionStart,
                                         selectionEnd = binding.eNoteText.selectionEnd
-                                    ),
-                                    colorIndex = position
+                                    ), colorIndex = position
                                 )
                             )
                         }
@@ -68,7 +70,7 @@ class NoteActivity : AppCompatActivity() {
                     }
                 binding.colorPickerNote.setSelection(viewModel.note?.colorIndex ?: 0)
             }
-            changeState = false
+            viewModel.changeState = false
         }
     }
 
@@ -76,23 +78,17 @@ class NoteActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.undoButton).setOnClickListener {
             val noteState = viewModel.undoState()
-            changeState = true
+            viewModel.changeState = true
             binding.eNoteTitle.setText(noteState.title.text)
-            binding.eNoteTitle.setSelection(noteState.title.selectionStart, noteState.title.selectionEnd)
+            binding.eNoteTitle.setSelection(
+                noteState.title.selectionStart, noteState.title.selectionEnd
+            )
             binding.eNoteText.setText(noteState.text.text)
-            binding.eNoteText.setSelection(noteState.text.selectionStart, noteState.text.selectionEnd)
+            binding.eNoteText.setSelection(
+                noteState.text.selectionStart, noteState.text.selectionEnd
+            )
             binding.colorPickerNote.setSelection(noteState.colorIndex)
-            changeState = false
-        }
-        findViewById<ImageButton>(R.id.redoButton).setOnClickListener {
-            val noteState = viewModel.redoState()
-            changeState = true
-            binding.eNoteTitle.setText(noteState.title.text)
-            binding.eNoteTitle.setSelection(noteState.title.selectionStart, noteState.title.selectionEnd)
-            binding.eNoteText.setText(noteState.text.text)
-            binding.eNoteText.setSelection(noteState.text.selectionStart, noteState.text.selectionEnd)
-            binding.colorPickerNote.setSelection(noteState.colorIndex)
-            changeState = false
+            viewModel.changeState = false
         }
 
         findViewById<ImageButton>(R.id.noteBackButton).setOnClickListener {
@@ -120,60 +116,65 @@ class NoteActivity : AppCompatActivity() {
                 viewModel.showCategoriesPickerDialog(mainAppViewModel(), this@NoteActivity)
             }
         }
+        viewModel.onTextChange(binding.eNoteTitle) {
+            viewModel.addNoteState(
+                NoteState(
+                    title = EdittextState(
+                        text = binding.eNoteTitle.text.toString(),
+                        selectionStart = binding.eNoteTitle.selectionStart,
+                        selectionEnd = binding.eNoteTitle.selectionEnd
+                    ), text = EdittextState(
+                        text = binding.eNoteText.text.toString(),
+                        selectionStart = binding.eNoteText.selectionStart,
+                        selectionEnd = binding.eNoteText.selectionEnd
+                    ), colorIndex = viewModel.note?.colorIndex ?: 0
+                )
+            )
+        }
+        viewModel.onTextChange(binding.eNoteText) {
+            viewModel.addNoteState(
+                NoteState(
+                    title = EdittextState(
+                        text = binding.eNoteTitle.text.toString(),
+                        selectionStart = binding.eNoteTitle.selectionStart,
+                        selectionEnd = binding.eNoteTitle.selectionEnd
+                    ), text = EdittextState(
+                        text = binding.eNoteText.text.toString(),
+                        selectionStart = binding.eNoteText.selectionStart,
+                        selectionEnd = binding.eNoteText.selectionEnd
+                    ), colorIndex = viewModel.note?.colorIndex ?: 0
+                )
+            )
+        }
+        viewModel.setTouchListener(
+            this, findViewById(R.id.redoButton)
+        ) {
+            val noteState = viewModel.redoState()
+            binding.eNoteTitle.setText(noteState.title.text)
+            binding.eNoteTitle.setSelection(
+                noteState.title.selectionStart, noteState.title.selectionEnd
+            )
+            binding.eNoteText.setText(noteState.text.text)
+            binding.eNoteText.setSelection(
+                noteState.text.selectionStart, noteState.text.selectionEnd
+            )
+            binding.colorPickerNote.setSelection(noteState.colorIndex)
+        }
 
-        binding.eNoteTitle.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {}
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(
-                s: CharSequence, start: Int, before: Int, count: Int
-            ) {
-                if (!changeState) {
-                    viewModel.addNoteState(
-                        NoteState(
-                            title = EdittextState(
-                                text = binding.eNoteTitle.text.toString(),
-                                selectionStart = binding.eNoteTitle.selectionStart,
-                                selectionEnd = binding.eNoteTitle.selectionEnd
-                            ),
-                            text = EdittextState(
-                                text = binding.eNoteText.text.toString(),
-                                selectionStart = binding.eNoteText.selectionStart,
-                                selectionEnd = binding.eNoteText.selectionEnd
-                            ),
-                            colorIndex = viewModel.note?.colorIndex ?: 0
-                        )
-                    )
-                }
-
-            }
-        })
-
-        binding.eNoteText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {}
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(
-                s: CharSequence, start: Int, before: Int, count: Int
-            ) {
-                if (!changeState) {
-                    viewModel.addNoteState(
-                        NoteState(
-                            title = EdittextState(
-                                text = binding.eNoteTitle.text.toString(),
-                                selectionStart = binding.eNoteTitle.selectionStart,
-                                selectionEnd = binding.eNoteTitle.selectionEnd
-                            ),
-                            text = EdittextState(
-                                text = binding.eNoteText.text.toString(),
-                                selectionStart = binding.eNoteText.selectionStart,
-                                selectionEnd = binding.eNoteText.selectionEnd
-                            ),
-                            colorIndex = viewModel.note?.colorIndex ?: 0
-                        )
-                    )
-                }
-
-            }
-        })
+        viewModel.setTouchListener(
+            this, findViewById(R.id.undoButton)
+        ) {
+            val noteState = viewModel.undoState()
+            binding.eNoteTitle.setText(noteState.title.text)
+            binding.eNoteTitle.setSelection(
+                noteState.title.selectionStart, noteState.title.selectionEnd
+            )
+            binding.eNoteText.setText(noteState.text.text)
+            binding.eNoteText.setSelection(
+                noteState.text.selectionStart, noteState.text.selectionEnd
+            )
+            binding.colorPickerNote.setSelection(noteState.colorIndex)
+        }
     }
 
     override fun onDestroy() {

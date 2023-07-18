@@ -2,6 +2,7 @@
     <item android:state_pressed="true">
         <shape android:shape="oval">
             <solid android:color="#80CCCCCC" />
+            <alpha android:fromAlpha="1.0" android:toAlpha="0.5" android:duration="200" />
         </shape>
     </item>
     <item>
@@ -9,4 +10,5 @@
             <solid android:color="@android:color/transparent" />
         </shape>
     </item>
+
 </selector>
