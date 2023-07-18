@@ -13,15 +13,21 @@ import androidx.lifecycle.ViewModel
 import com.kindeev.notes.R
 import com.kindeev.notes.db.Note
 import com.kindeev.notes.other.Colors
+import com.kindeev.notes.other.EdittextState
+import com.kindeev.notes.other.NoteState
 import java.util.Calendar
 import java.util.Date
 
 class NoteActivityViewModel : ViewModel() {
     var note: Note? = null
+    private var noteStates = arrayListOf<NoteState>()
+    private var stateIndex = -1
 
     fun getNoteById(noteId: Int, mainAppViewModel: MainAppViewModel, function: () -> Unit) {
         mainAppViewModel.getNoteById(noteId) { oldNote ->
-            note = oldNote ?: createNote(mainAppViewModel.allNotes.value ?: emptyList())
+            val newNote = oldNote ?: createNote(mainAppViewModel.allNotes.value ?: emptyList())
+            note = newNote
+            noteStates.add(NoteState(title = EdittextState(newNote.title, 0, 0), text = EdittextState(newNote.text, 0, 0), colorIndex = newNote.colorIndex))
             function()
         }
     }
@@ -60,11 +66,11 @@ class NoteActivityViewModel : ViewModel() {
             }
         }
 
-    fun spinnerItemSelected() = object : AdapterView.OnItemSelectedListener {
+    fun spinnerItemSelected(function: (Int) -> Unit) = object : AdapterView.OnItemSelectedListener {
         override fun onItemSelected(
             parent: AdapterView<*>, view: View?, position: Int, id: Long
         ) {
-            note?.colorIndex = position
+            function(position)
         }
 
         override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -107,5 +113,30 @@ class NoteActivityViewModel : ViewModel() {
                 ), function = function
             )
         }
+    }
+
+    fun addNoteState(noteState: NoteState) {
+        if (noteState == getState()) return
+        if (stateIndex!=-1) {
+            val statesToDelete = noteStates.filter { state -> noteStates.indexOf(state) > (noteStates.size + stateIndex) }
+            noteStates.removeAll(statesToDelete.toSet())
+            stateIndex = -1
+        }
+
+        noteStates.add(noteState)
+    }
+
+    fun redoState(): NoteState {
+        if (noteStates.size + stateIndex > 0) stateIndex--
+        return getState()
+    }
+
+    fun undoState(): NoteState {
+        if (stateIndex <- 1) stateIndex++
+        return getState()
+    }
+
+    private fun getState(): NoteState {
+        return noteStates[noteStates.size + stateIndex]
     }
 }
